@@ -1,0 +1,71 @@
+services:
+  # Phoenix Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: soup_and_nutz_web
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/soup_and_nutz_dev
+      - REDIS_URL=redis://redis:6379
+      - PHX_HOST=localhost
+      - SECRET_KEY_BASE=k6p+012lEAfmh1DOQuHtU8tlvULSSuszREFLrm0brzXwJsjfoPmZwKol9zW/bchA
+    volumes:
+      - .:/app
+      - /app/deps
+      - /app/_build
+      - /app/assets/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - soup_and_nutz_network
+    command: mix phx.server
+
+  # PostgreSQL Database (using different port)
+  postgres:
+    image: postgres:15-alpine
+    container_name: soup_and_nutz_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: soup_and_nutz_dev
+    ports:
+      - "5433:5432"  # Changed from 5432:5432 to avoid conflict
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - soup_and_nutz_network
+
+  # Redis (using different port)
+  redis:
+    image: redis:7-alpine
+    container_name: soup_and_nutz_redis
+    ports:
+      - "6380:6379"  # Changed from 6379:6379 to avoid conflict
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - soup_and_nutz_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  soup_and_nutz_network:
+    driver: bridge 
