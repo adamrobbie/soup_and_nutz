@@ -1,0 +1,33 @@
+<.header>
+  Asset <%= @asset.asset_identifier %>
+  <:subtitle>This is a asset record from your database.</:subtitle>
+  <:actions>
+    <.link patch={~p"/assets/#{@asset}/show/edit"}>
+      <.button>Edit asset</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Asset identifier"><%= @asset.asset_identifier %></:item>
+  <:item title="Asset name"><%= @asset.asset_name %></:item>
+  <:item title="Asset type"><%= @asset.asset_type %></:item>
+  <:item title="Asset category"><%= @asset.asset_category %></:item>
+  <:item title="Fair value"><%= @asset.fair_value %></:item>
+  <:item title="Book value"><%= @asset.book_value %></:item>
+  <:item title="Currency code"><%= @asset.currency_code %></:item>
+  <:item title="Measurement date"><%= @asset.measurement_date %></:item>
+  <:item title="Reporting period"><%= @asset.reporting_period %></:item>
+  <:item title="Reporting entity"><%= @asset.reporting_entity %></:item>
+  <:item title="Reporting scenario"><%= @asset.reporting_scenario %></:item>
+  <:item title="Description"><%= @asset.description %></:item>
+  <:item title="Location"><%= @asset.location %></:item>
+  <:item title="Custodian"><%= @asset.custodian %></:item>
+  <:item title="Is active"><%= @asset.is_active %></:item>
+  <:item title="Risk level"><%= @asset.risk_level %></:item>
+  <:item title="Liquidity level"><%= @asset.liquidity_level %></:item>
+  <:item title="Validation status"><%= @asset.validation_status %></:item>
+  <:item title="Last validated at"><%= @asset.last_validated_at %></:item>
+</.list>
+
+<.back navigate={~p"/assets"}>Back to assets</.back> 

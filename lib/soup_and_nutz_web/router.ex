@@ -18,6 +18,18 @@ defmodule SoupAndNutzWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live "/assets", AssetLive.Index, :index
+    live "/assets/new", AssetLive.Index, :new
+    live "/assets/:id/edit", AssetLive.Index, :edit
+    live "/assets/:id", AssetLive.Show, :show
+    live "/assets/:id/show/edit", AssetLive.Show, :edit
+
+    live "/debt_obligations", DebtObligationLive.Index, :index
+    live "/debt_obligations/new", DebtObligationLive.Index, :new
+    live "/debt_obligations/:id/edit", DebtObligationLive.Index, :edit
+    live "/debt_obligations/:id", DebtObligationLive.Show, :show
+    live "/debt_obligations/:id/show/edit", DebtObligationLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.

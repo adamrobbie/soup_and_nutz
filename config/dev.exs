@@ -4,7 +4,7 @@ import Config
 config :soup_and_nutz, SoupAndNutz.Repo,
   username: "postgres",
   password: "postgres",
-  hostname: "postgres",
+  hostname: "localhost",
   database: "soup_and_nutz_dev",
   port: 5432,
   stacktrace: true,

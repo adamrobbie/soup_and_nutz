@@ -1,0 +1,34 @@
+<.header>
+  Assets
+  <:actions>
+    <.link patch={~p"/assets/new"}>
+      <.button>New Asset</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="assets"
+  rows={@assets}
+>
+  <:col :let={asset} label="Asset ID"><%= asset.asset_identifier %></:col>
+  <:col :let={asset} label="Name"><%= asset.asset_name %></:col>
+  <:col :let={asset} label="Type"><%= asset.asset_type %></:col>
+  <:col :let={asset} label="Fair Value"><%= asset.fair_value %></:col>
+  <:col :let={asset} label="Currency"><%= asset.currency_code %></:col>
+  <:col :let={asset} label="Risk Level"><%= asset.risk_level %></:col>
+  <:col :let={asset} label="Liquidity"><%= asset.liquidity_level %></:col>
+  <:actions :let={asset}>
+    <div class="sr-only">
+      <.link navigate={~p"/assets/#{asset}"}>Show</.link>
+    </div>
+    <.link patch={~p"/assets/#{asset}/edit"}>Edit</.link>
+    <.link
+      href={~p"/assets/#{asset}"}
+      method="delete"
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:actions>
+</.table> 

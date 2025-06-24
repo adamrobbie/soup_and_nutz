@@ -22,6 +22,12 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
+// Import Chart.js for dashboard visualizations
+import Chart from "chart.js/auto"
+
+// Make Chart available globally for use in templates
+window.Chart = Chart
+
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,

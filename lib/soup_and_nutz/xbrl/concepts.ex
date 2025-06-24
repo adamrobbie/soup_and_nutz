@@ -73,6 +73,21 @@ defmodule SoupAndNutz.XBRL.Concepts do
 
   def payment_frequencies, do: @payment_frequencies
 
+  # Collateral Types
+  @collateral_types [
+    "REAL_ESTATE",
+    "VEHICLE",
+    "EQUIPMENT",
+    "INVENTORY",
+    "SECURITIES",
+    "CASH",
+    "INSURANCE",
+    "GUARANTEE",
+    "NONE"
+  ]
+
+  def collateral_types, do: @collateral_types
+
   # Risk Levels
   @risk_levels ["Low", "Medium", "High", "VeryHigh"]
   def risk_levels, do: @risk_levels

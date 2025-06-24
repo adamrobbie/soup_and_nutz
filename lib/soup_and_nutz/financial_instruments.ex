@@ -18,6 +18,15 @@ defmodule SoupAndNutz.FinancialInstruments do
   end
 
   @doc """
+  Returns the list of assets for a specific entity.
+  """
+  def list_assets_by_entity(entity) do
+    Asset
+    |> where([a], a.reporting_entity == ^entity and a.is_active == true)
+    |> Repo.all()
+  end
+
+  @doc """
   Gets a single asset by ID.
   """
   def get_asset!(id), do: Repo.get!(Asset, id)
@@ -70,6 +79,15 @@ defmodule SoupAndNutz.FinancialInstruments do
   """
   def list_debt_obligations do
     Repo.all(DebtObligation)
+  end
+
+  @doc """
+  Returns the list of debt obligations for a specific entity.
+  """
+  def list_debt_obligations_by_entity(entity) do
+    DebtObligation
+    |> where([d], d.reporting_entity == ^entity and d.is_active == true)
+    |> Repo.all()
   end
 
   @doc """
@@ -206,11 +224,10 @@ defmodule SoupAndNutz.FinancialInstruments do
   end
 
   defp calculate_debt_to_asset_ratio(total_debt, total_assets) do
-    zero = Decimal.new(0)
-    if Decimal.gt?(total_assets, zero) do
-      Decimal.div(total_debt, total_assets)
+    if Decimal.eq?(total_assets, Decimal.new("0")) do
+      Decimal.new("0")
     else
-      zero
+      Decimal.div(total_debt, total_assets)
     end
   end
 
@@ -218,25 +235,31 @@ defmodule SoupAndNutz.FinancialInstruments do
     assets
     |> Enum.group_by(& &1.asset_type)
     |> Enum.map(fn {type, type_assets} ->
-      {type, Asset.total_fair_value(type_assets)}
+      total_value = Enum.reduce(type_assets, Decimal.new("0"), fn asset, acc ->
+        Decimal.add(acc, asset.fair_value)
+      end)
+      {type, total_value}
     end)
-    |> Enum.into(%{})
+    |> Enum.sort_by(fn {_type, value} -> value end, :desc)
   end
 
   defp group_debts_by_type(debts) do
     debts
     |> Enum.group_by(& &1.debt_type)
     |> Enum.map(fn {type, type_debts} ->
-      {type, DebtObligation.total_outstanding_debt(type_debts)}
+      total_value = Enum.reduce(type_debts, Decimal.new("0"), fn debt, acc ->
+        Decimal.add(acc, debt.outstanding_balance)
+      end)
+      {type, total_value}
     end)
-    |> Enum.into(%{})
+    |> Enum.sort_by(fn {_type, value} -> value end, :desc)
   end
 
   defp validate_asset_xbrl_compliance(asset) do
     {valid, errors} = Asset.validate_xbrl_rules(asset)
     %{
-      id: asset.id,
-      identifier: asset.asset_identifier,
+      asset_id: asset.id,
+      asset_identifier: asset.asset_identifier,
       valid: valid,
       errors: errors
     }
@@ -245,8 +268,8 @@ defmodule SoupAndNutz.FinancialInstruments do
   defp validate_debt_xbrl_compliance(debt) do
     {valid, errors} = DebtObligation.validate_xbrl_rules(debt)
     %{
-      id: debt.id,
-      identifier: debt.debt_identifier,
+      debt_id: debt.id,
+      debt_identifier: debt.debt_identifier,
       valid: valid,
       errors: errors
     }

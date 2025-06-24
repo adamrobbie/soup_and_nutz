@@ -1,0 +1,35 @@
+<.header>
+  Debt Obligations
+  <:actions>
+    <.link patch={~p"/debt_obligations/new"}>
+      <.button>New Debt Obligation</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="debt_obligations"
+  rows={@debt_obligations}
+>
+  <:col :let={debt_obligation} label="Debt ID"><%= debt_obligation.debt_identifier %></:col>
+  <:col :let={debt_obligation} label="Name"><%= debt_obligation.debt_name %></:col>
+  <:col :let={debt_obligation} label="Type"><%= debt_obligation.debt_type %></:col>
+  <:col :let={debt_obligation} label="Principal Amount"><%= debt_obligation.principal_amount %></:col>
+  <:col :let={debt_obligation} label="Interest Rate"><%= debt_obligation.interest_rate %></:col>
+  <:col :let={debt_obligation} label="Currency"><%= debt_obligation.currency_code %></:col>
+  <:col :let={debt_obligation} label="Maturity Date"><%= debt_obligation.maturity_date %></:col>
+  <:col :let={debt_obligation} label="Risk Level"><%= debt_obligation.risk_level %></:col>
+  <:actions :let={debt_obligation}>
+    <div class="sr-only">
+      <.link navigate={~p"/debt_obligations/#{debt_obligation}"}>Show</.link>
+    </div>
+    <.link patch={~p"/debt_obligations/#{debt_obligation}/edit"}>Edit</.link>
+    <.link
+      href={~p"/debt_obligations/#{debt_obligation}"}
+      method="delete"
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:actions>
+</.table> 
