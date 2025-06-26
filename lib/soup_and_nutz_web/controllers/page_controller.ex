@@ -9,8 +9,9 @@ defmodule SoupAndNutzWeb.PageController do
     _cash_flows = FinancialInstruments.list_cash_flows()
 
     # For demo, use the first entity and period if available
-    entity = assets |> List.first() |> Map.get(:reporting_entity, "SMITH_FAMILY_001")
-    period = assets |> List.first() |> Map.get(:reporting_period, "2024-12-31")
+    first_asset = List.first(assets)
+    entity = if first_asset, do: Map.get(first_asset, :reporting_entity, "SMITH_FAMILY_001"), else: "SMITH_FAMILY_001"
+    period = if first_asset, do: Map.get(first_asset, :reporting_period, "2024-12-31"), else: "2024-12-31"
     currency = "USD"
 
     # Calculate summary statistics

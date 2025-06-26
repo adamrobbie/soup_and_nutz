@@ -12,7 +12,7 @@
   rows={@streams.cash_flows}
 >
   <:col :let={{_id, cash_flow}} label="Description"><%= cash_flow.description %></:col>
-  <:col :let={{_id, cash_flow}} label="Amount"><%= :erlang.float_to_binary(cash_flow.amount, decimals: 2) %></:col>
+  <:col :let={{_id, cash_flow}} label="Amount"><%= Decimal.to_string(cash_flow.amount, :normal) %></:col>
   <:col :let={{_id, cash_flow}} label="Flow type"><%= cash_flow.flow_type %></:col>
   <:col :let={{_id, cash_flow}} label="Category"><%= cash_flow.category %></:col>
   <:col :let={{_id, cash_flow}} label="Frequency"><%= cash_flow.frequency %></:col>

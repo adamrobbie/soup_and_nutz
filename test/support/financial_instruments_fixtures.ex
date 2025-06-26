@@ -54,6 +54,31 @@ defmodule SoupAndNutz.FinancialInstrumentsFixtures do
     debt_obligation
   end
 
+  def cash_flow_fixture(attrs \\ %{}) do
+    {:ok, cash_flow} =
+      attrs
+      |> Enum.into(%{
+        cash_flow_identifier: "CFLOW#{System.unique_integer()}",
+        cash_flow_name: "Test Cash Flow #{System.unique_integer()}",
+        cash_flow_type: "Income",
+        cash_flow_category: "Salary",
+        amount: Decimal.new("1000.00"),
+        currency_code: "USD",
+        transaction_date: ~D[2024-01-01],
+        effective_date: ~D[2024-01-01],
+        reporting_period: "2024-Q1",
+        reporting_entity: "Test Corp",
+        frequency: "Monthly",
+        start_date: ~D[2024-01-01],
+        end_date: ~D[2024-12-31],
+        entity_id: "Test Corp",
+        notes: "Test cash flow notes"
+      })
+      |> SoupAndNutz.FinancialInstruments.create_cash_flow()
+
+    cash_flow
+  end
+
   @doc """
   Generate a list of assets for testing.
   """

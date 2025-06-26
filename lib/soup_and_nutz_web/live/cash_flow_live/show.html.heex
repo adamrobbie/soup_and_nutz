@@ -10,7 +10,7 @@
 
 <.list>
   <:item title="Description"><%= @cash_flow.description %></:item>
-  <:item title="Amount"><%= :erlang.float_to_binary(@cash_flow.amount, decimals: 2) %></:item>
+  <:item title="Amount"><%= Decimal.to_string(@cash_flow.amount, :normal) %></:item>
   <:item title="Flow type"><%= @cash_flow.flow_type %></:item>
   <:item title="Category"><%= @cash_flow.category %></:item>
   <:item title="Frequency"><%= @cash_flow.frequency %></:item>
