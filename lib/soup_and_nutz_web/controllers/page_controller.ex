@@ -60,7 +60,7 @@ defmodule SoupAndNutzWeb.PageController do
   defp calculate_total_debt(debts) do
     debts
     |> Enum.reduce(Decimal.new("0"), fn debt, acc ->
-      Decimal.add(acc, debt.outstanding_balance)
+      Decimal.add(acc, debt.principal_amount)
     end)
   end
 
@@ -94,7 +94,7 @@ defmodule SoupAndNutzWeb.PageController do
     |> Enum.group_by(& &1.debt_type)
     |> Enum.map(fn {type, type_debts} ->
       total_value = Enum.reduce(type_debts, Decimal.new("0"), fn debt, acc ->
-        Decimal.add(acc, debt.outstanding_balance)
+        Decimal.add(acc, debt.principal_amount)
       end)
       %{
         type: type,
@@ -127,7 +127,7 @@ defmodule SoupAndNutzWeb.PageController do
     |> Enum.group_by(& &1.currency_code)
     |> Enum.map(fn {currency, currency_debts} ->
       total_value = Enum.reduce(currency_debts, Decimal.new("0"), fn debt, acc ->
-        Decimal.add(acc, debt.outstanding_balance)
+        Decimal.add(acc, debt.principal_amount)
       end)
       %{
         currency: currency,

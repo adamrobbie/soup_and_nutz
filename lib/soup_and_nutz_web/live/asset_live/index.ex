@@ -6,7 +6,12 @@ defmodule SoupAndNutzWeb.AssetLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :assets, list_assets())}
+    {:ok,
+     socket
+     |> assign(:assets, list_assets())
+     |> assign(:filter_form, to_form(%{"asset_type" => "", "risk_level" => ""}))
+     |> assign(:search_form, to_form(%{"query" => ""}))
+    }
   end
 
   @impl true
@@ -46,7 +51,58 @@ defmodule SoupAndNutzWeb.AssetLive.Index do
     {:noreply, assign(socket, :assets, list_assets())}
   end
 
+  @impl true
+  def handle_event("filter", %{"asset_type" => asset_type, "risk_level" => risk_level}, socket) do
+    filtered_assets = list_assets()
+    |> Enum.filter(fn asset ->
+      (asset_type == "" or asset.asset_type == asset_type) and
+      (risk_level == "" or asset.risk_level == risk_level)
+    end)
+
+    {:noreply, assign(socket, :assets, filtered_assets)}
+  end
+
+  @impl true
+  def handle_event("search", %{"query" => query}, socket) do
+    filtered_assets = if query == "" do
+      list_assets()
+    else
+      list_assets()
+      |> Enum.filter(fn asset ->
+        String.contains?(String.downcase(asset.asset_name || ""), String.downcase(query))
+      end)
+    end
+
+    {:noreply, assign(socket, :assets, filtered_assets)}
+  end
+
   defp list_assets do
     FinancialInstruments.list_assets()
+  end
+
+  def asset_type_options do
+    [
+      {"Investment Securities", "InvestmentSecurities"},
+      {"Real Estate", "RealEstate"},
+      {"Cash and Cash Equivalents", "CashAndCashEquivalents"},
+      {"Intangible Assets", "IntangibleAssets"},
+      {"Other Assets", "OtherAssets"}
+    ]
+  end
+
+  def risk_level_options do
+    [
+      {"Low", "Low"},
+      {"Medium", "Medium"},
+      {"High", "High"}
+    ]
+  end
+
+  def liquidity_level_options do
+    [
+      {"High", "High"},
+      {"Medium", "Medium"},
+      {"Low", "Low"}
+    ]
   end
 end

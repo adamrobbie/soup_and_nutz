@@ -9,7 +9,7 @@ defmodule SoupAndNutzWeb.AssetLive.FormComponent do
     ~H"""
     <div>
       <.header>
-        <%= @page_title %>
+        <%= @title %>
         <:subtitle>Use this form to manage asset records in your database.</:subtitle>
       </.header>
 
@@ -24,13 +24,13 @@ defmodule SoupAndNutzWeb.AssetLive.FormComponent do
         <.input field={@form[:asset_name]} type="text" label="Asset name" />
         <.input field={@form[:asset_type]} type="select" label="Asset type" options={asset_type_options()} />
         <.input field={@form[:asset_category]} type="text" label="Asset category" />
-        <.input field={@form[:fair_value]} type="number" label="Fair value" step="any" />
-        <.input field={@form[:book_value]} type="number" label="Book value" step="any" />
-        <.input field={@form[:currency_code]} type="select" label="Currency code" options={currency_options()} />
+        <.input field={@form[:fair_value]} type="number" label="Fair value" step="0.01" />
+        <.input field={@form[:book_value]} type="number" label="Book value" step="0.01" />
+        <.input field={@form[:currency_code]} type="text" label="Currency code" />
         <.input field={@form[:measurement_date]} type="date" label="Measurement date" />
         <.input field={@form[:reporting_period]} type="text" label="Reporting period" />
         <.input field={@form[:reporting_entity]} type="text" label="Reporting entity" />
-        <.input field={@form[:reporting_scenario]} type="select" label="Reporting scenario" options={scenario_options()} />
+        <.input field={@form[:reporting_scenario]} type="text" label="Reporting scenario" />
         <.input field={@form[:description]} type="textarea" label="Description" />
         <.input field={@form[:location]} type="text" label="Location" />
         <.input field={@form[:custodian]} type="text" label="Custodian" />
@@ -109,16 +109,6 @@ defmodule SoupAndNutzWeb.AssetLive.FormComponent do
   defp asset_type_options do
     Concepts.asset_types()
     |> Enum.map(fn type -> {type, type} end)
-  end
-
-  defp currency_options do
-    Concepts.currency_codes()
-    |> Enum.map(fn code -> {code, code} end)
-  end
-
-  defp scenario_options do
-    Concepts.scenario_types()
-    |> Enum.map(fn scenario -> {scenario, scenario} end)
   end
 
   defp risk_level_options do

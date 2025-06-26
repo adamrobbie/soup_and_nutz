@@ -48,6 +48,25 @@ defmodule SoupAndNutz.XBRL.Concepts do
 
   def debt_types, do: @debt_types
 
+  # Collateral Types
+  @collateral_types [
+    "RealEstate",
+    "Vehicles",
+    "Equipment",
+    "Inventory",
+    "AccountsReceivable",
+    "Securities",
+    "Cash",
+    "Insurance",
+    "Guarantee",
+    "PersonalGuarantee",
+    "CorporateGuarantee",
+    "LetterOfCredit",
+    "Unsecured"
+  ]
+
+  def collateral_types, do: @collateral_types
+
   # Currency Codes (ISO 4217)
   @currency_codes [
     "USD", "EUR", "GBP", "JPY", "CAD", "AUD", "CHF", "CNY",
@@ -72,21 +91,6 @@ defmodule SoupAndNutz.XBRL.Concepts do
   ]
 
   def payment_frequencies, do: @payment_frequencies
-
-  # Collateral Types
-  @collateral_types [
-    "REAL_ESTATE",
-    "VEHICLE",
-    "EQUIPMENT",
-    "INVENTORY",
-    "SECURITIES",
-    "CASH",
-    "INSURANCE",
-    "GUARANTEE",
-    "NONE"
-  ]
-
-  def collateral_types, do: @collateral_types
 
   # Risk Levels
   @risk_levels ["Low", "Medium", "High", "VeryHigh"]

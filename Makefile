@@ -72,7 +72,12 @@ clean:
 # Start with database setup
 dev: up
 	@echo "Waiting for services to be ready..."
-	@sleep 15
+	@sleep 10
+	@echo "Checking if postgres service is healthy..."
+	@until docker-compose -f docker-compose.dev.yml exec -T postgres pg_isready -U postgres; do \
+		echo "Waiting for postgres to be ready..."; \
+		sleep 2; \
+	done
 	@echo "Checking if web service is running..."
 	@if ! docker-compose -f docker-compose.dev.yml ps web | grep -q "Up"; then \
 		echo "Web service failed to start. Checking logs..."; \
@@ -80,7 +85,7 @@ dev: up
 		exit 1; \
 	fi
 	@echo "Setting up database..."
-	@docker-compose -f docker-compose.dev.yml exec web mix ecto.setup
+	@docker-compose -f docker-compose.dev.yml exec -T web mix ecto.setup
 	@echo "Development environment is ready!"
 	@echo "  - Phoenix app: http://localhost:4000"
 	@echo "  - PostgreSQL: localhost:5433"

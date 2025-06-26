@@ -30,6 +30,30 @@ defmodule SoupAndNutzWeb.Router do
     live "/debt_obligations/:id/edit", DebtObligationLive.Index, :edit
     live "/debt_obligations/:id", DebtObligationLive.Show, :show
     live "/debt_obligations/:id/show/edit", DebtObligationLive.Show, :edit
+
+    resources "/assets", AssetController
+    resources "/debt_obligations", DebtObligationController
+  end
+
+  scope "/", SoupAndNutzWeb do
+    pipe_through :api
+    get "/health", HealthController, :index
+    get "/metrics", MetricsController, :index
+  end
+
+  # Fallback routes for unsupported methods
+  scope "/", SoupAndNutzWeb do
+    pipe_through :browser
+
+    # Catch all unsupported methods for browser routes
+    match :*, "/*path", Plugs.MethodNotAllowed, :index
+  end
+
+  scope "/", SoupAndNutzWeb do
+    pipe_through :api
+
+    # Catch all unsupported methods for API routes
+    match :*, "/*path", Plugs.MethodNotAllowed, :index
   end
 
   # Other scopes may use custom stacks.

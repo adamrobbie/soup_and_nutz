@@ -7,6 +7,15 @@
   </:actions>
 </.header>
 
+<.simple_form for={@filter_form} id="filter-form" phx-change="filter">
+  <.input field={@filter_form[:asset_type]} type="select" label="Filter by Type" options={asset_type_options()} />
+  <.input field={@filter_form[:risk_level]} type="select" label="Filter by Risk" options={risk_level_options()} />
+</.simple_form>
+
+<.simple_form for={@search_form} id="search-form" phx-change="search">
+  <.input field={@search_form[:query]} type="text" label="Search by Name" placeholder="Enter asset name..." />
+</.simple_form>
+
 <.table
   id="assets"
   rows={@assets}
@@ -18,7 +27,7 @@
   <:col :let={asset} label="Currency"><%= asset.currency_code %></:col>
   <:col :let={asset} label="Risk Level"><%= asset.risk_level %></:col>
   <:col :let={asset} label="Liquidity"><%= asset.liquidity_level %></:col>
-  <:actions :let={asset}>
+  <:action :let={asset}>
     <div class="sr-only">
       <.link navigate={~p"/assets/#{asset}"}>Show</.link>
     </div>
@@ -30,5 +39,96 @@
     >
       Delete
     </.link>
-  </:actions>
-</.table> 
+  </:action>
+  <:row :let={asset}>
+    <tr id={"assets-#{asset.id}"}>
+      <td class="relative p-0">
+        <div class="block py-4 pr-6">
+          <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+          <span class="relative font-semibold text-zinc-900">
+            <%= asset.asset_identifier %>
+          </span>
+        </div>
+      </td>
+      <td class="relative p-0">
+        <div class="block py-4 pr-6">
+          <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+          <span class="relative">
+            <%= asset.asset_name %>
+          </span>
+        </div>
+      </td>
+      <td class="relative p-0">
+        <div class="block py-4 pr-6">
+          <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+          <span class="relative">
+            <%= asset.asset_type %>
+          </span>
+        </div>
+      </td>
+      <td class="relative p-0">
+        <div class="block py-4 pr-6">
+          <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+          <span class="relative">
+            <%= asset.fair_value %>
+          </span>
+        </div>
+      </td>
+      <td class="relative p-0">
+        <div class="block py-4 pr-6">
+          <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+          <span class="relative">
+            <%= asset.currency_code %>
+          </span>
+        </div>
+      </td>
+      <td class="relative p-0">
+        <div class="block py-4 pr-6">
+          <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+          <span class="relative">
+            <%= asset.risk_level %>
+          </span>
+        </div>
+      </td>
+      <td class="relative p-0">
+        <div class="block py-4 pr-6">
+          <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+          <span class="relative">
+            <%= asset.liquidity_level %>
+          </span>
+        </div>
+      </td>
+      <td class="relative w-14 p-0">
+        <div class="relative whitespace-nowrap py-4 text-right text-sm font-medium">
+          <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-zinc-50 sm:rounded-r-xl"></span>
+          <span class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
+            <div class="sr-only">
+              <.link navigate={~p"/assets/#{asset}"}>Show</.link>
+            </div>
+            <.link patch={~p"/assets/#{asset}/edit"}>Edit</.link>
+            <.link
+              href={~p"/assets/#{asset}"}
+              method="delete"
+              data-confirm="Are you sure?"
+            >
+              Delete
+            </.link>
+          </span>
+        </div>
+      </td>
+    </tr>
+  </:row>
+</.table>
+
+<%= if @live_action in [:new, :edit] do %>
+  <.modal id="asset-modal">
+    <.live_component
+      module={SoupAndNutzWeb.AssetLive.FormComponent}
+      id={@asset.id || :new}
+      title={@page_title}
+      action={@live_action}
+      asset={@asset}
+      patch={~p"/assets"}
+    />
+  </.modal>
+<% end %> 

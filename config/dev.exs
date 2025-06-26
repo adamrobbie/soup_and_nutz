@@ -2,11 +2,7 @@ import Config
 
 # Configure your database
 config :soup_and_nutz, SoupAndNutz.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "soup_and_nutz_dev",
-  port: 5432,
+  url: System.get_env("DATABASE_URL") || "postgres://postgres:postgres@localhost:5432/soup_and_nutz_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10

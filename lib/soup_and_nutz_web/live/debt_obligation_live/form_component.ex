@@ -9,13 +9,13 @@ defmodule SoupAndNutzWeb.DebtObligationLive.FormComponent do
     ~H"""
     <div>
       <.header>
-        <%= @page_title %>
+        <%= @title %>
         <:subtitle>Use this form to manage debt obligation records in your database.</:subtitle>
       </.header>
 
       <.simple_form
         for={@form}
-        id="debt_obligation-form"
+        id="debt-obligation-form"
         phx-target={@myself}
         phx-change="validate"
         phx-submit="save"

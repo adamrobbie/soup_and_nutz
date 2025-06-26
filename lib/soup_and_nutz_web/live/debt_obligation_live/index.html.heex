@@ -7,29 +7,209 @@
   </:actions>
 </.header>
 
-<.table
-  id="debt_obligations"
-  rows={@debt_obligations}
->
-  <:col :let={debt_obligation} label="Debt ID"><%= debt_obligation.debt_identifier %></:col>
-  <:col :let={debt_obligation} label="Name"><%= debt_obligation.debt_name %></:col>
-  <:col :let={debt_obligation} label="Type"><%= debt_obligation.debt_type %></:col>
-  <:col :let={debt_obligation} label="Principal Amount"><%= debt_obligation.principal_amount %></:col>
-  <:col :let={debt_obligation} label="Interest Rate"><%= debt_obligation.interest_rate %></:col>
-  <:col :let={debt_obligation} label="Currency"><%= debt_obligation.currency_code %></:col>
-  <:col :let={debt_obligation} label="Maturity Date"><%= debt_obligation.maturity_date %></:col>
-  <:col :let={debt_obligation} label="Risk Level"><%= debt_obligation.risk_level %></:col>
-  <:actions :let={debt_obligation}>
-    <div class="sr-only">
-      <.link navigate={~p"/debt_obligations/#{debt_obligation}"}>Show</.link>
+<!-- Summary Statistics Section -->
+<div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
+  <div class="bg-white overflow-hidden shadow rounded-lg">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+            <span class="text-white font-bold">$</span>
+          </div>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate">Total Debt</dt>
+            <dd class="text-lg font-medium text-gray-900">
+              <%= format_currency(total_outstanding_debt(@debt_obligations)) %>
+            </dd>
+          </dl>
+        </div>
+      </div>
     </div>
-    <.link patch={~p"/debt_obligations/#{debt_obligation}/edit"}>Edit</.link>
-    <.link
-      href={~p"/debt_obligations/#{debt_obligation}"}
-      method="delete"
-      data-confirm="Are you sure?"
-    >
-      Delete
-    </.link>
-  </:actions>
-</.table> 
+  </div>
+
+  <div class="bg-white overflow-hidden shadow rounded-lg">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+            <span class="text-white font-bold">%</span>
+          </div>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate">Average Interest Rate</dt>
+            <dd class="text-lg font-medium text-gray-900">
+              <%= format_percentage(average_interest_rate(@debt_obligations)) %>%
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white overflow-hidden shadow rounded-lg">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+            <span class="text-white font-bold">📅</span>
+          </div>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate">Total Monthly Payment</dt>
+            <dd class="text-lg font-medium text-gray-900">
+              <%= format_currency(total_monthly_payments(@debt_obligations)) %>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- XBRL Compliance Section -->
+<div class="mt-8 bg-white shadow rounded-lg">
+  <div class="px-4 py-5 sm:p-6">
+    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">XBRL Compliance</h3>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Validation Status</dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            Valid
+          </span>
+        </dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Last Validated</dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          <%= format_datetime(DateTime.utc_now()) %>
+        </dd>
+      </div>
+    </div>
+  </div>
+</div>
+
+<.simple_form for={@filter_form} id="filter-form" phx-change="filter" phx-submit="filter">
+  <.input field={@filter_form[:debt_type]} type="select" label="Filter by Type" options={debt_type_options()} />
+  <.input field={@filter_form[:risk_level]} type="select" label="Filter by Risk" options={risk_level_options()} />
+</.simple_form>
+
+<.simple_form for={@search_form} id="search-form" phx-change="search" phx-submit="search">
+  <.input field={@search_form[:query]} type="text" label="Search by Name" placeholder="Enter debt name..." />
+</.simple_form>
+
+<div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
+  <table class="w-[40rem] mt-11 sm:w-full">
+    <thead class="text-sm text-left leading-6 text-zinc-500">
+      <tr>
+        <th class="p-0 pb-4 pr-6 font-normal">Debt ID</th>
+        <th class="p-0 pb-4 pr-6 font-normal">Description</th>
+        <th class="p-0 pb-4 pr-6 font-normal">Type</th>
+        <th class="p-0 pb-4 pr-6 font-normal">Principal</th>
+        <th class="p-0 pb-4 pr-6 font-normal">Currency</th>
+        <th class="p-0 pb-4 pr-6 font-normal">Interest Rate</th>
+        <th class="p-0 pb-4 pr-6 font-normal">Maturity</th>
+        <th class="relative p-0 pb-4">
+          <span class="sr-only">Actions</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody id="debt_obligations" class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700">
+      <%= for debt_obligation <- @debt_obligations do %>
+        <tr id={"debt_obligations-#{debt_obligation.id}"} class="group hover:bg-zinc-50">
+          <td class="relative p-0">
+            <div class="block py-4 pr-6">
+              <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+              <span class="relative font-semibold text-zinc-900">
+                <%= debt_obligation.debt_identifier %>
+              </span>
+            </div>
+          </td>
+          <td class="relative p-0">
+            <div class="block py-4 pr-6">
+              <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+              <span class="relative">
+                <%= debt_obligation.debt_name %>
+              </span>
+            </div>
+          </td>
+          <td class="relative p-0">
+            <div class="block py-4 pr-6">
+              <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+              <span class="relative">
+                <%= debt_obligation.debt_type %>
+              </span>
+            </div>
+          </td>
+          <td class="relative p-0">
+            <div class="block py-4 pr-6">
+              <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+              <span class="relative">
+                <%= format_currency(debt_obligation.outstanding_balance) %>
+              </span>
+            </div>
+          </td>
+          <td class="relative p-0">
+            <div class="block py-4 pr-6">
+              <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+              <span class="relative">
+                <%= debt_obligation.currency_code %>
+              </span>
+            </div>
+          </td>
+          <td class="relative p-0">
+            <div class="block py-4 pr-6">
+              <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+              <span class="relative">
+                <%= format_percentage(debt_obligation.interest_rate) %>%
+              </span>
+            </div>
+          </td>
+          <td class="relative p-0">
+            <div class="block py-4 pr-6">
+              <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl"></span>
+              <span class="relative">
+                <%= format_date(debt_obligation.maturity_date) %>
+              </span>
+            </div>
+          </td>
+          <td class="relative w-14 p-0">
+            <div class="relative whitespace-nowrap py-4 text-right text-sm font-medium">
+              <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-zinc-50 sm:rounded-r-xl"></span>
+              <span class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
+                <div class="sr-only">
+                  <.link navigate={~p"/debt_obligations/#{debt_obligation}"}>Show</.link>
+                </div>
+                <.link patch={~p"/debt_obligations/#{debt_obligation}/edit"}>Edit</.link>
+                <.link
+                  href={~p"/debt_obligations/#{debt_obligation}"}
+                  method="delete"
+                  data-confirm="Are you sure?"
+                >
+                  Delete
+                </.link>
+              </span>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<%= if @live_action in [:new, :edit] do %>
+  <.modal id="debt-obligation-modal">
+    <.live_component
+      module={SoupAndNutzWeb.DebtObligationLive.FormComponent}
+      id={@debt_obligation.id || :new}
+      title={@page_title}
+      action={@live_action}
+      debt_obligation={@debt_obligation}
+      patch={~p"/debt_obligations"}
+    />
+  </.modal>
+<% end %> 

@@ -250,7 +250,7 @@
                       </p>
                     </div>
                     <div class="flex-shrink-0 text-sm font-medium text-gray-900">
-                      $<%= Decimal.to_string(debt.outstanding_balance) %>
+                      $<%= if debt.principal_amount, do: Decimal.to_string(debt.principal_amount), else: "0.00" %>
                     </div>
                   </div>
                 </li>

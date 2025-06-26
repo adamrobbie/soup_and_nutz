@@ -4,53 +4,52 @@ defmodule SoupAndNutz.FinancialInstrumentsFixtures do
   entities via the `SoupAndNutz.FinancialInstruments` context.
   """
 
-  alias SoupAndNutz.FinancialInstruments
-  alias SoupAndNutz.FinancialInstruments.{Asset, DebtObligation}
-
-  @doc """
-  Generate a asset.
-  """
   def asset_fixture(attrs \\ %{}) do
     {:ok, asset} =
       attrs
       |> Enum.into(%{
         asset_identifier: "ASSET#{System.unique_integer()}",
         asset_name: "Test Asset #{System.unique_integer()}",
-        asset_type: "EQUITY_SECURITIES",
-        fair_value: "10000.00",
+        asset_type: "InvestmentSecurities",
+        fair_value: Decimal.new("10000.00"),
         currency_code: "USD",
+        risk_level: "Medium",
+        liquidity_level: "High",
         reporting_entity: "Test Corp",
         reporting_period: "2024-Q1",
         is_active: true,
         acquisition_date: ~D[2024-01-01],
-        last_valuation_date: ~D[2024-01-15]
+        last_valuation_date: ~D[2024-01-15],
+        measurement_date: ~D[2024-01-15]
       })
-      |> FinancialInstruments.create_asset()
+      |> SoupAndNutz.FinancialInstruments.create_asset()
 
     asset
   end
 
-  @doc """
-  Generate a debt_obligation.
-  """
   def debt_obligation_fixture(attrs \\ %{}) do
     {:ok, debt_obligation} =
       attrs
       |> Enum.into(%{
         debt_identifier: "DEBT#{System.unique_integer()}",
         debt_name: "Test Debt #{System.unique_integer()}",
-        debt_type: "MORTGAGE",
-        outstanding_balance: "50000.00",
-        interest_rate: "3.50",
+        debt_description: "Test Debt Description",
+        debt_type: "LongTermDebt",
+        principal_amount: Decimal.new("5000.00"),
         currency_code: "USD",
+        interest_rate: Decimal.new("5.5"),
+        maturity_date: ~D[2025-12-31],
+        payment_frequency: "Monthly",
+        collateral_type: "Unsecured",
+        risk_level: "Medium",
         reporting_entity: "Test Corp",
         reporting_period: "2024-Q1",
         is_active: true,
-        maturity_date: ~D[2040-01-01],
-        payment_frequency: "MONTHLY",
-        collateral_type: "REAL_ESTATE"
+        origination_date: ~D[2024-01-01],
+        last_payment_date: ~D[2024-01-15],
+        measurement_date: ~D[2024-01-15]
       })
-      |> FinancialInstruments.create_debt_obligation()
+      |> SoupAndNutz.FinancialInstruments.create_debt_obligation()
 
     debt_obligation
   end
