@@ -61,9 +61,8 @@ defmodule SoupAndNutzWeb.PageController do
       }
     }
 
-    # The home page is often custom made,
-    # so skip the default app layout.
-    render(conn, :home, layout: false, dashboard_data: dashboard_data)
+    # Use the default app layout with sidebar navigation
+    render(conn, :home, dashboard_data: dashboard_data)
   end
 
   # Private helper functions

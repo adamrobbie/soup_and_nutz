@@ -1,19 +1,19 @@
-<div class="px-4 py-8 sm:px-6 lg:px-8">
+<div class="px-6 py-8 bg-black min-h-screen">
   <div class="mx-auto max-w-7xl">
     <!-- Page Header -->
     <div class="mb-8">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+          <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
             Cash Flows
           </h1>
-          <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p class="mt-2 text-sm text-gray-400">
             Manage and track your cash inflows and outflows
           </p>
         </div>
         <div class="flex items-center space-x-4">
           <.link patch={~p"/cash_flows/new"}>
-            <button class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors">New Cash Flow</button>
+            <button class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors">New Cash Flow</button>
           </.link>
         </div>
       </div>
@@ -21,18 +21,18 @@
 
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-3 mb-8">
-      <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg transition-colors">
+      <div class="bg-gray-900 border border-gray-800 overflow-hidden shadow rounded-lg transition-colors">
         <div class="p-5">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-md flex items-center justify-center">
-                <span class="text-green-600 dark:text-green-300 font-bold">⬆️</span>
+              <div class="w-8 h-8 bg-green-900 rounded-md flex items-center justify-center">
+                <span class="text-green-400 font-bold">⬆️</span>
               </div>
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Total Inflow</dt>
-                <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                <dt class="text-sm font-medium text-gray-400 truncate">Total Inflow</dt>
+                <dd class="text-lg font-medium text-white">
                   <%= format_currency(total_cash_inflow(@cash_flows)) %>
                 </dd>
               </dl>
@@ -40,18 +40,18 @@
           </div>
         </div>
       </div>
-      <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg transition-colors">
+      <div class="bg-gray-900 border border-gray-800 overflow-hidden shadow rounded-lg transition-colors">
         <div class="p-5">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-red-100 dark:bg-red-900 rounded-md flex items-center justify-center">
-                <span class="text-red-600 dark:text-red-300 font-bold">⬇️</span>
+              <div class="w-8 h-8 bg-red-900 rounded-md flex items-center justify-center">
+                <span class="text-red-400 font-bold">⬇️</span>
               </div>
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Total Outflow</dt>
-                <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                <dt class="text-sm font-medium text-gray-400 truncate">Total Outflow</dt>
+                <dd class="text-lg font-medium text-white">
                   <%= format_currency(total_cash_outflow(@cash_flows)) %>
                 </dd>
               </dl>
@@ -59,18 +59,18 @@
           </div>
         </div>
       </div>
-      <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg transition-colors">
+      <div class="bg-gray-900 border border-gray-800 overflow-hidden shadow rounded-lg transition-colors">
         <div class="p-5">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-md flex items-center justify-center">
-                <span class="text-yellow-600 dark:text-yellow-300 font-bold">💰</span>
+              <div class="w-8 h-8 bg-yellow-900 rounded-md flex items-center justify-center">
+                <span class="text-yellow-400 font-bold">💰</span>
               </div>
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Net Cash Flow</dt>
-                <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                <dt class="text-sm font-medium text-gray-400 truncate">Net Cash Flow</dt>
+                <dd class="text-lg font-medium text-white">
                   <% {net_amount, net_class} = format_change(net_cash_flow(@cash_flows)) %>
                   <span class={net_class}>
                     <%= net_amount %>
@@ -84,21 +84,21 @@
     </div>
 
     <!-- XBRL Compliance Section -->
-    <div class="mb-8 bg-white dark:bg-gray-800 shadow rounded-lg transition-colors">
+    <div class="mb-8 bg-gray-900 border border-gray-800 shadow rounded-lg transition-colors">
       <div class="px-4 py-5 sm:p-6">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">XBRL Compliance</h3>
+        <h3 class="text-lg leading-6 font-medium text-white mb-4">XBRL Compliance</h3>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Validation Status</dt>
-            <dd class="mt-1 text-sm text-gray-900 dark:text-white">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300">
+            <dt class="text-sm font-medium text-gray-400">Validation Status</dt>
+            <dd class="mt-1 text-sm text-white">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900 text-green-300">
                 Valid
               </span>
             </dd>
           </div>
           <div>
-            <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Last Validated</dt>
-            <dd class="mt-1 text-sm text-gray-900 dark:text-white">
+            <dt class="text-sm font-medium text-gray-400">Last Validated</dt>
+            <dd class="mt-1 text-sm text-white">
               <%= format_datetime(DateTime.utc_now()) %>
             </dd>
           </div>
@@ -108,8 +108,8 @@
 
     <!-- Table -->
     <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
-      <table class="w-[40rem] mt-11 sm:w-full bg-white dark:bg-gray-800 rounded-lg shadow transition-colors">
-        <thead class="text-sm text-left leading-6 text-zinc-500 dark:text-zinc-300">
+      <table class="w-[40rem] mt-11 sm:w-full bg-gray-900 border border-gray-800 rounded-lg shadow transition-colors">
+        <thead class="text-sm text-left leading-6 text-gray-400">
           <tr>
             <th class="p-0 pb-4 pr-6 font-normal">Description</th>
             <th class="p-0 pb-4 pr-6 font-normal">Amount</th>
@@ -124,20 +124,20 @@
             </th>
           </tr>
         </thead>
-        <tbody id="cash_flows" phx-update="stream" class="relative divide-y divide-zinc-100 dark:divide-zinc-700 border-t border-zinc-200 dark:border-zinc-700 text-sm leading-6 text-zinc-700 dark:text-zinc-200">
+        <tbody id="cash_flows" phx-update="stream" class="relative divide-y divide-gray-800 border-t border-gray-800 text-sm leading-6 text-gray-200">
           <%= for {_id, cash_flow} <- @streams.cash_flows do %>
-            <tr id={"cash_flows-#{cash_flow.id}"} class="group hover:bg-zinc-50 dark:hover:bg-zinc-800">
+            <tr id={"cash_flows-#{cash_flow.id}"} class="group hover:bg-gray-800">
               <td class="relative p-0">
                 <div class="block py-4 pr-6">
-                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 sm:rounded-l-xl"></span>
-                  <span class="relative font-semibold text-zinc-900 dark:text-zinc-100">
+                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-gray-800 sm:rounded-l-xl"></span>
+                  <span class="relative font-semibold text-white">
                     <%= cash_flow.description %>
                   </span>
                 </div>
               </td>
               <td class="relative p-0">
                 <div class="block py-4 pr-6">
-                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 sm:rounded-l-xl"></span>
+                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-gray-800 sm:rounded-l-xl"></span>
                   <span class="relative">
                     <% {amount_text, amount_class} = format_change(cash_flow.amount) %>
                     <span class={amount_class}>
@@ -148,9 +148,9 @@
               </td>
               <td class="relative p-0">
                 <div class="block py-4 pr-6">
-                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 sm:rounded-l-xl"></span>
+                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-gray-800 sm:rounded-l-xl"></span>
                   <span class="relative">
-                    <% flow_class = if cash_flow.cash_flow_type == "Inflow", do: "text-green-600 dark:text-green-400", else: "text-red-600 dark:text-red-400" %>
+                    <% flow_class = if cash_flow.cash_flow_type == "Inflow", do: "text-green-400", else: "text-red-400" %>
                     <span class={flow_class}>
                       <%= cash_flow.cash_flow_type %>
                     </span>
@@ -159,48 +159,48 @@
               </td>
               <td class="relative p-0">
                 <div class="block py-4 pr-6">
-                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 sm:rounded-l-xl"></span>
-                  <span class="relative">
+                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-gray-800 sm:rounded-l-xl"></span>
+                  <span class="relative text-gray-200">
                     <%= cash_flow.cash_flow_category %>
                   </span>
                 </div>
               </td>
               <td class="relative p-0">
                 <div class="block py-4 pr-6">
-                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 sm:rounded-l-xl"></span>
-                  <span class="relative">
+                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-gray-800 sm:rounded-l-xl"></span>
+                  <span class="relative text-gray-200">
                     <%= cash_flow.frequency %>
                   </span>
                 </div>
               </td>
               <td class="relative p-0">
                 <div class="block py-4 pr-6">
-                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 sm:rounded-l-xl"></span>
-                  <span class="relative">
+                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-gray-800 sm:rounded-l-xl"></span>
+                  <span class="relative text-gray-200">
                     <%= cash_flow.transaction_date %>
                   </span>
                 </div>
               </td>
               <td class="relative p-0">
                 <div class="block py-4 pr-6">
-                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 sm:rounded-l-xl"></span>
-                  <span class="relative">
+                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-gray-800 sm:rounded-l-xl"></span>
+                  <span class="relative text-gray-200">
                     <%= cash_flow.end_date %>
                   </span>
                 </div>
               </td>
               <td class="relative p-0">
                 <div class="block py-4 pr-6">
-                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 sm:rounded-l-xl"></span>
-                  <span class="relative">
+                  <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-gray-800 sm:rounded-l-xl"></span>
+                  <span class="relative text-gray-200">
                     <%= cash_flow.reporting_entity %>
                   </span>
                 </div>
               </td>
               <td class="relative w-14 p-0">
                 <div class="relative whitespace-nowrap py-4 text-right text-sm font-medium">
-                  <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 sm:rounded-r-xl"></span>
-                  <span class="relative ml-4 font-semibold leading-6 text-zinc-900 dark:text-zinc-100 hover:text-zinc-700 dark:hover:text-zinc-300">
+                  <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-gray-800 sm:rounded-r-xl"></span>
+                  <span class="relative ml-4 font-semibold leading-6 text-white hover:text-gray-300">
                     <div class="sr-only">
                       <.link navigate={~p"/cash_flows/#{cash_flow}"}>Show</.link>
                     </div>

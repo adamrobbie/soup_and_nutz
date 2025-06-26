@@ -213,16 +213,16 @@ defmodule SoupAndNutzWeb.FinancialHelpers do
   def format_risk_level(risk_level) when is_binary(risk_level) do
     case String.downcase(risk_level) do
       "high" ->
-        {"High", "text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20"}
+        {"High", "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"}
 
       "medium" ->
-        {"Medium", "text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/20"}
+        {"Medium", "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"}
 
       "low" ->
-        {"Low", "text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/20"}
+        {"Low", "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"}
 
       _ ->
-        {risk_level, "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800"}
+        {risk_level, "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"}
     end
   end
 

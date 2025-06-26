@@ -1,57 +1,17 @@
 <.flash_group flash={@flash} />
 
-<!-- Dashboard Header with Dark Mode Toggle -->
-<div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white dark:from-gray-900 dark:to-gray-800">
-  <div class="px-4 py-8 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-7xl">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
-            Financial Dashboard
-          </h1>
-          <p class="mt-2 text-blue-100 dark:text-gray-300">
-            Your complete financial overview with XBRL compliance
-          </p>
-        </div>
-        <div class="flex items-center space-x-4">
-          <a href="/assets" class="inline-flex items-center rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 dark:bg-gray-700 dark:hover:bg-gray-600">
-            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
-            Manage Assets
-          </a>
-          <a href="/debt_obligations" class="inline-flex items-center rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 dark:bg-gray-700 dark:hover:bg-gray-600">
-            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Manage Debts
-          </a>
-          <a href="/cash_flows" class="inline-flex items-center rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 dark:bg-gray-700 dark:hover:bg-gray-600">
-            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m0 0v-8m0 8h8m-8 0H4"/>
-            </svg>
-            Manage Cash Flows
-          </a>
-          <!-- Dark Mode Toggle -->
-          <button id="dark-mode-toggle" class="ml-2 flex items-center px-3 py-2 rounded-md bg-white/10 hover:bg-white/20 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors" aria-label="Toggle dark mode">
-            <svg id="dark-mode-icon" class="h-5 w-5 text-white dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path id="sun-icon" class="block dark:hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-8.66l-.71.71M4.05 19.95l-.71.71M21 12h-1M4 12H3m16.95 4.05l-.71-.71M4.05 4.05l-.71-.71M12 7a5 5 0 100 10 5 5 0 000-10z" />
-              <path id="moon-icon" class="hidden dark:block" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Dashboard Content -->
-<div class="px-4 py-8 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+<div class="px-6 py-8 bg-black min-h-screen">
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-white">Financial Dashboard</h1>
+    <p class="text-gray-400 mt-1">Complete overview of your financial portfolio with XBRL compliance</p>
+  </div>
   <div class="mx-auto max-w-7xl">
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
       <!-- Total Assets -->
-      <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg transition-colors">
+      <div class="bg-gray-900 border border-gray-800 overflow-hidden shadow rounded-lg transition-colors">
         <div class="p-5">
           <div class="flex items-center">
             <div class="flex-shrink-0">
@@ -63,8 +23,8 @@
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Total Assets</dt>
-                <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                <dt class="text-sm font-medium text-gray-400 truncate">Total Assets</dt>
+                <dd class="text-lg font-medium text-white">
                   <%= format_currency(@dashboard_data.summary.total_assets) %>
                 </dd>
               </dl>
@@ -74,20 +34,20 @@
       </div>
 
       <!-- Total Debt -->
-      <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg transition-colors">
+      <div class="bg-gray-900 border border-gray-800 overflow-hidden shadow rounded-lg transition-colors">
         <div class="p-5">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-red-100 dark:bg-red-900 rounded-md flex items-center justify-center">
-                <svg class="w-5 h-5 text-red-600 dark:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-8 h-8 bg-red-900 rounded-md flex items-center justify-center">
+                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
               </div>
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Total Debt</dt>
-                <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                <dt class="text-sm font-medium text-gray-400 truncate">Total Debt</dt>
+                <dd class="text-lg font-medium text-white">
                   <%= format_currency(@dashboard_data.summary.total_debt) %>
                 </dd>
               </dl>
@@ -97,20 +57,20 @@
       </div>
 
       <!-- Net Worth -->
-      <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg transition-colors">
+      <div class="bg-gray-900 border border-gray-800 overflow-hidden shadow rounded-lg transition-colors">
         <div class="p-5">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-md flex items-center justify-center">
-                <svg class="w-5 h-5 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-8 h-8 bg-blue-900 rounded-md flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                 </svg>
               </div>
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Net Worth</dt>
-                <dd class={"text-lg font-medium #{if Decimal.gt?(@dashboard_data.summary.net_worth, Decimal.new("0")), do: "text-green-600 dark:text-green-300", else: "text-red-600 dark:text-red-400"} dark:text-white"}>
+                <dt class="text-sm font-medium text-gray-400 truncate">Net Worth</dt>
+                <dd class={"text-lg font-medium #{if Decimal.gt?(@dashboard_data.summary.net_worth, Decimal.new("0")), do: "text-green-400", else: "text-red-400"}"}>
                   <%= format_currency(@dashboard_data.summary.net_worth) %>
                 </dd>
               </dl>
@@ -120,20 +80,20 @@
       </div>
 
       <!-- Debt to Asset Ratio -->
-      <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg transition-colors">
+      <div class="bg-gray-900 border border-gray-800 overflow-hidden shadow rounded-lg transition-colors">
         <div class="p-5">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-md flex items-center justify-center">
-                <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              <div class="w-8 h-8 bg-yellow-900 rounded-md flex items-center justify-center">
+                <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2 a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
               </div>
             </div>
             <div class="ml-5 w-0 flex-1">
               <dl>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Debt/Asset Ratio</dt>
-                <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                <dt class="text-sm font-medium text-gray-400 truncate">Debt/Asset Ratio</dt>
+                <dd class="text-lg font-medium text-white">
                   <%= format_percentage(@dashboard_data.summary.debt_to_asset_ratio) %>
                 </dd>
               </dl>
@@ -320,25 +280,4 @@
   </div>
 </div>
 
-<!-- Dark mode toggle logic
-(function() {
-  const toggle = document.getElementById('dark-mode-toggle');
-  const html = document.documentElement;
-  const darkClass = 'dark';
-  // On load, set mode from localStorage
-  if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    html.classList.add(darkClass);
-  } else {
-    html.classList.remove(darkClass);
-  }
-  toggle.addEventListener('click', function() {
-    if (html.classList.contains(darkClass)) {
-      html.classList.remove(darkClass);
-      localStorage.setItem('theme', 'light');
-    } else {
-      html.classList.add(darkClass);
-      localStorage.setItem('theme', 'dark');
-    }
-  });
-})();
--->
+
