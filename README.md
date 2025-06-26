@@ -1,5 +1,10 @@
 # Soup & Nutz - Financial Planning Application
 
+[![CI](https://github.com/YOUR_USERNAME/soup_and_nutz/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/soup_and_nutz/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/YOUR_USERNAME/soup_and_nutz/badge.svg?branch=main)](https://coveralls.io/github/YOUR_USERNAME/soup_and_nutz?branch=main)
+[![Elixir](https://img.shields.io/badge/elixir-~%3E%201.14-purple.svg)](https://elixir-lang.org)
+[![Phoenix](https://img.shields.io/badge/phoenix-~%3E%201.7-orange.svg)](https://phoenixframework.org)
+
 ## Project Overview
 
 Soup & Nutz is a comprehensive financial planning application designed to help individuals and families gain complete visibility into their financial health through detailed asset tracking, debt management, and strategic financial planning.
@@ -124,6 +129,33 @@ make logs       # View application logs
 make shell      # Access application shell
 make db-setup   # Setup database
 make db-reset   # Reset database
+```
+
+### Testing & Code Quality
+```bash
+# Run tests
+mix test
+
+# Run tests with coverage
+mix test.coverage
+
+# Generate HTML coverage report
+mix test.coverage.html
+
+# Generate JSON coverage report  
+mix test.coverage.json
+
+# Run code quality checks
+mix credo
+
+# Run strict code quality checks
+mix credo --strict
+
+# Check code formatting
+mix format --check-formatted
+
+# Format code
+mix format
 ```
 
 ## Data Models
