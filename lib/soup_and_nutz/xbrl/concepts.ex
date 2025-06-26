@@ -370,5 +370,104 @@ defmodule SoupAndNutz.XBRL.Concepts do
 
   def document_types, do: @document_types
 
+  # Cash Flow Types
+  @cash_flow_types ["Income", "Expense"]
+  def cash_flow_types, do: @cash_flow_types
+
+  # Cash Flow Categories
+  @cash_flow_categories %{
+    "Income" => [
+      "Salary",
+      "Bonus",
+      "Commission",
+      "Investment",
+      "Rental",
+      "Business",
+      "Dividend",
+      "Interest",
+      "CapitalGain",
+      "SocialSecurity",
+      "Pension",
+      "Annuity",
+      "Gift",
+      "Inheritance",
+      "Refund",
+      "Other"
+    ],
+    "Expense" => [
+      "Housing",
+      "Transportation",
+      "Food",
+      "Healthcare",
+      "Entertainment",
+      "Utilities",
+      "Insurance",
+      "Debt",
+      "Savings",
+      "Taxes",
+      "Education",
+      "Childcare",
+      "Pets",
+      "Travel",
+      "Shopping",
+      "Subscriptions",
+      "Other"
+    ]
+  }
+
+  def cash_flow_categories, do: @cash_flow_categories
+
+  # Cash Flow Frequencies
+  @cash_flow_frequencies [
+    "OneTime",
+    "Daily",
+    "Weekly",
+    "BiWeekly",
+    "Monthly",
+    "Quarterly",
+    "SemiAnnually",
+    "Annually",
+    "Variable"
+  ]
+
+  def cash_flow_frequencies, do: @cash_flow_frequencies
+
+  # Payment Methods
+  @payment_methods [
+    "Cash",
+    "Check",
+    "CreditCard",
+    "DebitCard",
+    "BankTransfer",
+    "Digital",
+    "MobilePayment",
+    "Cryptocurrency",
+    "Other"
+  ]
+
+  def payment_methods, do: @payment_methods
+
+  # Importance Levels
+  @importance_levels ["Essential", "Important", "NiceToHave", "Luxury"]
+  def importance_levels, do: @importance_levels
+
+  # Budget Periods
+  @budget_periods ["Weekly", "Monthly", "Quarterly", "Annual"]
+  def budget_periods, do: @budget_periods
+
+  # Tax Categories
+  @tax_categories [
+    "Deductible",
+    "NonDeductible",
+    "TaxCredit",
+    "TaxDeferred",
+    "TaxExempt",
+    "CapitalGain",
+    "OrdinaryIncome",
+    "Other"
+  ]
+
+  def tax_categories, do: @tax_categories
+
   # Add more XBRL concepts as needed...
 end

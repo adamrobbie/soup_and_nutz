@@ -1,0 +1,39 @@
+<.header>
+  Cash flow <%= @cash_flow.id %>
+  <:subtitle>This is a cash flow record from the database.</:subtitle>
+  <:actions>
+    <.link patch={~p"/cash_flows/#{@cash_flow}/show/edit"}>
+      <.button>Edit cash flow</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Description"><%= @cash_flow.description %></:item>
+  <:item title="Amount"><%= :erlang.float_to_binary(@cash_flow.amount, decimals: 2) %></:item>
+  <:item title="Flow type"><%= @cash_flow.flow_type %></:item>
+  <:item title="Category"><%= @cash_flow.category %></:item>
+  <:item title="Frequency"><%= @cash_flow.frequency %></:item>
+  <:item title="Start date"><%= @cash_flow.start_date %></:item>
+  <:item title="End date"><%= @cash_flow.end_date %></:item>
+  <:item title="Entity"><%= @cash_flow.entity_id %></:item>
+  <:item title="Notes"><%= @cash_flow.notes %></:item>
+</.list>
+
+<.back navigate={~p"/cash_flows"}>Back to cash flows</.back>
+
+<.modal
+  :if={@live_action == :edit}
+  id="cash_flow-modal"
+  show
+  on_cancel={JS.patch(~p"/cash_flows/#{@cash_flow}")}
+>
+  <.live_component
+    module={SoupAndNutzWeb.CashFlowLive.FormComponent}
+    id={@cash_flow.id}
+    title={@page_title}
+    action={@live_action}
+    cash_flow={@cash_flow}
+    patch={~p"/cash_flows/#{@cash_flow}"}
+  />
+</.modal> 

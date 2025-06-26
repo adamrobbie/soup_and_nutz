@@ -6,11 +6,24 @@ defmodule SoupAndNutzWeb.PageController do
     # Fetch dashboard data
     assets = FinancialInstruments.list_assets()
     debt_obligations = FinancialInstruments.list_debt_obligations()
+    _cash_flows = FinancialInstruments.list_cash_flows()
+
+    # For demo, use the first entity and period if available
+    entity = assets |> List.first() |> Map.get(:reporting_entity, "SMITH_FAMILY_001")
+    period = assets |> List.first() |> Map.get(:reporting_period, "2024-12-31")
+    currency = "USD"
 
     # Calculate summary statistics
     total_assets = calculate_total_assets(assets)
     total_debt = calculate_total_debt(debt_obligations)
     net_worth = Decimal.sub(total_assets, total_debt)
+
+    # Cash flow summaries
+    cash_flow_report = FinancialInstruments.generate_cash_flow_report(entity, period, currency)
+    total_income = cash_flow_report.total_income
+    total_expenses = cash_flow_report.total_expenses
+    net_cash_flow = cash_flow_report.net_cash_flow
+    savings_rate = cash_flow_report.savings_rate
 
     # Group data for charts
     assets_by_type = group_assets_by_type(assets)
@@ -29,7 +42,11 @@ defmodule SoupAndNutzWeb.PageController do
         net_worth: net_worth,
         asset_count: length(assets),
         debt_count: length(debt_obligations),
-        debt_to_asset_ratio: calculate_debt_to_asset_ratio(total_debt, total_assets)
+        debt_to_asset_ratio: calculate_debt_to_asset_ratio(total_debt, total_assets),
+        total_income: total_income,
+        total_expenses: total_expenses,
+        net_cash_flow: net_cash_flow,
+        savings_rate: savings_rate
       },
       charts: %{
         assets_by_type: assets_by_type,

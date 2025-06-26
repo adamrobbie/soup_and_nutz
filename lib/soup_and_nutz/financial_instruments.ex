@@ -6,7 +6,7 @@ defmodule SoupAndNutz.FinancialInstruments do
 
   import Ecto.Query, warn: false
   alias SoupAndNutz.Repo
-  alias SoupAndNutz.FinancialInstruments.{Asset, DebtObligation}
+  alias SoupAndNutz.FinancialInstruments.{Asset, DebtObligation, CashFlow}
 
   # Asset functions
 
@@ -136,6 +136,104 @@ defmodule SoupAndNutz.FinancialInstruments do
     DebtObligation.changeset(debt_obligation, attrs)
   end
 
+  # Cash Flow functions
+
+  @doc """
+  Returns the list of cash flows.
+  """
+  def list_cash_flows do
+    Repo.all(CashFlow)
+  end
+
+  @doc """
+  Returns the list of cash flows for a specific entity.
+  """
+  def list_cash_flows_by_entity(entity) do
+    CashFlow
+    |> where([c], c.reporting_entity == ^entity and c.is_active == true)
+    |> Repo.all()
+  end
+
+  @doc """
+  Returns the list of cash flows for a specific entity and period.
+  """
+  def list_cash_flows_by_entity_and_period(entity, period) do
+    CashFlow
+    |> where([c], c.reporting_entity == ^entity and c.reporting_period == ^period and c.is_active == true)
+    |> Repo.all()
+  end
+
+  @doc """
+  Gets a single cash flow by ID.
+  """
+  def get_cash_flow!(id), do: Repo.get!(CashFlow, id)
+
+  @doc """
+  Gets a single cash flow by identifier.
+  """
+  def get_cash_flow_by_identifier(identifier) do
+    Repo.get_by(CashFlow, cash_flow_identifier: identifier)
+  end
+
+  @doc """
+  Creates a cash flow with XBRL validation.
+  """
+  def create_cash_flow(attrs \\ %{}) do
+    %CashFlow{}
+    |> CashFlow.changeset(attrs)
+    |> validate_cash_flow_xbrl_rules()
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a cash flow with XBRL validation.
+  """
+  def update_cash_flow(%CashFlow{} = cash_flow, attrs) do
+    cash_flow
+    |> CashFlow.changeset(attrs)
+    |> validate_cash_flow_xbrl_rules()
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a cash flow.
+  """
+  def delete_cash_flow(%CashFlow{} = cash_flow) do
+    Repo.delete(cash_flow)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking cash flow changes.
+  """
+  def change_cash_flow(%CashFlow{} = cash_flow, attrs \\ %{}) do
+    CashFlow.changeset(cash_flow, attrs)
+  end
+
+  @doc """
+  Generates a cash flow report for a given entity and period.
+  """
+  def generate_cash_flow_report(entity, period, currency \\ "USD") do
+    cash_flows = list_cash_flows_by_entity_and_period(entity, period)
+
+    total_income = CashFlow.total_income(cash_flows, period, entity, currency)
+    total_expenses = CashFlow.total_expenses(cash_flows, period, entity, currency)
+    net_cash_flow = CashFlow.net_cash_flow(cash_flows, period, entity, currency)
+
+    %{
+      entity: entity,
+      reporting_period: period,
+      currency: currency,
+      total_income: total_income,
+      total_expenses: total_expenses,
+      net_cash_flow: net_cash_flow,
+      savings_rate: calculate_savings_rate(total_income, total_expenses),
+      income_by_category: CashFlow.group_by_category(cash_flows, "Income"),
+      expenses_by_category: CashFlow.group_by_category(cash_flows, "Expense"),
+      recurring_income: filter_recurring_cash_flows(cash_flows, "Income"),
+      recurring_expenses: filter_recurring_cash_flows(cash_flows, "Expense")
+    }
+  end
+
   # Financial reporting functions
 
   @doc """
@@ -211,6 +309,18 @@ defmodule SoupAndNutz.FinancialInstruments do
     end
   end
 
+  defp validate_cash_flow_xbrl_rules(changeset) do
+    cash_flow = Ecto.Changeset.apply_changes(changeset)
+    {valid, errors} = CashFlow.validate_cash_flow_rules(cash_flow)
+    if valid do
+      changeset
+    else
+      Enum.reduce(errors, changeset, fn {field, message}, acc ->
+        Ecto.Changeset.add_error(acc, field, message)
+      end)
+    end
+  end
+
   defp get_assets_by_entity_and_period(entity, period) do
     Asset
     |> where([a], a.reporting_entity == ^entity and a.reporting_period == ^period and a.is_active == true)
@@ -273,5 +383,20 @@ defmodule SoupAndNutz.FinancialInstruments do
       valid: valid,
       errors: errors
     }
+  end
+
+  defp calculate_savings_rate(total_income, total_expenses) do
+    if Decimal.eq?(total_income, Decimal.new("0")) do
+      Decimal.new("0")
+    else
+      net_savings = Decimal.sub(total_income, total_expenses)
+      Decimal.mult(Decimal.div(net_savings, total_income), Decimal.new("100"))
+    end
+  end
+
+  defp filter_recurring_cash_flows(cash_flows, type) do
+    cash_flows
+    |> Enum.filter(&(&1.cash_flow_type == type && &1.is_recurring))
+    |> Enum.sort_by(& &1.next_occurrence_date)
   end
 end
