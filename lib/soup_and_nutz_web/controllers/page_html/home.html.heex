@@ -65,7 +65,7 @@
               <dl>
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Total Assets</dt>
                 <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                  $<%= Decimal.to_string(@dashboard_data.summary.total_assets) %>
+                  <%= format_currency(@dashboard_data.summary.total_assets) %>
                 </dd>
               </dl>
             </div>
@@ -88,7 +88,7 @@
               <dl>
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Total Debt</dt>
                 <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                  $<%= Decimal.to_string(@dashboard_data.summary.total_debt) %>
+                  <%= format_currency(@dashboard_data.summary.total_debt) %>
                 </dd>
               </dl>
             </div>
@@ -111,7 +111,7 @@
               <dl>
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Net Worth</dt>
                 <dd class={"text-lg font-medium #{if Decimal.gt?(@dashboard_data.summary.net_worth, Decimal.new("0")), do: "text-green-600 dark:text-green-300", else: "text-red-600 dark:text-red-400"} dark:text-white"}>
-                  $<%= Decimal.to_string(@dashboard_data.summary.net_worth) %>
+                  <%= format_currency(@dashboard_data.summary.net_worth) %>
                 </dd>
               </dl>
             </div>
@@ -134,7 +134,7 @@
               <dl>
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Debt/Asset Ratio</dt>
                 <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                  <%= Decimal.to_string(Decimal.mult(@dashboard_data.summary.debt_to_asset_ratio, Decimal.new("100"))) %>%
+                  <%= format_percentage(@dashboard_data.summary.debt_to_asset_ratio) %>
                 </dd>
               </dl>
             </div>
@@ -157,7 +157,7 @@
               <dl>
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Total Income</dt>
                 <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                  $<%= Decimal.to_string(@dashboard_data.summary.total_income) %>
+                  <%= format_currency(@dashboard_data.summary.total_income) %>
                 </dd>
               </dl>
             </div>
@@ -180,7 +180,7 @@
               <dl>
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Total Expenses</dt>
                 <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                  $<%= Decimal.to_string(@dashboard_data.summary.total_expenses) %>
+                  <%= format_currency(@dashboard_data.summary.total_expenses) %>
                 </dd>
               </dl>
             </div>
@@ -203,7 +203,7 @@
               <dl>
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Net Cash Flow</dt>
                 <dd class={"text-lg font-medium #{if Decimal.gt?(@dashboard_data.summary.net_cash_flow, Decimal.new("0")), do: "text-green-600 dark:text-green-300", else: "text-red-600 dark:text-red-400"} dark:text-white"}>
-                  $<%= Decimal.to_string(@dashboard_data.summary.net_cash_flow) %>
+                  <%= format_currency(@dashboard_data.summary.net_cash_flow) %>
                 </dd>
               </dl>
             </div>
@@ -226,56 +226,10 @@
               <dl>
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Savings Rate</dt>
                 <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                  <%= Decimal.to_string(@dashboard_data.summary.savings_rate) %>%
+                  <%= format_percentage(@dashboard_data.summary.savings_rate) %>
                 </dd>
               </dl>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Charts Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-      <!-- Assets by Type Chart -->
-      <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Assets by Type</h3>
-          <div class="relative" style="height: 300px;">
-            <canvas id="assetsByTypeChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Debts by Type Chart -->
-      <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Debts by Type</h3>
-          <div class="relative" style="height: 300px;">
-            <canvas id="debtsByTypeChart"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Currency Distribution Charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-      <!-- Assets by Currency Chart -->
-      <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Assets by Currency</h3>
-          <div class="relative" style="height: 300px;">
-            <canvas id="assetsByCurrencyChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Debts by Currency Chart -->
-      <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Debts by Currency</h3>
-          <div class="relative" style="height: 300px;">
-            <canvas id="debtsByCurrencyChart"></canvas>
           </div>
         </div>
       </div>
@@ -308,7 +262,7 @@
                       </p>
                     </div>
                     <div class="flex-shrink-0 text-sm font-medium text-gray-900">
-                      $<%= Decimal.to_string(asset.fair_value) %>
+                      <%= format_currency(asset.fair_value, String.to_atom(asset.currency_code)) %>
                     </div>
                   </div>
                 </li>
@@ -348,7 +302,7 @@
                       </p>
                     </div>
                     <div class="flex-shrink-0 text-sm font-medium text-gray-900">
-                      $<%= if debt.principal_amount, do: Decimal.to_string(debt.principal_amount), else: "0.00" %>
+                      <%= if debt.principal_amount, do: format_currency(debt.principal_amount, String.to_atom(debt.currency_code)), else: format_currency(Decimal.new("0")) %>
                     </div>
                   </div>
                 </li>
@@ -366,181 +320,7 @@
   </div>
 </div>
 
-<!-- Chart.js Script -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Chart colors
-  const colors = [
-    '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
-    '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1'
-  ];
-
-  // Assets by Type Chart
-  const assetsByTypeCtx = document.getElementById('assetsByTypeChart').getContext('2d');
-  new Chart(assetsByTypeCtx, {
-    type: 'pie',
-    data: {
-      labels: <%= Jason.encode!(Enum.map(@dashboard_data.charts.assets_by_type, & &1.type)) %>,
-      datasets: [{
-        data: <%= Jason.encode!(Enum.map(@dashboard_data.charts.assets_by_type, fn asset -> 
-          Decimal.to_float(asset.value)
-        end)) %>,
-        backgroundColor: colors.slice(0, length(@dashboard_data.charts.assets_by_type)),
-        borderWidth: 2,
-        borderColor: '#ffffff'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            padding: 20,
-            usePointStyle: true
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const label = context.label || '';
-              const value = context.parsed;
-              const total = context.dataset.data.reduce((a, b) => a + b, 0);
-              const percentage = ((value / total) * 100).toFixed(1);
-              return `${label}: $${value.toLocaleString()} (${percentage}%)`;
-            }
-          }
-        }
-      }
-    }
-  });
-
-  // Debts by Type Chart
-  const debtsByTypeCtx = document.getElementById('debtsByTypeChart').getContext('2d');
-  new Chart(debtsByTypeCtx, {
-    type: 'pie',
-    data: {
-      labels: <%= Jason.encode!(Enum.map(@dashboard_data.charts.debts_by_type, & &1.type)) %>,
-      datasets: [{
-        data: <%= Jason.encode!(Enum.map(@dashboard_data.charts.debts_by_type, fn debt -> 
-          Decimal.to_float(debt.value)
-        end)) %>,
-        backgroundColor: colors.slice(0, length(@dashboard_data.charts.debts_by_type)),
-        borderWidth: 2,
-        borderColor: '#ffffff'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            padding: 20,
-            usePointStyle: true
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const label = context.label || '';
-              const value = context.parsed;
-              const total = context.dataset.data.reduce((a, b) => a + b, 0);
-              const percentage = ((value / total) * 100).toFixed(1);
-              return `${label}: $${value.toLocaleString()} (${percentage}%)`;
-            }
-          }
-        }
-      }
-    }
-  });
-
-  // Assets by Currency Chart
-  const assetsByCurrencyCtx = document.getElementById('assetsByCurrencyChart').getContext('2d');
-  new Chart(assetsByCurrencyCtx, {
-    type: 'doughnut',
-    data: {
-      labels: <%= Jason.encode!(Enum.map(@dashboard_data.charts.assets_by_currency, & &1.currency)) %>,
-      datasets: [{
-        data: <%= Jason.encode!(Enum.map(@dashboard_data.charts.assets_by_currency, fn asset -> 
-          Decimal.to_float(asset.value)
-        end)) %>,
-        backgroundColor: colors.slice(0, length(@dashboard_data.charts.assets_by_currency)),
-        borderWidth: 2,
-        borderColor: '#ffffff'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            padding: 20,
-            usePointStyle: true
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const label = context.label || '';
-              const value = context.parsed;
-              const total = context.dataset.data.reduce((a, b) => a + b, 0);
-              const percentage = ((value / total) * 100).toFixed(1);
-              return `${label}: $${value.toLocaleString()} (${percentage}%)`;
-            }
-          }
-        }
-      }
-    }
-  });
-
-  // Debts by Currency Chart
-  const debtsByCurrencyCtx = document.getElementById('debtsByCurrencyChart').getContext('2d');
-  new Chart(debtsByCurrencyCtx, {
-    type: 'doughnut',
-    data: {
-      labels: <%= Jason.encode!(Enum.map(@dashboard_data.charts.debts_by_currency, & &1.currency)) %>,
-      datasets: [{
-        data: <%= Jason.encode!(Enum.map(@dashboard_data.charts.debts_by_currency, fn debt -> 
-          Decimal.to_float(debt.value)
-        end)) %>,
-        backgroundColor: colors.slice(0, length(@dashboard_data.charts.debts_by_currency)),
-        borderWidth: 2,
-        borderColor: '#ffffff'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            padding: 20,
-            usePointStyle: true
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const label = context.label || '';
-              const value = context.parsed;
-              const total = context.dataset.data.reduce((a, b) => a + b, 0);
-              const percentage = ((value / total) * 100).toFixed(1);
-              return `${label}: $${value.toLocaleString()} (${percentage}%)`;
-            }
-          }
-        }
-      }
-    }
-  });
-});
-
-// Dark mode toggle logic
+<!-- Dark mode toggle logic
 (function() {
   const toggle = document.getElementById('dark-mode-toggle');
   const html = document.documentElement;
@@ -561,4 +341,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 })();
-</script>
+-->

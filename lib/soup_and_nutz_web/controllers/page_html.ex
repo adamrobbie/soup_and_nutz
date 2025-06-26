@@ -5,6 +5,7 @@ defmodule SoupAndNutzWeb.PageHTML do
   See the `page_html` directory for all templates available.
   """
   use SoupAndNutzWeb, :html
+  import SoupAndNutzWeb.FinancialHelpers
 
   embed_templates "page_html/*"
 end

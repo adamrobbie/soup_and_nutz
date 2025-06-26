@@ -1,31 +1,24 @@
-<div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white dark:from-gray-900 dark:to-gray-800">
-  <div class="px-4 py-8 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-7xl">
+<div class="px-4 py-8 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl">
+    <!-- Page Header -->
+    <div class="mb-8">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+          <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
             Debt Obligations
           </h1>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Manage and track your debt obligations
+          </p>
         </div>
         <div class="flex items-center space-x-4">
           <.link patch={~p"/debt_obligations/new"}>
-            <button class="inline-flex items-center rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors">New Debt Obligation</button>
+            <button class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors">New Debt Obligation</button>
           </.link>
-          <!-- Dark Mode Toggle -->
-          <button id="dark-mode-toggle" class="ml-2 flex items-center px-3 py-2 rounded-md bg-white/10 hover:bg-white/20 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors" aria-label="Toggle dark mode">
-            <svg id="dark-mode-icon" class="h-5 w-5 text-white dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path id="sun-icon" class="block dark:hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-8.66l-.71.71M4.05 19.95l-.71.71M21 12h-1M4 12H3m16.95 4.05l-.71-.71M4.05 4.05l-.71-.71M12 7a5 5 0 100 10 5 5 0 000-10z" />
-              <path id="moon-icon" class="hidden dark:block" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
-            </svg>
-          </button>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="px-4 py-8 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
-  <div class="mx-auto max-w-7xl">
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-3 mb-8">
       <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg transition-colors">
@@ -110,15 +103,19 @@
       </div>
     </div>
 
-    <.simple_form for={@filter_form} id="filter-form" phx-change="filter" phx-submit="filter">
-      <.input field={@filter_form[:debt_type]} type="select" label="Filter by Type" options={debt_type_options()} />
-      <.input field={@filter_form[:risk_level]} type="select" label="Filter by Risk" options={risk_level_options()} />
-    </.simple_form>
+    <!-- Filters and Search -->
+    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <.simple_form for={@filter_form} id="filter-form" phx-change="filter" phx-submit="filter">
+        <.input field={@filter_form[:debt_type]} type="select" label="Filter by Type" options={debt_type_options()} />
+        <.input field={@filter_form[:risk_level]} type="select" label="Filter by Risk" options={risk_level_options()} />
+      </.simple_form>
 
-    <.simple_form for={@search_form} id="search-form" phx-change="search" phx-submit="search">
-      <.input field={@search_form[:query]} type="text" label="Search by Name" placeholder="Enter debt name..." />
-    </.simple_form>
+      <.simple_form for={@search_form} id="search-form" phx-change="search" phx-submit="search">
+        <.input field={@search_form[:query]} type="text" label="Search by Name" placeholder="Enter debt name..." />
+      </.simple_form>
+    </div>
 
+    <!-- Table -->
     <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
       <table class="w-[40rem] mt-11 sm:w-full bg-white dark:bg-gray-800 rounded-lg shadow transition-colors">
         <thead class="text-sm text-left leading-6 text-zinc-500 dark:text-zinc-300">
@@ -166,7 +163,7 @@
                 <div class="block py-4 pr-6">
                   <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 sm:rounded-l-xl"></span>
                   <span class="relative">
-                    <%= format_currency(debt_obligation.outstanding_balance) %>
+                    <%= format_currency(debt_obligation.outstanding_balance, String.to_atom(debt_obligation.currency_code)) %>
                   </span>
                 </div>
               </td>
@@ -182,7 +179,7 @@
                 <div class="block py-4 pr-6">
                   <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 sm:rounded-l-xl"></span>
                   <span class="relative">
-                    <%= format_percentage(debt_obligation.interest_rate) %>%
+                    <%= format_percentage(debt_obligation.interest_rate) %>
                   </span>
                 </div>
               </td>
@@ -231,28 +228,4 @@
       </.modal>
     <% end %>
   </div>
-</div>
-
-<script>
-// Dark mode toggle logic
-(function() {
-  const toggle = document.getElementById('dark-mode-toggle');
-  const html = document.documentElement;
-  const darkClass = 'dark';
-  // On load, set mode from localStorage
-  if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    html.classList.add(darkClass);
-  } else {
-    html.classList.remove(darkClass);
-  }
-  toggle.addEventListener('click', function() {
-    if (html.classList.contains(darkClass)) {
-      html.classList.remove(darkClass);
-      localStorage.setItem('theme', 'light');
-    } else {
-      html.classList.add(darkClass);
-      localStorage.setItem('theme', 'dark');
-    }
-  });
-})();
-</script> 
+</div> 

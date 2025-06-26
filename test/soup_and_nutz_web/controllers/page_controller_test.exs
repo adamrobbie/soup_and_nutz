@@ -17,10 +17,6 @@ defmodule SoupAndNutzWeb.PageControllerTest do
     assert html =~ "Total Debt"
     assert html =~ "Net Worth"
     assert html =~ "Debt/Asset Ratio"
-    assert html =~ "Assets by Type"
-    assert html =~ "Debts by Type"
-    assert html =~ "Assets by Currency"
-    assert html =~ "Debts by Currency"
     assert html =~ "Recent Assets"
     assert html =~ "Recent Debts"
 
@@ -43,8 +39,6 @@ defmodule SoupAndNutzWeb.PageControllerTest do
     assert html_response(conn, 200) =~ "Total Debt"
     assert html_response(conn, 200) =~ "Net Worth"
     assert html_response(conn, 200) =~ "Debt/Asset Ratio"
-    assert html_response(conn, 200) =~ "Assets by Type"
-    assert html_response(conn, 200) =~ "Debts by Type"
     assert html_response(conn, 200) =~ "Recent Assets"
     assert html_response(conn, 200) =~ "Recent Debts"
     assert html_response(conn, 200) =~ "Manage Assets"
@@ -81,8 +75,8 @@ defmodule SoupAndNutzWeb.PageControllerTest do
     # Check that the dashboard displays the test data
     assert html =~ "Test Stock Portfolio"
     assert html =~ "Test Mortgage"
-    assert html =~ "100000.00"
-    assert html =~ "250000.00"
+    assert html =~ "$100,000.00"
+    assert html =~ "$250,000.00"
   end
 
   test "GET / handles empty financial data", %{conn: conn} do
@@ -93,26 +87,6 @@ defmodule SoupAndNutzWeb.PageControllerTest do
     assert html =~ "$0"
     assert html =~ "0%"
     assert html =~ "Financial Dashboard"
-  end
-
-  test "GET / displays chart containers", %{conn: conn} do
-    conn = get(conn, ~p"/")
-    html = html_response(conn, 200)
-
-    # Check for chart containers
-    assert html =~ "assetsByTypeChart"
-    assert html =~ "debtsByTypeChart"
-    assert html =~ "assetsByCurrencyChart"
-    assert html =~ "debtsByCurrencyChart"
-  end
-
-  test "GET / includes Chart.js script", %{conn: conn} do
-    conn = get(conn, ~p"/")
-    html = html_response(conn, 200)
-
-    # Check for Chart.js integration
-    assert html =~ "Chart.js"
-    assert html =~ "new Chart"
   end
 
   test "GET / displays recent activity sections", %{conn: conn} do

@@ -228,7 +228,7 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlow do
       errors
     end
 
-    {length(errors) == 0, errors}
+    {Enum.empty?(errors), errors}
   end
 
   # Private validation functions

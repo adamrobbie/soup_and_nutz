@@ -3,6 +3,7 @@ defmodule SoupAndNutzWeb.AssetLive.Index do
 
   alias SoupAndNutz.FinancialInstruments
   alias SoupAndNutz.FinancialInstruments.Asset
+  import SoupAndNutzWeb.FinancialHelpers
 
   @impl true
   def mount(_params, _session, socket) do
@@ -104,5 +105,40 @@ defmodule SoupAndNutzWeb.AssetLive.Index do
       {"Medium", "Medium"},
       {"Low", "Low"}
     ]
+  end
+
+  def total_asset_value(assets) do
+    SoupAndNutz.FinancialInstruments.Asset.total_fair_value(assets)
+  end
+
+  def average_risk_level(assets) do
+    risk_levels = Enum.map(assets, & &1.risk_level)
+    case risk_levels do
+      [] -> "N/A"
+      _ ->
+        levels = %{"Low" => 1, "Medium" => 2, "High" => 3}
+        avg =
+          risk_levels
+          |> Enum.map(&Map.get(levels, &1, 0))
+          |> Enum.reject(&(&1 == 0))
+          |> then(fn nums ->
+            if nums == [], do: 0, else: Enum.sum(nums) / length(nums)
+          end)
+        cond do
+          avg < 1.5 -> "Low"
+          avg < 2.5 -> "Medium"
+          avg >= 2.5 -> "High"
+          true -> "N/A"
+        end
+    end
+  end
+
+  def format_datetime(datetime) do
+    case datetime do
+      nil -> "N/A"
+      datetime when is_struct(datetime, DateTime) ->
+        Calendar.strftime(datetime, "%Y-%m-%d %H:%M:%S")
+      _ -> "N/A"
+    end
   end
 end

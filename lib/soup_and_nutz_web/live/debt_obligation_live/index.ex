@@ -3,6 +3,7 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Index do
 
   alias SoupAndNutz.FinancialInstruments
   alias SoupAndNutz.FinancialInstruments.DebtObligation
+  import SoupAndNutzWeb.FinancialHelpers
 
   @impl true
   def mount(_params, _session, socket) do
@@ -143,29 +144,6 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Index do
           Decimal.add(acc, rate)
         end)
         Decimal.div(total_rate, Decimal.new(length(debts)))
-    end
-  end
-
-  def format_currency(amount) do
-    case amount do
-      nil -> "$0.00"
-      amount when is_struct(amount, Decimal) ->
-        amount
-        |> Decimal.round(2)
-        |> Decimal.to_string()
-        |> then(&"$#{&1}")
-      _ -> "$0.00"
-    end
-  end
-
-  def format_percentage(amount) do
-    case amount do
-      nil -> "0.00"
-      amount when is_struct(amount, Decimal) ->
-        amount
-        |> Decimal.round(2)
-        |> Decimal.to_string()
-      _ -> "0.00"
     end
   end
 

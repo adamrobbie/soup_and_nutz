@@ -152,7 +152,7 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligation do
       errors
     end
 
-    {length(errors) == 0, errors}
+    {Enum.empty?(errors), errors}
   end
 
   # Private validation functions

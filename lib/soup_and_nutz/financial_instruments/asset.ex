@@ -107,6 +107,6 @@ defmodule SoupAndNutz.FinancialInstruments.Asset do
       errors
     end
 
-    {length(errors) == 0, errors}
+    {Enum.empty?(errors), errors}
   end
 end

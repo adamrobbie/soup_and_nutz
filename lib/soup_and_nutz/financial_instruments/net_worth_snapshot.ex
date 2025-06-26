@@ -239,7 +239,7 @@ defmodule SoupAndNutz.FinancialInstruments.NetWorthSnapshot do
       errors = [{"currency_code", "Invalid currency code"} | errors]
     end
 
-    {length(errors) == 0, errors}
+    {Enum.empty?(errors), errors}
   end
 
   # Private helper functions
