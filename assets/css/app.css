@@ -3,3 +3,341 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+/* Import Inter font for modern typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Base styles for Robinhood-inspired dark theme */
+@layer base {
+  html {
+    @apply font-sans antialiased;
+  }
+  
+  body {
+    @apply bg-dark-600 text-neutral-100 min-h-screen;
+    font-feature-settings: "cv05", "cv06", "cv11", "cv12";
+  }
+  
+  /* Custom scrollbar styling */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-dark-600;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-600 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-500;
+  }
+}
+
+@layer components {
+  /* Financial Card Components */
+  .financial-card {
+    @apply bg-dark-100 rounded-2xl border border-dark-200 shadow-dark transition-all duration-200;
+  }
+  
+  .financial-card:hover {
+    @apply border-dark-50 shadow-dark-lg transform translate-y-[-1px];
+  }
+  
+  .financial-card-header {
+    @apply p-6 border-b border-dark-200;
+  }
+  
+  .financial-card-content {
+    @apply p-6;
+  }
+  
+  /* Robinhood-style Metric Cards */
+  .metric-card {
+    @apply financial-card p-6 space-y-3;
+  }
+  
+  .metric-value-positive {
+    @apply text-profit-500 font-semibold;
+  }
+  
+  .metric-value-negative {
+    @apply text-loss-500 font-semibold;
+  }
+  
+  .metric-value-neutral {
+    @apply text-neutral-100 font-semibold;
+  }
+  
+  .metric-label {
+    @apply text-sm text-neutral-400 font-medium;
+  }
+  
+  .metric-change-positive {
+    @apply text-profit-400 text-sm font-medium flex items-center gap-1;
+  }
+  
+  .metric-change-negative {
+    @apply text-loss-400 text-sm font-medium flex items-center gap-1;
+  }
+  
+  /* Advanced Table Styling */
+  .financial-table {
+    @apply bg-dark-100 rounded-2xl overflow-hidden border border-dark-200;
+  }
+  
+  .financial-table thead {
+    @apply bg-dark-200;
+  }
+  
+  .financial-table th {
+    @apply px-6 py-4 text-left text-xs font-semibold text-neutral-300 uppercase tracking-wider;
+  }
+  
+  .financial-table td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-neutral-100 border-b border-dark-300;
+  }
+  
+  .financial-table tr:last-child td {
+    @apply border-b-0;
+  }
+  
+  .financial-table tbody tr:hover {
+    @apply bg-dark-200 transition-colors duration-150;
+  }
+  
+  /* Table cell variants for financial data */
+  .table-cell-positive {
+    @apply text-profit-400 font-medium;
+  }
+  
+  .table-cell-negative {
+    @apply text-loss-400 font-medium;
+  }
+  
+  .table-cell-currency {
+    @apply font-mono font-medium;
+  }
+  
+  /* Button Styles */
+  .btn-primary {
+    @apply bg-brand hover:bg-profit-600 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand focus:ring-opacity-50;
+  }
+  
+  .btn-secondary {
+    @apply bg-dark-200 hover:bg-dark-100 text-neutral-100 font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 border border-dark-300 hover:border-dark-200;
+  }
+  
+  .btn-danger {
+    @apply bg-loss-600 hover:bg-loss-700 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-loss-500 focus:ring-opacity-50;
+  }
+  
+  .btn-ghost {
+    @apply text-neutral-300 hover:text-neutral-100 hover:bg-dark-200 font-medium py-2 px-4 rounded-lg transition-all duration-200;
+  }
+  
+  /* Form Controls */
+  .form-input {
+    @apply bg-dark-400 border border-dark-300 text-neutral-100 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 placeholder-neutral-500;
+  }
+  
+  .form-label {
+    @apply text-sm font-medium text-neutral-300 mb-2 block;
+  }
+  
+  .form-select {
+    @apply form-input pr-10 appearance-none bg-no-repeat bg-right;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23737373' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-size: 1.5em 1.5em;
+  }
+  
+  /* Navigation */
+  .nav-link {
+    @apply text-neutral-300 hover:text-neutral-100 px-4 py-2 rounded-lg hover:bg-dark-200 transition-all duration-200 font-medium;
+  }
+  
+  .nav-link-active {
+    @apply text-brand bg-dark-200 font-semibold;
+  }
+  
+  /* Chart Container */
+  .chart-container {
+    @apply financial-card;
+  }
+  
+  .chart-header {
+    @apply financial-card-header;
+  }
+  
+  .chart-content {
+    @apply financial-card-content;
+  }
+  
+  /* Status Indicators */
+  .status-indicator-positive {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-profit-900 text-profit-300;
+  }
+  
+  .status-indicator-negative {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-loss-900 text-loss-300;
+  }
+  
+  .status-indicator-neutral {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-800 text-neutral-300;
+  }
+  
+  /* Loading States */
+  .skeleton {
+    @apply animate-pulse bg-dark-300 rounded;
+  }
+  
+  /* Modal Styles */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-75 transition-opacity z-50;
+  }
+  
+  .modal-container {
+    @apply financial-card max-w-lg w-full mx-4 transform transition-all;
+  }
+  
+  /* Toast/Alert Styles */
+  .alert-success {
+    @apply bg-profit-900 border border-profit-700 text-profit-100 rounded-xl p-4;
+  }
+  
+  .alert-error {
+    @apply bg-loss-900 border border-loss-700 text-loss-100 rounded-xl p-4;
+  }
+  
+  .alert-warning {
+    @apply bg-accent-orange bg-opacity-20 border border-accent-orange text-accent-orange rounded-xl p-4;
+  }
+  
+  .alert-info {
+    @apply bg-accent-blue bg-opacity-20 border border-accent-blue text-accent-blue rounded-xl p-4;
+  }
+  
+  /* Dashboard Layout */
+  .dashboard-grid {
+    @apply grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+  
+  .dashboard-section {
+    @apply space-y-6;
+  }
+  
+  /* Typography Enhancements */
+  .heading-xl {
+    @apply text-3xl font-bold text-neutral-100 tracking-tight;
+  }
+  
+  .heading-lg {
+    @apply text-2xl font-semibold text-neutral-100;
+  }
+  
+  .heading-md {
+    @apply text-xl font-semibold text-neutral-100;
+  }
+  
+  .heading-sm {
+    @apply text-lg font-medium text-neutral-200;
+  }
+  
+  .text-muted {
+    @apply text-neutral-400;
+  }
+  
+  .text-accent {
+    @apply text-brand;
+  }
+  
+  /* Sidebar Navigation */
+  .sidebar {
+    @apply bg-dark-500 border-r border-dark-400 min-h-screen w-64 fixed left-0 top-0 z-40;
+  }
+  
+  .sidebar-content {
+    @apply p-6 space-y-6;
+  }
+  
+  .sidebar-nav {
+    @apply space-y-2;
+  }
+  
+  /* Main Content Area */
+  .main-content {
+    @apply ml-64 min-h-screen bg-dark-600;
+  }
+  
+  .content-container {
+    @apply max-w-7xl mx-auto px-6 py-8;
+  }
+  
+  /* Financial Number Formatting */
+  .currency-large {
+    @apply text-2xl font-bold font-mono;
+  }
+  
+  .currency-medium {
+    @apply text-lg font-semibold font-mono;
+  }
+  
+  .currency-small {
+    @apply text-sm font-medium font-mono;
+  }
+  
+  .percentage-positive {
+    @apply text-profit-400 font-medium;
+  }
+  
+  .percentage-negative {
+    @apply text-loss-400 font-medium;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 1024px) {
+    .sidebar {
+      @apply transform -translate-x-full transition-transform;
+    }
+    
+    .sidebar.open {
+      @apply translate-x-0;
+    }
+    
+    .main-content {
+      @apply ml-0;
+    }
+  }
+}
+
+@layer utilities {
+  /* Financial utility classes */
+  .profit-glow {
+    box-shadow: 0 0 20px rgba(0, 200, 5, 0.3);
+  }
+  
+  .loss-glow {
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+  }
+  
+  /* Animation utilities */
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  /* Hover effects */
+  .hover-lift {
+    @apply transition-transform duration-200;
+  }
+  
+  .hover-lift:hover {
+    @apply transform translate-y-[-2px];
+  }
+}

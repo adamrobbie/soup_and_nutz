@@ -1,73 +1,60 @@
 <.flash_group flash={@flash} />
 
-<!-- Dashboard Header with Dark Mode Toggle -->
-<div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white dark:from-gray-900 dark:to-gray-800">
-  <div class="px-4 py-8 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-7xl">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
-            Financial Dashboard
-          </h1>
-          <p class="mt-2 text-blue-100 dark:text-gray-300">
-            Your complete financial overview with XBRL compliance
-          </p>
-        </div>
-        <div class="flex items-center space-x-4">
-          <a href="/assets" class="inline-flex items-center rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 dark:bg-gray-700 dark:hover:bg-gray-600">
-            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
-            Manage Assets
-          </a>
-          <a href="/debt_obligations" class="inline-flex items-center rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 dark:bg-gray-700 dark:hover:bg-gray-600">
-            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Manage Debts
-          </a>
-          <a href="/cash_flows" class="inline-flex items-center rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 dark:bg-gray-700 dark:hover:bg-gray-600">
-            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m0 0v-8m0 8h8m-8 0H4"/>
-            </svg>
-            Manage Cash Flows
-          </a>
-          <!-- Dark Mode Toggle -->
-          <button id="dark-mode-toggle" class="ml-2 flex items-center px-3 py-2 rounded-md bg-white/10 hover:bg-white/20 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors" aria-label="Toggle dark mode">
-            <svg id="dark-mode-icon" class="h-5 w-5 text-white dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path id="sun-icon" class="block dark:hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-8.66l-.71.71M4.05 19.95l-.71.71M21 12h-1M4 12H3m16.95 4.05l-.71-.71M4.05 4.05l-.71-.71M12 7a5 5 0 100 10 5 5 0 000-10z" />
-              <path id="moon-icon" class="hidden dark:block" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
-            </svg>
-          </button>
-        </div>
+<!-- Dashboard Header -->
+<div class="bg-gradient-to-r from-dark-500 to-dark-400 border-b border-dark-300">
+  <div class="px-6 py-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="heading-xl">
+          Financial Overview
+        </h1>
+        <p class="mt-2 text-neutral-400">
+          Your complete financial dashboard with XBRL compliance
+        </p>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="/assets" class="btn-secondary flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          Assets
+        </a>
+        <a href="/debt_obligations" class="btn-secondary flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Debts
+        </a>
+        <a href="/cash_flows" class="btn-primary flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4"/>
+          </svg>
+          Cash Flows
+        </a>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Dashboard Content -->
-<div class="px-4 py-8 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
-  <div class="mx-auto max-w-7xl">
+<div class="py-8 min-h-screen">
+  <div class="space-y-8">
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <div class="dashboard-grid mb-8">
       <!-- Total Assets -->
-      <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg transition-colors">
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-md flex items-center justify-center">
-                <svg class="w-5 h-5 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
-                </svg>
-              </div>
+      <div class="metric-card hover-lift">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-profit-500 to-profit-600 rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+              </svg>
             </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300 truncate">Total Assets</dt>
-                <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                  $<%= Decimal.to_string(@dashboard_data.summary.total_assets) %>
-                </dd>
-              </dl>
+            <div>
+              <p class="metric-label">Total Assets</p>
+              <p class="metric-value-positive currency-medium">
+                $<%= Decimal.to_string(@dashboard_data.summary.total_assets) %>
+              </p>
             </div>
           </div>
         </div>
@@ -238,9 +225,12 @@
     <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
       <!-- Assets by Type Chart -->
-      <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Assets by Type</h3>
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3 class="heading-md">Assets by Type</h3>
+          <p class="text-muted">Asset distribution across categories</p>
+        </div>
+        <div class="chart-content">
           <div class="relative" style="height: 300px;">
             <canvas id="assetsByTypeChart"></canvas>
           </div>
@@ -248,9 +238,12 @@
       </div>
 
       <!-- Debts by Type Chart -->
-      <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Debts by Type</h3>
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3 class="heading-md">Debts by Type</h3>
+          <p class="text-muted">Debt distribution across categories</p>
+        </div>
+        <div class="chart-content">
           <div class="relative" style="height: 300px;">
             <canvas id="debtsByTypeChart"></canvas>
           </div>
@@ -369,10 +362,10 @@
 <!-- Chart.js Script -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Chart colors
+  // Robinhood-inspired chart colors
   const colors = [
-    '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
-    '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1'
+    '#00C805', '#FF6B6B', '#0084FF', '#FF8500', '#5C5CE0',
+    '#FFD60A', '#34D399', '#F87171', '#8B5CF6', '#06B6D4'
   ];
 
   // Assets by Type Chart
@@ -386,8 +379,8 @@ document.addEventListener('DOMContentLoaded', function() {
           Decimal.to_float(asset.value)
         end)) %>,
         backgroundColor: colors.slice(0, length(@dashboard_data.charts.assets_by_type)),
-        borderWidth: 2,
-        borderColor: '#ffffff'
+        borderWidth: 3,
+        borderColor: '#0F0F11'
       }]
     },
     options: {
