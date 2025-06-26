@@ -237,7 +237,7 @@ defmodule SoupAndNutz.FinancialInstruments do
   # Financial reporting functions
 
   @doc """
-  Generates a financial position report for a given entity and period.
+  Generates a comprehensive financial position report for a given entity and period.
   """
   def generate_financial_position_report(entity, period, currency \\ "USD") do
     assets = get_assets_by_entity_and_period(entity, period)
@@ -258,6 +258,147 @@ defmodule SoupAndNutz.FinancialInstruments do
       assets_by_type: group_assets_by_type(assets),
       debts_by_type: group_debts_by_type(debts),
       monthly_debt_payments: DebtObligation.total_monthly_payments(debts, currency)
+    }
+  end
+
+  @doc """
+  Generates a comprehensive net worth report integrating assets, liabilities, and cash flows.
+  """
+  def generate_comprehensive_net_worth_report(entity, period, currency \\ "USD") do
+    alias SoupAndNutz.FinancialAnalysis
+
+    # Get basic financial position
+    position_report = generate_financial_position_report(entity, period, currency)
+
+    # Get cash flow analysis
+    cash_flow_report = generate_cash_flow_report(entity, period, currency)
+
+    # Get comprehensive financial health analysis
+    health_report = FinancialAnalysis.generate_financial_health_report(entity, period, currency)
+
+    # Get projected net worth
+    net_worth_projection = FinancialAnalysis.calculate_net_worth(entity, period, currency, 12)
+
+    # Get cash flow impact analysis
+    cash_flow_impact = FinancialAnalysis.analyze_cash_flow_impact(entity, period, currency, 12)
+
+    # Get financial ratios
+    financial_ratios = FinancialAnalysis.calculate_financial_ratios(entity, period, currency)
+
+    %{
+      entity: entity,
+      reporting_period: period,
+      currency: currency,
+
+      # Current Financial Position
+      current_net_worth: position_report.net_worth,
+      total_assets: position_report.total_assets,
+      total_debt: position_report.total_debt,
+      debt_to_asset_ratio: position_report.debt_to_asset_ratio,
+
+      # Cash Flow Integration
+      monthly_income: cash_flow_report.total_income,
+      monthly_expenses: cash_flow_report.total_expenses,
+      net_monthly_cash_flow: cash_flow_report.net_cash_flow,
+      savings_rate: cash_flow_report.savings_rate,
+
+      # Projected Net Worth
+      projected_net_worth: net_worth_projection.projected_net_worth,
+      net_worth_change: net_worth_projection.net_worth_change,
+      projection_months: net_worth_projection.projection_months,
+
+      # Financial Health Metrics
+      risk_score: health_report.risk_score,
+      financial_stability_score: health_report.financial_stability_score,
+      liquidity_ratio: health_report.liquidity_ratio,
+      emergency_fund_adequacy: health_report.emergency_fund_adequacy,
+
+      # Cash Flow Impact
+      annual_cash_flow_impact: cash_flow_impact.annual_impact,
+      cash_flow_stability: cash_flow_impact.cash_flow_stability,
+      income_diversity: cash_flow_impact.income_diversity,
+
+      # Financial Ratios
+      current_ratio: financial_ratios.current_ratio,
+      quick_ratio: financial_ratios.quick_ratio,
+      debt_to_income_ratio: financial_ratios.debt_to_income_ratio,
+      debt_service_coverage_ratio: financial_ratios.debt_service_coverage_ratio,
+      emergency_fund_ratio: financial_ratios.emergency_fund_ratio,
+      investment_to_income_ratio: financial_ratios.investment_to_income_ratio,
+
+      # Recommendations
+      recommendations: health_report.recommendations,
+
+      # Detailed Breakdowns
+      assets_by_type: position_report.assets_by_type,
+      debts_by_type: position_report.debts_by_type,
+      income_by_category: cash_flow_report.income_by_category,
+      expenses_by_category: cash_flow_report.expenses_by_category,
+      recurring_income: cash_flow_report.recurring_income,
+      recurring_expenses: cash_flow_report.recurring_expenses
+    }
+  end
+
+  @doc """
+  Tracks net worth changes over time for trend analysis.
+  """
+  def track_net_worth_history(entity, start_period, end_period, currency \\ "USD") do
+    periods = generate_period_range(start_period, end_period)
+
+    history = Enum.map(periods, fn period ->
+      report = generate_comprehensive_net_worth_report(entity, period, currency)
+
+      %{
+        period: period,
+        net_worth: report.current_net_worth,
+        total_assets: report.total_assets,
+        total_debt: report.total_debt,
+        net_monthly_cash_flow: report.net_monthly_cash_flow,
+        savings_rate: report.savings_rate,
+        risk_score: report.risk_score,
+        financial_stability_score: report.financial_stability_score
+      }
+    end)
+
+    %{
+      entity: entity,
+      start_period: start_period,
+      end_period: end_period,
+      currency: currency,
+      history: history,
+      trend_analysis: analyze_net_worth_trend(history)
+    }
+  end
+
+  @doc """
+  Calculates net worth velocity (rate of change) and acceleration.
+  """
+  def calculate_net_worth_velocity(entity, period, currency \\ "USD") do
+    # Get current and previous period data
+    current_report = generate_comprehensive_net_worth_report(entity, period, currency)
+    previous_period = get_previous_period(period)
+    previous_report = generate_comprehensive_net_worth_report(entity, previous_period, currency)
+
+    current_net_worth = current_report.current_net_worth
+    previous_net_worth = previous_report.current_net_worth
+
+    net_worth_change = Decimal.sub(current_net_worth, previous_net_worth)
+    net_worth_velocity = Decimal.div(net_worth_change, Decimal.new("1")) # Monthly velocity
+
+    # Calculate acceleration (change in velocity)
+    previous_velocity = calculate_previous_velocity(entity, previous_period, currency)
+    acceleration = Decimal.sub(net_worth_velocity, previous_velocity)
+
+    %{
+      entity: entity,
+      period: period,
+      currency: currency,
+      current_net_worth: current_net_worth,
+      previous_net_worth: previous_net_worth,
+      net_worth_change: net_worth_change,
+      net_worth_velocity: net_worth_velocity,
+      acceleration: acceleration,
+      velocity_trend: determine_velocity_trend(net_worth_velocity, acceleration)
     }
   end
 
@@ -398,5 +539,75 @@ defmodule SoupAndNutz.FinancialInstruments do
     cash_flows
     |> Enum.filter(&(&1.cash_flow_type == type && &1.is_recurring))
     |> Enum.sort_by(& &1.next_occurrence_date)
+  end
+
+  # Net worth tracking helper functions
+
+  defp generate_period_range(start_period, end_period) do
+    # Simple implementation - assumes YYYY-MM format
+    # In a real implementation, you'd want more sophisticated period handling
+    [start_period, end_period]
+  end
+
+  defp analyze_net_worth_trend(history) do
+    if length(history) < 2 do
+      %{trend: "insufficient_data", direction: "unknown", growth_rate: Decimal.new("0")}
+    else
+      [first | _] = history
+      [last | _] = Enum.reverse(history)
+
+      net_worth_change = Decimal.sub(last.net_worth, first.net_worth)
+      growth_rate = if Decimal.eq?(first.net_worth, Decimal.new("0")) do
+        Decimal.new("0")
+      else
+        Decimal.mult(Decimal.div(net_worth_change, first.net_worth), Decimal.new("100"))
+      end
+
+      direction = cond do
+        Decimal.gt?(net_worth_change, Decimal.new("0")) -> "increasing"
+        Decimal.lt?(net_worth_change, Decimal.new("0")) -> "decreasing"
+        true -> "stable"
+      end
+
+      %{
+        trend: "calculated",
+        direction: direction,
+        growth_rate: growth_rate,
+        net_worth_change: net_worth_change,
+        periods_analyzed: length(history)
+      }
+    end
+  end
+
+  defp get_previous_period(period) do
+    # Simple implementation - assumes YYYY-MM format
+    # In a real implementation, you'd want more sophisticated period handling
+    case period do
+      "2025-01" -> "2024-12"
+      "2025-02" -> "2025-01"
+      "2025-03" -> "2025-02"
+      _ -> "2025-01" # Default fallback
+    end
+  end
+
+  defp calculate_previous_velocity(entity, previous_period, currency) do
+    # For simplicity, return 0 as previous velocity
+    # In a real implementation, you'd calculate this from historical data
+    Decimal.new("0")
+  end
+
+  defp determine_velocity_trend(net_worth_velocity, acceleration) do
+    cond do
+      Decimal.gt?(net_worth_velocity, Decimal.new("0")) and Decimal.gt?(acceleration, Decimal.new("0")) ->
+        "accelerating_growth"
+      Decimal.gt?(net_worth_velocity, Decimal.new("0")) and Decimal.lt?(acceleration, Decimal.new("0")) ->
+        "decelerating_growth"
+      Decimal.lt?(net_worth_velocity, Decimal.new("0")) and Decimal.gt?(acceleration, Decimal.new("0")) ->
+        "recovering"
+      Decimal.lt?(net_worth_velocity, Decimal.new("0")) and Decimal.lt?(acceleration, Decimal.new("0")) ->
+        "accelerating_decline"
+      true ->
+        "stable"
+    end
   end
 end

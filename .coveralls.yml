@@ -1,0 +1,17 @@
+# Coveralls configuration
+service_name: github-actions
+
+coverage_options:
+  minimum_coverage: 80
+
+skip_files:
+  - "deps/"
+  - "_build/"
+  - "test/"
+  - "priv/"
+  - "config/"
+  - "assets/"
+
+# Optional: Configure which files to treat as source files for coverage
+# This is useful for excluding certain files from coverage calculations
+# treat_no_relevant_lines_as_covered: true
