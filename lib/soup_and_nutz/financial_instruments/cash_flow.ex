@@ -1,4 +1,12 @@
 defmodule SoupAndNutz.FinancialInstruments.CashFlow do
+  @moduledoc """
+  Schema and business logic for cash flows in the financial instruments system.
+
+  This module manages income and expense transactions, supporting both one-time
+  and recurring cash flows. It includes budgeting features and follows XBRL
+  reporting standards for financial data consistency.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
   alias SoupAndNutz.XBRL.Concepts

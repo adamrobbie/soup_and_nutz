@@ -96,25 +96,25 @@ defmodule SoupAndNutzWeb.FinancialHelpersTest do
     test "formats low risk correctly" do
       {text, class} = format_risk_level("Low")
       assert text == "Low"
-      assert class == "text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/20"
+      assert class == "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
     end
 
     test "formats medium risk correctly" do
       {text, class} = format_risk_level("Medium")
       assert text == "Medium"
-      assert class == "text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/20"
+      assert class == "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
     end
 
     test "formats high risk correctly" do
       {text, class} = format_risk_level("High")
       assert text == "High"
-      assert class == "text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20"
+      assert class == "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
     end
 
     test "formats unknown risk correctly" do
       {text, class} = format_risk_level("Unknown")
       assert text == "Unknown"
-      assert class == "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800"
+      assert class == "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
     end
   end
 

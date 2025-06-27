@@ -25,6 +25,9 @@ import topbar from "../vendor/topbar"
 // Import Chart.js for dashboard visualizations
 import Chart from "chart.js/auto"
 
+// Import our chart abstraction system
+import "./charts.js"
+
 // Make Chart available globally for use in templates
 window.Chart = Chart
 

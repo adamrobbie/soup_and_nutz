@@ -5,8 +5,9 @@ defmodule SoupAndNutz.FinancialInstruments do
   """
 
   import Ecto.Query, warn: false
+
+  alias SoupAndNutz.FinancialInstruments.{Asset, CashFlow, DebtObligation}
   alias SoupAndNutz.Repo
-  alias SoupAndNutz.FinancialInstruments.{Asset, DebtObligation, CashFlow}
 
   # Asset functions
 

@@ -20,17 +20,17 @@ defmodule SoupAndNutzWeb.PageControllerTest do
     assert html =~ "Recent Assets"
     assert html =~ "Recent Debts"
 
-    # Check for navigation links
-    assert html =~ "Manage Assets"
-    assert html =~ "Manage Debts"
+    # Check for navigation links in sidebar
+    assert html =~ "Assets"
+    assert html =~ "Debts"
     assert html =~ "/assets"
     assert html =~ "/debt_obligations"
   end
 
   test "GET / displays dashboard with assets and debts", %{conn: conn} do
     # Create test data
-    asset = asset_fixture()
-    debt = debt_obligation_fixture()
+    _asset = asset_fixture()
+    _debt = debt_obligation_fixture()
 
     conn = get(conn, ~p"/")
 
@@ -41,8 +41,8 @@ defmodule SoupAndNutzWeb.PageControllerTest do
     assert html_response(conn, 200) =~ "Debt/Asset Ratio"
     assert html_response(conn, 200) =~ "Recent Assets"
     assert html_response(conn, 200) =~ "Recent Debts"
-    assert html_response(conn, 200) =~ "Manage Assets"
-    assert html_response(conn, 200) =~ "Manage Debts"
+    assert html_response(conn, 200) =~ "Assets"
+    assert html_response(conn, 200) =~ "Debts"
   end
 
   test "GET / calculates correct financial metrics", %{conn: conn} do

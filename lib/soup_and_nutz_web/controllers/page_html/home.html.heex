@@ -195,6 +195,30 @@
       </div>
     </div>
 
+    <!-- Financial Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+      <.financial_chart
+        id="assets-by-type"
+        title="Asset Allocation by Type"
+        description="Distribution of your assets by type"
+        chart_type="doughnut"
+        data={%{
+          labels: Enum.map(@dashboard_data.charts.assets_by_type, & &1.type),
+          values: Enum.map(@dashboard_data.charts.assets_by_type, &Decimal.to_float(&1.value))
+        }}
+      />
+      <.financial_chart
+        id="debts-by-type"
+        title="Debt Breakdown by Type"
+        description="Distribution of your debts by type"
+        chart_type="pie"
+        data={%{
+          labels: Enum.map(@dashboard_data.charts.debts_by_type, & &1.type),
+          values: Enum.map(@dashboard_data.charts.debts_by_type, &Decimal.to_float(&1.value))
+        }}
+      />
+    </div>
+
     <!-- Recent Activity -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <!-- Recent Assets -->

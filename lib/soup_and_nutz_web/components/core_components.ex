@@ -19,6 +19,9 @@ defmodule SoupAndNutzWeb.CoreComponents do
 
   alias Phoenix.LiveView.JS
 
+  # Import chart components
+  alias SoupAndNutzWeb.Components.Charts
+
   @doc """
   Renders a modal.
 
@@ -673,4 +676,167 @@ defmodule SoupAndNutzWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  # Chart Components
+
+  @doc """
+  Renders a financial chart with a title and optional description.
+  """
+  attr :id, :string, required: true
+  attr :title, :string, required: true
+  attr :description, :string, default: nil
+  attr :chart_type, :string, required: true
+  attr :data, :map, required: true
+  attr :options, :map, default: %{}
+  attr :class, :string, default: nil
+
+  def financial_chart(assigns) do
+    ~H"""
+    <div class={["bg-gray-900 border border-gray-800 rounded-lg p-6", @class]}>
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold text-white"><%= @title %></h3>
+        <%= if @description do %>
+          <p class="text-gray-400 text-sm mt-1"><%= @description %></p>
+        <% end %>
+      </div>
+
+      <div class="h-64">
+        <%= case @chart_type do %>
+          <% "line" -> %>
+            <.line_chart id={@id} data={@data} options={@options} />
+          <% "bar" -> %>
+            <.bar_chart id={@id} data={@data} options={@options} />
+          <% "pie" -> %>
+            <.pie_chart id={@id} data={@data} options={@options} />
+          <% "doughnut" -> %>
+            <.doughnut_chart id={@id} data={@data} options={@options} />
+          <% "stacked-bar" -> %>
+            <.stacked_bar_chart id={@id} data={@data} options={@options} />
+          <% _ -> %>
+            <div class="flex items-center justify-center h-full text-gray-400">
+              Unknown chart type: <%= @chart_type %>
+            </div>
+        <% end %>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a chart comparison section with multiple charts side by side.
+  """
+  attr :charts, :list, required: true
+  attr :title, :string, required: true
+  attr :description, :string, default: nil
+
+  def chart_comparison(assigns) do
+    ~H"""
+    <div class="mb-8">
+      <div class="mb-6">
+        <h2 class="text-xl font-semibold text-white"><%= @title %></h2>
+        <%= if @description do %>
+          <p class="text-gray-400 text-sm mt-1"><%= @description %></p>
+        <% end %>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <%= for chart <- @charts do %>
+          <.financial_chart
+            id={chart.id}
+            title={chart.title}
+            description={chart.description}
+            chart_type={chart.type}
+            data={chart.data}
+            options={chart.options}
+          />
+        <% end %>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a chart with interactive controls.
+  """
+  attr :id, :string, required: true
+  attr :title, :string, required: true
+  attr :chart_type, :string, required: true
+  attr :data, :map, required: true
+  attr :options, :map, default: %{}
+  attr :controls, :list, default: []
+
+  def interactive_chart(assigns) do
+    ~H"""
+    <div class="bg-gray-900 border border-gray-800 rounded-lg p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-white"><%= @title %></h3>
+
+        <%= if @controls != [] do %>
+          <div class="flex items-center space-x-4">
+            <%= for control <- @controls do %>
+              <div class="flex items-center space-x-2">
+                <label class="text-gray-300 text-sm"><%= control.label %></label>
+                <%= case control.type do %>
+                  <% "select" -> %>
+                    <select
+                      phx-change={control.event}
+                      class="px-3 py-1 border border-gray-600 bg-gray-800 text-white text-sm rounded focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <%= for option <- control.options do %>
+                        <option value={option.value} selected={option.selected}>
+                          <%= option.label %>
+                        </option>
+                      <% end %>
+                    </select>
+                  <% "input" -> %>
+                    <input
+                      type={control.input_type || "text"}
+                      phx-change={control.event}
+                      phx-debounce={control.debounce || "400"}
+                      value={control.value}
+                      class="px-3 py-1 border border-gray-600 bg-gray-800 text-white text-sm rounded focus:ring-blue-500 focus:border-blue-500"
+                      placeholder={control.placeholder}
+                    />
+                  <% "button" -> %>
+                    <button
+                      phx-click={control.event}
+                      class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors"
+                    >
+                      <%= control.label %>
+                    </button>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="h-64">
+        <%= case @chart_type do %>
+          <% "line" -> %>
+            <.line_chart id={@id} data={@data} options={@options} />
+          <% "bar" -> %>
+            <.bar_chart id={@id} data={@data} options={@options} />
+          <% "pie" -> %>
+            <.pie_chart id={@id} data={@data} options={@options} />
+          <% "doughnut" -> %>
+            <.doughnut_chart id={@id} data={@data} options={@options} />
+          <% "stacked-bar" -> %>
+            <.stacked_bar_chart id={@id} data={@data} options={@options} />
+          <% _ -> %>
+            <div class="flex items-center justify-center h-full text-gray-400">
+              Unknown chart type: <%= @chart_type %>
+            </div>
+        <% end %>
+      </div>
+    </div>
+    """
+  end
+
+  # Delegate chart rendering to the Charts module
+  defdelegate line_chart(assigns), to: Charts
+  defdelegate bar_chart(assigns), to: Charts
+  defdelegate pie_chart(assigns), to: Charts
+  defdelegate doughnut_chart(assigns), to: Charts
+  defdelegate stacked_bar_chart(assigns), to: Charts
 end

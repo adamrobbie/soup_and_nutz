@@ -113,23 +113,29 @@ defmodule SoupAndNutzWeb.AssetLive.Index do
 
   def average_risk_level(assets) do
     risk_levels = Enum.map(assets, & &1.risk_level)
-    case risk_levels do
-      [] -> "N/A"
-      _ ->
-        levels = %{"Low" => 1, "Medium" => 2, "High" => 3}
-        avg =
-          risk_levels
-          |> Enum.map(&Map.get(levels, &1, 0))
-          |> Enum.reject(&(&1 == 0))
-          |> then(fn nums ->
-            if nums == [], do: 0, else: Enum.sum(nums) / length(nums)
-          end)
-        cond do
-          avg < 1.5 -> "Low"
-          avg < 2.5 -> "Medium"
-          avg >= 2.5 -> "High"
-          true -> "N/A"
-        end
+
+    if Enum.empty?(risk_levels) do
+      "N/A"
+    else
+      calculate_average_risk(risk_levels)
+    end
+  end
+
+  defp calculate_average_risk(risk_levels) do
+    levels = %{"Low" => 1, "Medium" => 2, "High" => 3}
+
+    nums =
+      risk_levels
+      |> Enum.map(&Map.get(levels, &1, 0))
+      |> Enum.reject(&(&1 == 0))
+
+    avg = if Enum.empty?(nums), do: 0, else: Enum.sum(nums) / length(nums)
+
+    cond do
+      avg < 1.5 -> "Low"
+      avg < 2.5 -> "Medium"
+      avg >= 2.5 -> "High"
+      true -> "N/A"
     end
   end
 

@@ -5,9 +5,10 @@ defmodule SoupAndNutz.FinancialAnalysis do
   """
 
   import Ecto.Query, warn: false
-  alias SoupAndNutz.Repo
+
   alias SoupAndNutz.FinancialInstruments
-  alias SoupAndNutz.FinancialInstruments.{Asset, DebtObligation, CashFlow}
+  alias SoupAndNutz.FinancialInstruments.{Asset, CashFlow, DebtObligation}
+  alias SoupAndNutz.Repo
 
   @doc """
   Calculates comprehensive net worth including cash flow projections.
@@ -334,18 +335,24 @@ defmodule SoupAndNutz.FinancialAnalysis do
     if Decimal.eq?(total_value, Decimal.new("0")) do
       5
     else
-      # Check if any single asset represents more than 50% of total assets
-      max_concentration = Enum.reduce(assets, Decimal.new("0"), fn asset, max_so_far ->
-        concentration = Decimal.div(asset.fair_value, total_value)
-        if Decimal.gt?(concentration, max_so_far), do: concentration, else: max_so_far
-      end)
+      max_concentration = calculate_max_concentration(assets, total_value)
+      concentration_risk_score(max_concentration)
+    end
+  end
 
-      cond do
-        Decimal.gt?(max_concentration, Decimal.new("0.7")) -> 8
-        Decimal.gt?(max_concentration, Decimal.new("0.5")) -> 6
-        Decimal.gt?(max_concentration, Decimal.new("0.3")) -> 4
-        true -> 2
-      end
+  defp calculate_max_concentration(assets, total_value) do
+    Enum.reduce(assets, Decimal.new("0"), fn asset, max_so_far ->
+      concentration = Decimal.div(asset.fair_value, total_value)
+      if Decimal.gt?(concentration, max_so_far), do: concentration, else: max_so_far
+    end)
+  end
+
+  defp concentration_risk_score(max_concentration) do
+    cond do
+      Decimal.gt?(max_concentration, Decimal.new("0.7")) -> 8
+      Decimal.gt?(max_concentration, Decimal.new("0.5")) -> 6
+      Decimal.gt?(max_concentration, Decimal.new("0.3")) -> 4
+      true -> 2
     end
   end
 

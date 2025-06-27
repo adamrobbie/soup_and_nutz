@@ -37,6 +37,10 @@ defmodule SoupAndNutzWeb.Router do
     live "/cash_flows/:id", CashFlowLive.Show, :show
     live "/cash_flows/:id/show/edit", CashFlowLive.Show, :edit
 
+    # Budget and Debt Payoff Planning
+    live "/budget", BudgetLive.Index, :index
+    live "/debt-payoff", DebtPayoffLive.Index, :index
+
     resources "/assets", AssetController
     resources "/debt_obligations", DebtObligationController
   end

@@ -1,4 +1,12 @@
 defmodule SoupAndNutz.FinancialInstruments.Asset do
+  @moduledoc """
+  Schema and business logic for assets in the financial instruments system.
+
+  This module manages various types of financial assets including cash, investments,
+  real estate, and other valuable holdings. It follows XBRL reporting standards
+  for consistent financial data representation and validation.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
   alias SoupAndNutz.XBRL.Concepts

@@ -1,8 +1,15 @@
 defmodule SoupAndNutz.FinancialInstruments.DebtObligation do
+  @moduledoc """
+  Schema and business logic for debt obligations in the financial instruments system.
+
+  This module manages debt obligations such as loans, mortgages, credit cards, and other
+  liabilities. It follows XBRL reporting standards for financial data consistency and
+  includes validation for debt-specific business rules.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
   alias SoupAndNutz.XBRL.Concepts
-
 
   schema "debt_obligations" do
     # XBRL-inspired identifier fields
@@ -157,18 +164,19 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligation do
 
   # Private validation functions
   defp validate_maturity_date(changeset) do
-    case get_field(changeset, :maturity_date) do
-      nil -> changeset
-      maturity_date ->
-        case get_field(changeset, :measurement_date) do
-          nil -> changeset
-          measurement_date ->
-            if Date.compare(maturity_date, measurement_date) == :lt do
-              add_error(changeset, :maturity_date, "Maturity date cannot be before measurement date")
-            else
-              changeset
-            end
-        end
+    maturity_date = get_field(changeset, :maturity_date)
+    measurement_date = get_field(changeset, :measurement_date)
+
+    validate_dates(changeset, maturity_date, measurement_date)
+  end
+
+  defp validate_dates(changeset, nil, _), do: changeset
+  defp validate_dates(changeset, _, nil), do: changeset
+  defp validate_dates(changeset, maturity_date, measurement_date) do
+    if Date.compare(maturity_date, measurement_date) == :lt do
+      add_error(changeset, :maturity_date, "Maturity date cannot be before measurement date")
+    else
+      changeset
     end
   end
 

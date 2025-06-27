@@ -7,8 +7,9 @@ defmodule SoupAndNutz.FinancialInstruments.NetWorthSnapshot do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query, warn: false
-  alias SoupAndNutz.Repo
+
   alias Decimal, as: D
+  alias SoupAndNutz.Repo
 
   schema "net_worth_snapshots" do
     field :snapshot_date, :date
@@ -82,8 +83,8 @@ defmodule SoupAndNutz.FinancialInstruments.NetWorthSnapshot do
   Creates a net worth snapshot from comprehensive financial data.
   """
   def create_snapshot_from_data(entity, period, currency \\ "USD") do
-    alias SoupAndNutz.FinancialInstruments
     alias SoupAndNutz.FinancialAnalysis
+    alias SoupAndNutz.FinancialInstruments
 
     # Get comprehensive financial report
     report = FinancialInstruments.generate_comprehensive_net_worth_report(entity, period, currency)
