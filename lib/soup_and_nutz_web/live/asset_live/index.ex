@@ -5,11 +5,13 @@ defmodule SoupAndNutzWeb.AssetLive.Index do
   alias SoupAndNutz.FinancialInstruments.Asset
   import SoupAndNutzWeb.FinancialHelpers
 
+  on_mount {SoupAndNutzWeb.Live.AuthHook, :ensure_authenticated}
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:assets, list_assets())
+     |> assign(:assets, list_assets(socket.assigns.current_user.id))
      |> assign(:filter_form, to_form(%{"asset_type" => "", "risk_level" => ""}))
      |> assign(:search_form, to_form(%{"query" => ""}))
     }
@@ -49,12 +51,12 @@ defmodule SoupAndNutzWeb.AssetLive.Index do
     asset = FinancialInstruments.get_asset!(id)
     {:ok, _} = FinancialInstruments.delete_asset(asset)
 
-    {:noreply, assign(socket, :assets, list_assets())}
+    {:noreply, assign(socket, :assets, list_assets(socket.assigns.current_user.id))}
   end
 
   @impl true
   def handle_event("filter", %{"asset_type" => asset_type, "risk_level" => risk_level}, socket) do
-    filtered_assets = list_assets()
+    filtered_assets = list_assets(socket.assigns.current_user.id)
     |> Enum.filter(fn asset ->
       (asset_type == "" or asset.asset_type == asset_type) and
       (risk_level == "" or asset.risk_level == risk_level)
@@ -66,9 +68,9 @@ defmodule SoupAndNutzWeb.AssetLive.Index do
   @impl true
   def handle_event("search", %{"query" => query}, socket) do
     filtered_assets = if query == "" do
-      list_assets()
+      list_assets(socket.assigns.current_user.id)
     else
-      list_assets()
+      list_assets(socket.assigns.current_user.id)
       |> Enum.filter(fn asset ->
         String.contains?(String.downcase(asset.asset_name || ""), String.downcase(query))
       end)
@@ -77,8 +79,8 @@ defmodule SoupAndNutzWeb.AssetLive.Index do
     {:noreply, assign(socket, :assets, filtered_assets)}
   end
 
-  defp list_assets do
-    FinancialInstruments.list_assets()
+  defp list_assets(user_id) do
+    FinancialInstruments.list_assets_by_user(user_id)
   end
 
   def asset_type_options do

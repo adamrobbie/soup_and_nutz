@@ -59,6 +59,10 @@ defmodule SoupAndNutz.Accounts.User do
 
     # Associations
     has_many :financial_goals, FinancialGoal
+    has_many :assets, SoupAndNutz.FinancialInstruments.Asset
+    has_many :debt_obligations, SoupAndNutz.FinancialInstruments.DebtObligation
+    has_many :cash_flows, SoupAndNutz.FinancialInstruments.CashFlow
+    has_many :net_worth_snapshots, SoupAndNutz.FinancialInstruments.NetWorthSnapshot
 
     timestamps(type: :utc_datetime)
   end
@@ -143,7 +147,13 @@ defmodule SoupAndNutz.Accounts.User do
   def get_user!(id) do
     User
     |> Repo.get!(id)
-    |> Repo.preload([:financial_goals])
+    |> Repo.preload([
+      :financial_goals,
+      :assets,
+      :debt_obligations,
+      :cash_flows,
+      :net_worth_snapshots
+    ])
   end
 
   @doc """
@@ -532,6 +542,106 @@ defmodule SoupAndNutz.Accounts.User do
     user
     |> Repo.preload([financial_goals: from(g in FinancialGoal, where: g.xbrl_unit_ref == ^xbrl_unit_ref and g.is_active == true)])
     |> Map.get(:financial_goals)
+  end
+
+  @doc """
+  Gets user's assets.
+  """
+  def get_assets(user) do
+    user
+    |> Repo.preload([:assets])
+    |> Map.get(:assets)
+  end
+
+  @doc """
+  Gets user's active assets.
+  """
+  def get_active_assets(user) do
+    user
+    |> Repo.preload([assets: from(a in SoupAndNutz.FinancialInstruments.Asset, where: a.is_active == true)])
+    |> Map.get(:assets)
+  end
+
+  @doc """
+  Gets user's assets by type.
+  """
+  def get_assets_by_type(user, asset_type) do
+    user
+    |> Repo.preload([assets: from(a in SoupAndNutz.FinancialInstruments.Asset, where: a.asset_type == ^asset_type and a.is_active == true)])
+    |> Map.get(:assets)
+  end
+
+  @doc """
+  Gets user's debt obligations.
+  """
+  def get_debt_obligations(user) do
+    user
+    |> Repo.preload([:debt_obligations])
+    |> Map.get(:debt_obligations)
+  end
+
+  @doc """
+  Gets user's active debt obligations.
+  """
+  def get_active_debt_obligations(user) do
+    user
+    |> Repo.preload([debt_obligations: from(d in SoupAndNutz.FinancialInstruments.DebtObligation, where: d.is_active == true)])
+    |> Map.get(:debt_obligations)
+  end
+
+  @doc """
+  Gets user's debt obligations by type.
+  """
+  def get_debt_obligations_by_type(user, debt_type) do
+    user
+    |> Repo.preload([debt_obligations: from(d in SoupAndNutz.FinancialInstruments.DebtObligation, where: d.debt_type == ^debt_type and d.is_active == true)])
+    |> Map.get(:debt_obligations)
+  end
+
+  @doc """
+  Gets user's cash flows.
+  """
+  def get_cash_flows(user) do
+    user
+    |> Repo.preload([:cash_flows])
+    |> Map.get(:cash_flows)
+  end
+
+  @doc """
+  Gets user's active cash flows.
+  """
+  def get_active_cash_flows(user) do
+    user
+    |> Repo.preload([cash_flows: from(c in SoupAndNutz.FinancialInstruments.CashFlow, where: c.is_active == true)])
+    |> Map.get(:cash_flows)
+  end
+
+  @doc """
+  Gets user's cash flows by type.
+  """
+  def get_cash_flows_by_type(user, cash_flow_type) do
+    user
+    |> Repo.preload([cash_flows: from(c in SoupAndNutz.FinancialInstruments.CashFlow, where: c.cash_flow_type == ^cash_flow_type and c.is_active == true)])
+    |> Map.get(:cash_flows)
+  end
+
+  @doc """
+  Gets user's net worth snapshots.
+  """
+  def get_net_worth_snapshots(user) do
+    user
+    |> Repo.preload([:net_worth_snapshots])
+    |> Map.get(:net_worth_snapshots)
+  end
+
+  @doc """
+  Gets user's latest net worth snapshot.
+  """
+  def get_latest_net_worth_snapshot(user) do
+    user
+    |> Repo.preload([net_worth_snapshots: from(n in SoupAndNutz.FinancialInstruments.NetWorthSnapshot, order_by: [desc: n.snapshot_date], limit: 1)])
+    |> Map.get(:net_worth_snapshots)
+    |> List.first()
   end
 
   # Private validation functions

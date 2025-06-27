@@ -33,10 +33,11 @@ jobs:
         elixir-version: '1.14'
         otp-version: '25'
 
-    - name: Install ChromeDriver
+    - name: Install Chrome and ChromeDriver
       run: |
         sudo apt-get update
-        sudo apt-get install -y chromium-chromedriver
+        sudo apt-get install -y google-chrome-stable chromium-chromedriver
+        google-chrome --version
         chromedriver --version
 
     - name: Install dependencies

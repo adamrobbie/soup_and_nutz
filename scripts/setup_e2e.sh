@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # E2E Testing Setup Script for Soup & Nutz
-# This script helps set up the environment for end-to-end testing
+# This script helps set up the environment for end-to-end testing with Wallaby
 
 set -e
 
-echo "🚀 Setting up E2E testing environment for Soup & Nutz..."
+echo "🚀 Setting up E2E testing environment for Soup & Nutz with Wallaby..."
 
 # Detect operating system
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -18,6 +18,42 @@ else
 fi
 
 echo "📋 Detected OS: $OS"
+
+# Check if Chrome is already installed
+if command -v google-chrome &> /dev/null; then
+    echo "✅ Google Chrome is already installed:"
+    google-chrome --version
+elif command -v /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome &> /dev/null; then
+    echo "✅ Google Chrome is already installed (macOS):"
+    /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version
+else
+    echo "📥 Installing Google Chrome..."
+    
+    if [[ "$OS" == "macos" ]]; then
+        # macOS installation using Homebrew
+        if command -v brew &> /dev/null; then
+            brew install --cask google-chrome
+        else
+            echo "❌ Homebrew not found. Please install Homebrew first:"
+            echo "   /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+            exit 1
+        fi
+    elif [[ "$OS" == "linux" ]]; then
+        # Linux installation
+        if command -v apt-get &> /dev/null; then
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+            sudo apt-get update
+            sudo apt-get install -y google-chrome-stable
+        elif command -v yum &> /dev/null; then
+            sudo yum install -y google-chrome-stable
+        else
+            echo "❌ Unsupported package manager. Please install Google Chrome manually:"
+            echo "   https://www.google.com/chrome/"
+            exit 1
+        fi
+    fi
+fi
 
 # Check if ChromeDriver is already installed
 if command -v chromedriver &> /dev/null; then
@@ -57,18 +93,6 @@ if command -v chromedriver &> /dev/null; then
 else
     echo "❌ ChromeDriver installation failed"
     exit 1
-fi
-
-# Check if Chrome/Chromium is installed
-if command -v google-chrome &> /dev/null; then
-    echo "✅ Google Chrome is installed"
-elif command -v chromium-browser &> /dev/null; then
-    echo "✅ Chromium is installed"
-elif command -v /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome &> /dev/null; then
-    echo "✅ Google Chrome is installed (macOS)"
-else
-    echo "⚠️  Chrome/Chromium not found. Please install a Chromium-based browser:"
-    echo "   https://www.google.com/chrome/"
 fi
 
 # Create screenshots directory

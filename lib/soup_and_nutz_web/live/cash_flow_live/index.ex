@@ -5,9 +5,11 @@ defmodule SoupAndNutzWeb.CashFlowLive.Index do
   alias SoupAndNutz.FinancialInstruments.CashFlow
   import SoupAndNutzWeb.FinancialHelpers
 
+  on_mount {SoupAndNutzWeb.Live.AuthHook, :ensure_authenticated}
+
   @impl true
   def mount(_params, _session, socket) do
-    cash_flows = FinancialInstruments.list_cash_flows()
+    cash_flows = FinancialInstruments.list_cash_flows_by_user(socket.assigns.current_user.id)
     {:ok,
      socket
      |> stream(:cash_flows, cash_flows)
@@ -40,7 +42,7 @@ defmodule SoupAndNutzWeb.CashFlowLive.Index do
 
   @impl true
   def handle_info({SoupAndNutzWeb.CashFlowLive.FormComponent, {:saved, cash_flow}}, socket) do
-    updated_cash_flows = FinancialInstruments.list_cash_flows()
+    updated_cash_flows = FinancialInstruments.list_cash_flows_by_user(socket.assigns.current_user.id)
     {:noreply,
      socket
      |> stream_insert(:cash_flows, cash_flow)
@@ -53,7 +55,7 @@ defmodule SoupAndNutzWeb.CashFlowLive.Index do
     cash_flow = FinancialInstruments.get_cash_flow!(id)
     {:ok, _} = FinancialInstruments.delete_cash_flow(cash_flow)
 
-    updated_cash_flows = FinancialInstruments.list_cash_flows()
+    updated_cash_flows = FinancialInstruments.list_cash_flows_by_user(socket.assigns.current_user.id)
     {:noreply,
      socket
      |> stream_delete(:cash_flows, cash_flow)

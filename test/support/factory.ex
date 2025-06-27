@@ -8,6 +8,7 @@ defmodule SoupAndNutz.Factory do
   def user_factory do
     %SoupAndNutz.Accounts.User{
       email: sequence(:email, &"user#{&1}@example.com"),
+      username: sequence(:username, &"user#{&1}"),
       password_hash: Bcrypt.hash_pwd_salt("password123"),
       first_name: Faker.Person.first_name(),
       last_name: Faker.Person.last_name(),
@@ -19,19 +20,19 @@ defmodule SoupAndNutz.Factory do
     %SoupAndNutz.FinancialInstruments.Asset{
       asset_name: sequence(:asset_name, &"Asset #{&1}"),
       asset_type: Enum.random(["cash", "investment", "real_estate", "vehicle", "other"]),
-      current_value: Decimal.new(Enum.random(1000..100000)),
-      currency: "USD",
+      fair_value: Decimal.new(Enum.random(1000..100000)),
+      currency_code: "USD",
       user: build(:user)
     }
   end
 
   def debt_obligation_factory do
     %SoupAndNutz.FinancialInstruments.DebtObligation{
-      debt_obligation_name: sequence(:debt_name, &"Debt #{&1}"),
+      debt_name: sequence(:debt_name, &"Debt #{&1}"),
       debt_type: Enum.random(["credit_card", "mortgage", "auto_loan", "student_loan", "personal_loan"]),
       outstanding_balance: Decimal.new(Enum.random(1000..50000)),
       interest_rate: Decimal.new(Enum.random(5..25)),
-      minimum_payment: Decimal.new(Enum.random(50..1000)),
+      monthly_payment: Decimal.new(Enum.random(50..1000)),
       user: build(:user)
     }
   end
@@ -71,13 +72,14 @@ defmodule SoupAndNutz.Factory do
   def user_with_assets_factory do
     %SoupAndNutz.Accounts.User{
       email: sequence(:email, &"user#{&1}@example.com"),
+      username: sequence(:username, &"user_with_assets#{&1}"),
       password_hash: Bcrypt.hash_pwd_salt("password123"),
       first_name: Faker.Person.first_name(),
       last_name: Faker.Person.last_name(),
       date_of_birth: ~D[1990-01-01],
       assets: [
-        build(:asset, asset_type: "cash", current_value: Decimal.new(10000)),
-        build(:asset, asset_type: "investment", current_value: Decimal.new(50000))
+        build(:asset, asset_type: "cash", fair_value: Decimal.new(10000)),
+        build(:asset, asset_type: "investment", fair_value: Decimal.new(50000))
       ]
     }
   end
@@ -85,6 +87,7 @@ defmodule SoupAndNutz.Factory do
   def user_with_debts_factory do
     %SoupAndNutz.Accounts.User{
       email: sequence(:email, &"user#{&1}@example.com"),
+      username: sequence(:username, &"user_with_debts#{&1}"),
       password_hash: Bcrypt.hash_pwd_salt("password123"),
       first_name: Faker.Person.first_name(),
       last_name: Faker.Person.last_name(),
@@ -99,6 +102,7 @@ defmodule SoupAndNutz.Factory do
   def user_with_cash_flows_factory do
     %SoupAndNutz.Accounts.User{
       email: sequence(:email, &"user#{&1}@example.com"),
+      username: sequence(:username, &"user_with_cash_flows#{&1}"),
       password_hash: Bcrypt.hash_pwd_salt("password123"),
       first_name: Faker.Person.first_name(),
       last_name: Faker.Person.last_name(),
@@ -113,13 +117,14 @@ defmodule SoupAndNutz.Factory do
   def complete_user_profile_factory do
     %SoupAndNutz.Accounts.User{
       email: sequence(:email, &"user#{&1}@example.com"),
+      username: sequence(:username, &"complete_user#{&1}"),
       password_hash: Bcrypt.hash_pwd_salt("password123"),
       first_name: Faker.Person.first_name(),
       last_name: Faker.Person.last_name(),
       date_of_birth: ~D[1990-01-01],
       assets: [
-        build(:asset, asset_type: "cash", current_value: Decimal.new(15000)),
-        build(:asset, asset_type: "investment", current_value: Decimal.new(75000))
+        build(:asset, asset_type: "cash", fair_value: Decimal.new(15000)),
+        build(:asset, asset_type: "investment", fair_value: Decimal.new(75000))
       ],
       debt_obligations: [
         build(:debt_obligation, debt_type: "credit_card", outstanding_balance: Decimal.new(3000)),

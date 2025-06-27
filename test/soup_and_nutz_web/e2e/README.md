@@ -1,18 +1,33 @@
 # End-to-End Testing Guide
 
-This directory contains end-to-end (E2E) tests for the Soup & Nutz financial planner application using Hound and ChromeDriver.
+This directory contains end-to-end (E2E) tests for the Soup & Nutz financial planner application using Wallaby and ChromeDriver.
 
 ## Overview
 
 Our E2E testing stack consists of:
-- **Hound**: Elixir library for browser automation
+- **Wallaby**: Modern Elixir library for browser automation with excellent LiveView support
 - **ChromeDriver**: WebDriver for Chrome browser automation
 - **ExMachina**: Factory library for test data generation
 - **Faker**: Library for generating realistic test data
 
 ## Prerequisites
 
-### 1. Install ChromeDriver
+### 1. Install Google Chrome
+
+#### macOS (using Homebrew):
+```bash
+brew install --cask google-chrome
+```
+
+#### Ubuntu/Debian:
+```bash
+wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+sudo apt-get update
+sudo apt-get install -y google-chrome-stable
+```
+
+### 2. Install ChromeDriver
 
 #### macOS (using Homebrew):
 ```bash
@@ -21,14 +36,15 @@ brew install chromedriver
 
 #### Ubuntu/Debian:
 ```bash
-sudo apt-get install chromium-chromedriver
+sudo apt-get install -y chromium-chromedriver
 ```
 
 #### Manual Installation:
 Download from [ChromeDriver Downloads](https://chromedriver.chromium.org/downloads) and add to your PATH.
 
-### 2. Verify ChromeDriver Installation
+### 3. Verify Installation
 ```bash
+google-chrome --version
 chromedriver --version
 ```
 
@@ -46,11 +62,11 @@ mix test test/soup_and_nutz_web/e2e/authentication_test.exs
 
 ### Run Tests with Tags
 ```bash
-# Run only authentication tests
-mix test --only auth
+# Run only feature tests
+mix test --only feature
 
-# Run tests excluding slow tests
-mix test --exclude slow
+# Run tests excluding feature tests
+mix test --exclude feature
 ```
 
 ### Run Tests with Coverage
@@ -130,58 +146,58 @@ complete_user = insert(:complete_user_profile)
 ### Authentication Helpers
 ```elixir
 # Sign in a user (creates user if not provided)
-user = sign_in_user()
+{session, user} = sign_in_user(session)
 
 # Sign in with specific user
-user = sign_in_user(existing_user)
+{session, user} = sign_in_user(session, existing_user)
 
 # Sign out current user
-sign_out_user()
+session = sign_out_user(session)
 ```
 
 ### Navigation Helpers
 ```elixir
 # Wait for page to load
-wait_for_page_to_load()
+session = wait_for_page_to_load(session)
 
 # Wait for element to appear
-wait_for_element({:id, "submit-button"})
+session = wait_for_element(session, Query.css(".button"))
 
 # Wait for text to appear
-wait_for_text("Success message")
+session = wait_for_text(session, "Success message")
 ```
 
 ### Form Helpers
 ```elixir
 # Fill multiple form fields
-fill_form(%{
+session = fill_form(session, %{
   "user_email" => "test@example.com",
   "user_password" => "password123"
 })
 
 # Submit form
-submit_form()
+session = submit_form(session)
 ```
 
 ### Assertion Helpers
 ```elixir
 # Check current URL path
-assert_current_path("/dashboard")
+session = assert_current_path(session, "/dashboard")
 
 # Check for text presence
-assert_text_present("Welcome")
+session = assert_text_present(session, "Welcome")
 
 # Check for text absence
-assert_text_not_present("Error")
+session = assert_text_not_present(session, "Error")
 
 # Check element presence
-assert_element_present({:css, ".sidebar"})
+session = assert_element_present(session, Query.css(".sidebar"))
 ```
 
 ## Best Practices
 
 ### 1. Test Organization
-- Group related tests in `describe` blocks
+- Use `feature` blocks for Wallaby tests
 - Use descriptive test names that explain the scenario
 - Keep tests independent and isolated
 
@@ -191,13 +207,13 @@ assert_element_present({:css, ".sidebar"})
 - Avoid hardcoded values in tests
 
 ### 3. Selectors
-- Prefer IDs over CSS classes for form elements
-- Use semantic selectors when possible
-- Avoid brittle selectors that depend on styling
+- Use Wallaby's Query module for element selection
+- Prefer semantic selectors over CSS classes
+- Use text-based selectors when possible
 
 ### 4. Waiting Strategies
-- Use explicit waits for dynamic content
-- Avoid fixed time delays when possible
+- Use Wallaby's built-in waiting mechanisms
+- Avoid fixed time delays
 - Wait for specific conditions rather than arbitrary delays
 
 ### 5. Error Handling
@@ -207,31 +223,25 @@ assert_element_present({:css, ".sidebar"})
 
 ## Configuration
 
-### Hound Configuration
+### Wallaby Configuration
 Located in `config/test.exs`:
 
 ```elixir
-config :hound,
-  driver: "chrome_driver",
-  browser: "chrome_headless",
-  app_host: "http://localhost",
-  app_port: 4002,
+config :wallaby,
+  otp_app: :soup_and_nutz,
+  base_url: "http://localhost:4002",
   screenshot_dir: "test/screenshots",
-  screenshot_on_failure: true
-```
-
-### ChromeDriver Options
-```elixir
-config :hound,
-  chrome_driver: [
+  screenshot_on_failure: true,
+  chromedriver: [
+    headless: true,
     capabilities: %{
       chromeOptions: %{
         args: [
-          "headless",
-          "disable-gpu",
-          "no-sandbox",
-          "disable-dev-shm-usage",
-          "window-size=1920,1080"
+          "--headless=new",
+          "--disable-gpu",
+          "--no-sandbox",
+          "--disable-dev-shm-usage",
+          "--window-size=1920,1080"
         ]
       }
     }
@@ -251,6 +261,15 @@ which chromedriver
 export PATH=$PATH:/path/to/chromedriver
 ```
 
+#### Chrome Not Found
+```bash
+# Check if Chrome is installed
+google-chrome --version
+
+# Install Chrome if needed
+# See installation instructions above
+```
+
 #### Tests Failing Intermittently
 - Increase wait timeouts
 - Add explicit waits for dynamic content
@@ -259,7 +278,7 @@ export PATH=$PATH:/path/to/chromedriver
 #### Screenshots Not Generated
 - Ensure screenshot directory exists
 - Check file permissions
-- Verify Hound configuration
+- Verify Wallaby configuration
 
 #### Database Connection Issues
 - Ensure test database is created
@@ -285,35 +304,56 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-elixir@v1
+      - uses: actions/checkout@v3
+      - uses: erlef/setup-beam@v1
         with:
           elixir-version: '1.14'
           otp-version: '25'
-      - run: sudo apt-get install chromium-chromedriver
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable chromium-chromedriver
       - run: mix deps.get
       - run: mix test.e2e
 ```
 
 ### Docker Integration
-For Docker-based testing, ensure ChromeDriver is installed in the container:
+For Docker-based testing, ensure Chrome and ChromeDriver are installed in the container:
 
 ```dockerfile
-# Install ChromeDriver
-RUN apt-get update && apt-get install -y chromium-chromedriver
+# Install Chrome and ChromeDriver
+RUN apt-get update && apt-get install -y \
+    google-chrome-stable \
+    chromium-chromedriver
 ```
 
 ## Performance Considerations
 
 ### Test Execution Time
 - E2E tests are slower than unit tests
-- Run in parallel when possible (with caution)
+- Wallaby provides better performance than Hound
 - Use headless mode for faster execution
 
 ### Resource Usage
 - Chrome instances consume significant memory
 - Clean up browser sessions properly
 - Monitor system resources during test runs
+
+## Migration from Hound
+
+### Key Differences
+- **Session-based API**: Wallaby uses session objects instead of global state
+- **Feature-based tests**: Use `feature` instead of `test` for Wallaby tests
+- **Query module**: Use `Query.css()`, `Query.text()`, etc. for element selection
+- **Pipeline syntax**: Chain operations using the pipe operator
+
+### Migration Checklist
+- [x] Replace Hound dependency with Wallaby
+- [x] Update test configuration
+- [x] Migrate test helpers to session-based API
+- [x] Update test files to use `feature` blocks
+- [x] Replace element selectors with Query module
+- [x] Update CI/CD pipeline
+- [x] Update documentation
 
 ## Future Enhancements
 
@@ -325,7 +365,6 @@ RUN apt-get update && apt-get install -y chromium-chromedriver
 - Cross-browser testing
 
 ### Tools to Consider
-- **Wallaby**: Alternative to Hound with better LiveView support
 - **Playwright**: Modern browser automation library
 - **Cypress**: JavaScript-based E2E testing framework
 - **Selenium**: Traditional browser automation
@@ -345,6 +384,6 @@ When adding new E2E tests:
 
 For issues with E2E testing:
 1. Check the troubleshooting section
-2. Review Hound documentation
-3. Check ChromeDriver compatibility
+2. Review Wallaby documentation
+3. Check Chrome/ChromeDriver compatibility
 4. Verify test environment setup 

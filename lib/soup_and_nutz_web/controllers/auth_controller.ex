@@ -23,7 +23,14 @@ defmodule SoupAndNutzWeb.AuthController do
   end
 
   def register(conn, _params) do
-    changeset = Accounts.change_user(%User{})
+    changeset = Accounts.change_user(%User{}, %{
+      first_name: "",
+      last_name: "",
+      email: "",
+      username: "",
+      password: "",
+      password_confirmation: ""
+    })
     render(conn, :register, changeset: changeset)
   end
 

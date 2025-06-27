@@ -18,7 +18,7 @@ config :soup_and_nutz, SoupAndNutz.Repo,
 config :soup_and_nutz, SoupAndNutzWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "your-secret-key-base-here-for-testing-only-do-not-use-in-production",
-  server: false
+  server: true
 
 # In test we don't send emails
 config :soup_and_nutz, SoupAndNutz.Mailer, adapter: Swoosh.Adapters.Test
@@ -36,28 +36,24 @@ config :phoenix, :plug_init_mode, :runtime
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
 
-# Configure Hound for E2E testing
-config :hound,
-  driver: "chrome_driver",
-  browser: "chrome_headless",
-  app_host: "http://localhost",
-  app_port: 4002,
+# Configure Wallaby for E2E testing
+config :wallaby,
+  otp_app: :soup_and_nutz,
+  base_url: "http://localhost:4002",
   screenshot_dir: "test/screenshots",
   screenshot_on_failure: true,
-  retry_interval: 100,
-  max_retries: 3
-
-# Configure ChromeDriver options for headless testing
-config :hound,
-  chrome_driver: [
+  chromedriver: [
+    headless: true,
     capabilities: %{
       chromeOptions: %{
         args: [
-          "headless",
-          "disable-gpu",
-          "no-sandbox",
-          "disable-dev-shm-usage",
-          "window-size=1920,1080"
+          "--headless=new",
+          "--disable-gpu",
+          "--no-sandbox",
+          "--disable-dev-shm-usage",
+          "--window-size=1920,1080",
+          "--disable-software-rasterizer",
+          "--disable-extensions"
         ]
       }
     }

@@ -5,11 +5,13 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Index do
   alias SoupAndNutz.FinancialInstruments.DebtObligation
   import SoupAndNutzWeb.FinancialHelpers
 
+  on_mount {SoupAndNutzWeb.Live.AuthHook, :ensure_authenticated}
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:debt_obligations, list_debt_obligations())
+     |> assign(:debt_obligations, list_debt_obligations(socket.assigns.current_user.id))
      |> assign(:filter_form, to_form(%{"debt_type" => "", "risk_level" => ""}))
      |> assign(:search_form, to_form(%{"query" => ""}))
     }
@@ -53,12 +55,12 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Index do
     debt_obligation = FinancialInstruments.get_debt_obligation!(id)
     {:ok, _} = FinancialInstruments.delete_debt_obligation(debt_obligation)
 
-    {:noreply, assign(socket, :debt_obligations, list_debt_obligations())}
+    {:noreply, assign(socket, :debt_obligations, list_debt_obligations(socket.assigns.current_user.id))}
   end
 
   @impl true
   def handle_event("filter", %{"debt_type" => debt_type, "risk_level" => risk_level}, socket) do
-    filtered_debts = list_debt_obligations()
+    filtered_debts = list_debt_obligations(socket.assigns.current_user.id)
     |> Enum.filter(fn debt ->
       (debt_type == "" or debt.debt_type == debt_type) and
       (risk_level == "" or debt.risk_level == risk_level)
@@ -70,9 +72,9 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Index do
   @impl true
   def handle_event("search", %{"query" => query}, socket) do
     filtered_debts = if query == "" do
-      list_debt_obligations()
+      list_debt_obligations(socket.assigns.current_user.id)
     else
-      list_debt_obligations()
+      list_debt_obligations(socket.assigns.current_user.id)
       |> Enum.filter(fn debt ->
         String.contains?(String.downcase(debt.debt_name || ""), String.downcase(query))
       end)
@@ -81,8 +83,8 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Index do
     {:noreply, assign(socket, :debt_obligations, filtered_debts)}
   end
 
-  defp list_debt_obligations do
-    FinancialInstruments.list_debt_obligations()
+  defp list_debt_obligations(user_id) do
+    FinancialInstruments.list_debt_obligations_by_user(user_id)
   end
 
   def debt_type_options do

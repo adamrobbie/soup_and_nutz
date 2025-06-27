@@ -77,7 +77,9 @@ defmodule SoupAndNutzWeb.CashFlowLive.FormComponent do
   end
 
   defp save_cash_flow(socket, :new, cash_flow_params) do
-    case FinancialInstruments.create_cash_flow(cash_flow_params) do
+    cash_flow_params_with_user = Map.put(cash_flow_params, "user_id", socket.assigns.current_user.id)
+
+    case FinancialInstruments.create_cash_flow(cash_flow_params_with_user) do
       {:ok, cash_flow} ->
         notify_parent({:saved, cash_flow})
 

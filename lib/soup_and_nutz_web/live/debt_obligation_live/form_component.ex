@@ -89,7 +89,9 @@ defmodule SoupAndNutzWeb.DebtObligationLive.FormComponent do
   end
 
   defp save_debt_obligation(socket, :new, debt_obligation_params) do
-    case FinancialInstruments.create_debt_obligation(debt_obligation_params) do
+    debt_obligation_params_with_user = Map.put(debt_obligation_params, "user_id", socket.assigns.current_user.id)
+
+    case FinancialInstruments.create_debt_obligation(debt_obligation_params_with_user) do
       {:ok, debt_obligation} ->
         notify_parent({:saved, debt_obligation})
 

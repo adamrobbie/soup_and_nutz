@@ -22,7 +22,7 @@ defmodule SoupAndNutz.MixProject do
   def application do
     [
       mod: {SoupAndNutz.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools] ++ if(Mix.env() == :test, do: [:wallaby], else: [])
     ]
   end
 
@@ -66,7 +66,7 @@ defmodule SoupAndNutz.MixProject do
       {:money, "~> 1.12"},
       {:bcrypt_elixir, "~> 3.0"},
       # E2E Testing dependencies
-      {:hound, "~> 1.1", only: :test},
+      {:wallaby, "~> 0.30", runtime: false, only: :test},
       {:ex_machina, "~> 2.7", only: :test},
       {:faker, "~> 0.17", only: :test}
     ]
@@ -89,8 +89,8 @@ defmodule SoupAndNutz.MixProject do
       "test.coverage.html": ["coveralls.html"],
       "test.coverage.json": ["coveralls.json"],
       # E2E Testing aliases
-      "test.e2e": ["ecto.create --quiet", "ecto.migrate --quiet", "test --only e2e"],
-      "test.unit": ["ecto.create --quiet", "ecto.migrate --quiet", "test --exclude e2e"],
+      "test.e2e": ["ecto.create --quiet", "ecto.migrate --quiet", "test --only feature"],
+      "test.unit": ["ecto.create --quiet", "ecto.migrate --quiet", "test --exclude feature"],
       "test.all": ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind soup_and_nutz", "esbuild soup_and_nutz"],

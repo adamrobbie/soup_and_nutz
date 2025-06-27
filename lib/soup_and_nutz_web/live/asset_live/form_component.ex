@@ -86,7 +86,9 @@ defmodule SoupAndNutzWeb.AssetLive.FormComponent do
   end
 
   defp save_asset(socket, :new, asset_params) do
-    case FinancialInstruments.create_asset(asset_params) do
+    asset_params_with_user = Map.put(asset_params, "user_id", socket.assigns.current_user.id)
+
+    case FinancialInstruments.create_asset(asset_params_with_user) do
       {:ok, asset} ->
         notify_parent({:saved, asset})
 

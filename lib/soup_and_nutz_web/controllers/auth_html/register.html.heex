@@ -23,39 +23,39 @@
       <div class="rounded-md shadow-sm -space-y-px">
         <div>
           <label for="user_first_name" class="sr-only">First name</label>
-          <.input field={@changeset[:first_name]} type="text" autocomplete="given-name" required 
-                  class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
-                  placeholder="First name" />
+          <input type="text" name="user[first_name]" id="user_first_name" autocomplete="given-name" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="First name" />
         </div>
         <div>
           <label for="user_last_name" class="sr-only">Last name</label>
-          <.input field={@changeset[:last_name]} type="text" autocomplete="family-name" required 
-                  class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
-                  placeholder="Last name" />
+          <input type="text" name="user[last_name]" id="user_last_name" autocomplete="family-name" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="Last name" />
         </div>
         <div>
           <label for="user_email" class="sr-only">Email address</label>
-          <.input field={@changeset[:email]} type="email" autocomplete="email" required 
-                  class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
-                  placeholder="Email address" />
+          <input type="email" name="user[email]" id="user_email" autocomplete="email" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="Email address" />
         </div>
         <div>
           <label for="user_username" class="sr-only">Username</label>
-          <.input field={@changeset[:username]} type="text" autocomplete="username" required 
-                  class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
-                  placeholder="Username" />
+          <input type="text" name="user[username]" id="user_username" autocomplete="username" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="Username" />
         </div>
         <div>
           <label for="user_password" class="sr-only">Password</label>
-          <.input field={@changeset[:password]} type="password" autocomplete="new-password" required 
-                  class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
-                  placeholder="Password" />
+          <input type="password" name="user[password]" id="user_password" autocomplete="new-password" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="Password" />
         </div>
         <div>
           <label for="user_password_confirmation" class="sr-only">Confirm password</label>
-          <.input field={@changeset[:password_confirmation]} type="password" autocomplete="new-password" required 
-                  class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
-                  placeholder="Confirm password" />
+          <input type="password" name="user[password_confirmation]" id="user_password_confirmation" autocomplete="new-password" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="Confirm password" />
         </div>
       </div>
 
