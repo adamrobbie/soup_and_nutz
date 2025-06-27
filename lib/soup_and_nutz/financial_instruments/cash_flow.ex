@@ -12,6 +12,9 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlow do
   alias SoupAndNutz.XBRL.Concepts
 
   schema "cash_flows" do
+    # User association
+    belongs_to :user, SoupAndNutz.Accounts.User
+
     # XBRL-inspired identifier fields
     field :cash_flow_identifier, :string  # Unique identifier for the cash flow
     field :cash_flow_name, :string       # Human-readable name
@@ -27,7 +30,6 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlow do
 
     # XBRL context fields
     field :reporting_period, :string     # e.g., "2024-12", "2024-Q4"
-    field :reporting_entity, :string     # Entity identifier
     field :reporting_scenario, :string   # "Actual", "Budget", "Forecast"
 
     # Cash flow specific fields
@@ -71,9 +73,10 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlow do
   def changeset(cash_flow, attrs) do
     cash_flow
     |> cast(attrs, [
+      :user_id,
       :cash_flow_identifier, :cash_flow_name, :cash_flow_type, :cash_flow_category, :cash_flow_subcategory,
       :amount, :currency_code, :transaction_date, :effective_date,
-      :reporting_period, :reporting_entity, :reporting_scenario,
+      :reporting_period, :reporting_scenario,
       :frequency, :is_recurring, :recurrence_pattern, :next_occurrence_date, :end_date,
       :source_account, :destination_account, :payment_method,
       :budgeted_amount, :budget_period, :is_budget_item, :budget_category,
@@ -81,9 +84,10 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlow do
       :priority_level, :importance_level, :validation_status, :last_validated_at
     ])
     |> validate_required([
+      :user_id,
       :cash_flow_identifier, :cash_flow_name, :cash_flow_type, :cash_flow_category,
       :amount, :currency_code, :transaction_date, :effective_date,
-      :reporting_period, :reporting_entity
+      :reporting_period
     ])
     |> validate_inclusion(:cash_flow_type, Concepts.cash_flow_types())
     |> validate_inclusion(:currency_code, Concepts.currency_codes())
@@ -138,13 +142,13 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlow do
   def tax_categories, do: Concepts.tax_categories()
 
   @doc """
-  Calculates total income for a given period and entity.
+  Calculates total income for a given period and user.
   """
-  def total_income(cash_flows, period, entity, currency \\ "USD") do
+  def total_income(cash_flows, period, user_id, currency \\ "USD") do
     cash_flows
     |> Enum.filter(&(&1.cash_flow_type == "Income" &&
                      &1.reporting_period == period &&
-                     &1.reporting_entity == entity &&
+                     &1.user_id == user_id &&
                      &1.currency_code == currency &&
                      &1.is_active))
     |> Enum.reduce(Decimal.new(0), fn cash_flow, acc ->
@@ -153,13 +157,13 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlow do
   end
 
   @doc """
-  Calculates total expenses for a given period and entity.
+  Calculates total expenses for a given period and user.
   """
-  def total_expenses(cash_flows, period, entity, currency \\ "USD") do
+  def total_expenses(cash_flows, period, user_id, currency \\ "USD") do
     cash_flows
     |> Enum.filter(&(&1.cash_flow_type == "Expense" &&
                      &1.reporting_period == period &&
-                     &1.reporting_entity == entity &&
+                     &1.user_id == user_id &&
                      &1.currency_code == currency &&
                      &1.is_active))
     |> Enum.reduce(Decimal.new(0), fn cash_flow, acc ->
@@ -168,11 +172,11 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlow do
   end
 
   @doc """
-  Calculates net cash flow (income - expenses) for a given period and entity.
+  Calculates net cash flow (income - expenses) for a given period and user.
   """
-  def net_cash_flow(cash_flows, period, entity, currency \\ "USD") do
-    income = total_income(cash_flows, period, entity, currency)
-    expenses = total_expenses(cash_flows, period, entity, currency)
+  def net_cash_flow(cash_flows, period, user_id, currency \\ "USD") do
+    income = total_income(cash_flows, period, user_id, currency)
+    expenses = total_expenses(cash_flows, period, user_id, currency)
     Decimal.sub(income, expenses)
   end
 

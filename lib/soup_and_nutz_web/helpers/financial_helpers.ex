@@ -245,19 +245,4 @@ defmodule SoupAndNutzWeb.FinancialHelpers do
         {liquidity_level, "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800"}
     end
   end
-
-  # Private helper for compact formatting
-  defp format_compact_amount(amount, currency, suffix) do
-    currency_symbol = get_currency_symbol(currency)
-    formatted_amount = :erlang.float_to_binary(amount, [decimals: 1])
-    "#{currency_symbol}#{formatted_amount}#{suffix}"
-  end
-
-  # Private helper to get currency symbols
-  defp get_currency_symbol(:USD), do: "$"
-  defp get_currency_symbol(:EUR), do: "€"
-  defp get_currency_symbol(:GBP), do: "£"
-  defp get_currency_symbol(:JPY), do: "¥"
-  defp get_currency_symbol(:CAD), do: "C$"
-  defp get_currency_symbol(_), do: ""
 end

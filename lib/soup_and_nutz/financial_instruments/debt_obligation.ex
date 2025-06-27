@@ -12,6 +12,9 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligation do
   alias SoupAndNutz.XBRL.Concepts
 
   schema "debt_obligations" do
+    # User association
+    belongs_to :user, SoupAndNutz.Accounts.User
+
     # XBRL-inspired identifier fields
     field :debt_identifier, :string    # Unique identifier for the debt obligation
     field :debt_name, :string         # Human-readable name
@@ -27,7 +30,6 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligation do
 
     # XBRL context fields
     field :reporting_period, :string  # e.g., "2024-12-31"
-    field :reporting_entity, :string  # Entity identifier
     field :reporting_scenario, :string # e.g., "Actual", "Budget", "Forecast"
 
     # Debt-specific fields
@@ -57,17 +59,17 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligation do
   def changeset(debt_obligation, attrs) do
     debt_obligation
     |> cast(attrs, [
-      :debt_identifier, :debt_name, :debt_type, :debt_category,
+      :user_id, :debt_identifier, :debt_name, :debt_type, :debt_category,
       :principal_amount, :outstanding_balance, :interest_rate, :currency_code, :measurement_date,
-      :reporting_period, :reporting_entity, :reporting_scenario,
+      :reporting_period, :reporting_scenario,
       :lender_name, :account_number, :maturity_date, :payment_frequency,
       :monthly_payment, :next_payment_date, :description, :is_active,
       :is_secured, :collateral_description, :risk_level, :priority_level,
       :validation_status, :last_validated_at
     ])
     |> validate_required([
-      :debt_identifier, :debt_name, :debt_type, :currency_code,
-      :measurement_date, :reporting_period, :reporting_entity
+      :user_id, :debt_identifier, :debt_name, :debt_type, :currency_code,
+      :measurement_date, :reporting_period
     ])
     |> validate_inclusion(:debt_type, Concepts.debt_types())
     |> validate_inclusion(:currency_code, Concepts.currency_codes())

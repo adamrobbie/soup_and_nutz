@@ -8,8 +8,8 @@ defmodule SoupAndNutzWeb.DebtPayoffLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    entity = "USER_001"  # In a real app, this would come from session
-    debts = FinancialInstruments.list_debt_obligations_by_entity(entity)
+    user_id = 1  # In a real app, this would come from session
+    debts = FinancialInstruments.list_debt_obligations_by_user(user_id)
     extra_payments = @default_extra_payments
     extra_payment_input = Enum.join(extra_payments, ", ")
     extra_payment_analysis = DebtPayoffPlanner.analyze_extra_payment_impact(debts, extra_payments)
@@ -20,7 +20,7 @@ defmodule SoupAndNutzWeb.DebtPayoffLive.Index do
 
     socket =
       socket
-      |> assign(:entity, entity)
+      |> assign(:user_id, user_id)
       |> assign(:debts, debts)
       |> assign(:strategy_comparison, strategy_comparison)
       |> assign(:extra_payment_analysis, extra_payment_analysis)

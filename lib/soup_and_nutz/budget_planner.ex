@@ -7,15 +7,13 @@ defmodule SoupAndNutz.BudgetPlanner do
   """
 
   import Ecto.Query, warn: false
-  alias SoupAndNutz.{FinancialInstruments, Repo}
-  alias SoupAndNutz.FinancialInstruments.CashFlow
 
   @doc """
   Creates a comprehensive budget based on historical cash flows and goals.
   """
-  def create_budget(entity, period, budget_type \\ "50/30/20", goals \\ []) do
+  def create_budget(user_id, period, budget_type \\ "50/30/20", goals \\ []) do
     # Get historical cash flows for analysis
-    cash_flows = FinancialInstruments.list_cash_flows_by_entity_and_period(entity, period)
+    cash_flows = SoupAndNutz.FinancialInstruments.list_cash_flows_by_user_and_period(user_id, period)
 
     income_flows = Enum.filter(cash_flows, &(&1.cash_flow_type == "Income"))
     expense_flows = Enum.filter(cash_flows, &(&1.cash_flow_type == "Expense"))
@@ -31,14 +29,14 @@ defmodule SoupAndNutz.BudgetPlanner do
     end
 
     %{
-      entity: entity,
+      user_id: user_id,
       period: period,
       budget_type: budget_type,
       total_income: total_income,
       budget_allocation: budget_allocation,
       historical_expenses: historical_expenses,
       savings_goal: Map.get(budget_allocation, "Savings", Decimal.new("0")),
-      created_at: DateTime.utc_now(),
+      created_at: DateTime.utc_now() |> DateTime.truncate(:second),
       goals: goals
     }
   end
@@ -46,8 +44,8 @@ defmodule SoupAndNutz.BudgetPlanner do
   @doc """
   Analyzes budget vs actual spending performance.
   """
-  def analyze_budget_performance(entity, period, budget) do
-    actual_flows = FinancialInstruments.list_cash_flows_by_entity_and_period(entity, period)
+  def analyze_budget_performance(user_id, period, budget) do
+    actual_flows = SoupAndNutz.FinancialInstruments.list_cash_flows_by_user_and_period(user_id, period)
     actual_expenses = group_expenses_by_category(actual_flows)
 
     performance_analysis = Enum.map(budget.budget_allocation, fn {category, budgeted_amount} ->
@@ -72,7 +70,7 @@ defmodule SoupAndNutz.BudgetPlanner do
     end)
 
     %{
-      entity: entity,
+      user_id: user_id,
       period: period,
       overall_performance: calculate_overall_performance(performance_analysis),
       category_performance: performance_analysis,
@@ -84,10 +82,10 @@ defmodule SoupAndNutz.BudgetPlanner do
   @doc """
   Generates budget optimization recommendations.
   """
-  def optimize_budget(entity, period, current_budget, financial_goals) do
-    performance = analyze_budget_performance(entity, period, current_budget)
+  def optimize_budget(user_id, period, current_budget, _financial_goals) do
+    performance = analyze_budget_performance(user_id, period, current_budget)
 
-    optimization_suggestions = []
+    _optimization_suggestions = []
 
     # Analyze overspending categories
     overspent_categories = Enum.filter(performance.category_performance,
@@ -104,9 +102,9 @@ defmodule SoupAndNutz.BudgetPlanner do
           priority: determine_reduction_priority(category)
         }
       end)
-      optimization_suggestions ++ overspending_suggestions
+      _optimization_suggestions ++ overspending_suggestions
     else
-      optimization_suggestions
+      _optimization_suggestions
     end
 
     # Analyze underspending for reallocation
@@ -114,27 +112,27 @@ defmodule SoupAndNutz.BudgetPlanner do
       &(&1.status == "under_budget"))
 
     optimization_suggestions = if length(underspent_categories) > 0 do
-      reallocation_suggestions = suggest_reallocation(underspent_categories, financial_goals)
+      reallocation_suggestions = suggest_reallocation(underspent_categories, _financial_goals)
       optimization_suggestions ++ reallocation_suggestions
     else
       optimization_suggestions
     end
 
     %{
-      entity: entity,
+      user_id: user_id,
       period: period,
       current_performance: performance.overall_performance,
       optimization_suggestions: optimization_suggestions,
       projected_savings: calculate_projected_savings(optimization_suggestions),
-      goal_impact: analyze_goal_impact(optimization_suggestions, financial_goals)
+      goal_impact: analyze_goal_impact(optimization_suggestions, _financial_goals)
     }
   end
 
   @doc """
   Creates budget alerts and notifications.
   """
-  def check_budget_alerts(entity, period, budget) do
-    current_spending = get_current_month_spending(entity, period)
+  def check_budget_alerts(user_id, period, budget) do
+    current_spending = get_current_month_spending(user_id, period)
 
     alerts = Enum.reduce(budget.budget_allocation, [], fn {category, budgeted_amount}, acc ->
       actual_spent = Map.get(current_spending, category, Decimal.new("0"))
@@ -164,7 +162,7 @@ defmodule SoupAndNutz.BudgetPlanner do
     end)
 
     %{
-      entity: entity,
+      user_id: user_id,
       period: period,
       alerts: alerts,
       alert_count: length(alerts),
@@ -345,7 +343,7 @@ defmodule SoupAndNutz.BudgetPlanner do
     end
   end
 
-  defp suggest_reallocation(underspent_categories, financial_goals) do
+  defp suggest_reallocation(underspent_categories, _financial_goals) do
     total_surplus = Enum.reduce(underspent_categories, Decimal.new("0"), fn category, acc ->
       Decimal.add(acc, category.variance)
     end)
@@ -382,7 +380,7 @@ defmodule SoupAndNutz.BudgetPlanner do
     end)
   end
 
-  defp analyze_goal_impact(optimization_suggestions, financial_goals) do
+  defp analyze_goal_impact(optimization_suggestions, _financial_goals) do
     # Analyze how optimization suggestions impact financial goals
     %{
       accelerated_goals: [],
@@ -391,9 +389,9 @@ defmodule SoupAndNutz.BudgetPlanner do
     }
   end
 
-  defp get_current_month_spending(entity, period) do
+  defp get_current_month_spending(user_id, period) do
     # Get current month spending by category
-    current_flows = FinancialInstruments.list_cash_flows_by_entity_and_period(entity, period)
+    current_flows = SoupAndNutz.FinancialInstruments.list_cash_flows_by_user_and_period(user_id, period)
     expense_flows = Enum.filter(current_flows, &(&1.cash_flow_type == "Expense"))
     group_expenses_by_category(expense_flows)
   end

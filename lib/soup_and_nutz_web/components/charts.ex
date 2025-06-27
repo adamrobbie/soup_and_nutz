@@ -7,8 +7,6 @@ defmodule SoupAndNutzWeb.Components.Charts do
   """
 
   use Phoenix.Component
-  import Phoenix.HTML
-  import Phoenix.HTML.Form
 
   @doc """
   Renders a line chart with the given data and options.

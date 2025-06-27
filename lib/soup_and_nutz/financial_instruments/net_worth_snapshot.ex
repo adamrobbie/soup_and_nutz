@@ -12,8 +12,10 @@ defmodule SoupAndNutz.FinancialInstruments.NetWorthSnapshot do
   alias SoupAndNutz.Repo
 
   schema "net_worth_snapshots" do
+    # User association
+    belongs_to :user, SoupAndNutz.Accounts.User
+
     field :snapshot_date, :date
-    field :reporting_entity, :string
     field :reporting_period, :string
     field :currency_code, :string, default: "USD"
 
@@ -60,7 +62,7 @@ defmodule SoupAndNutz.FinancialInstruments.NetWorthSnapshot do
   def changeset(net_worth_snapshot, attrs) do
     net_worth_snapshot
     |> cast(attrs, [
-      :snapshot_date, :reporting_entity, :reporting_period, :currency_code,
+      :user_id, :snapshot_date, :reporting_period, :currency_code,
       :total_assets, :total_liabilities, :net_worth,
       :monthly_income, :monthly_expenses, :net_monthly_cash_flow, :savings_rate,
       :debt_to_asset_ratio, :debt_to_income_ratio, :liquidity_ratio, :emergency_fund_ratio,
@@ -70,33 +72,33 @@ defmodule SoupAndNutz.FinancialInstruments.NetWorthSnapshot do
       :xbrl_concept_identifier, :xbrl_context_ref, :xbrl_unit_ref
     ])
     |> validate_required([
-      :snapshot_date, :reporting_entity, :reporting_period, :currency_code,
+      :user_id, :snapshot_date, :reporting_period, :currency_code,
       :total_assets, :total_liabilities, :net_worth
     ])
     |> validate_net_worth_consistency()
     |> validate_financial_ratios()
     |> validate_xbrl_compliance()
-    |> unique_constraint([:snapshot_date, :reporting_entity, :snapshot_type])
+    |> unique_constraint([:snapshot_date, :user_id, :snapshot_type])
   end
 
   @doc """
   Creates a net worth snapshot from comprehensive financial data.
   """
-  def create_snapshot_from_data(entity, period, currency \\ "USD") do
+  def create_snapshot_from_data(user_id, period, currency \\ "USD") do
     alias SoupAndNutz.FinancialAnalysis
     alias SoupAndNutz.FinancialInstruments
 
     # Get comprehensive financial report
-    report = FinancialInstruments.generate_comprehensive_net_worth_report(entity, period, currency)
+    report = FinancialInstruments.generate_comprehensive_net_worth_report(user_id, period, currency)
 
     # Calculate projections
-    projections_12m = FinancialAnalysis.calculate_net_worth(entity, period, currency, 12)
-    projections_24m = FinancialAnalysis.calculate_net_worth(entity, period, currency, 24)
-    projections_60m = FinancialAnalysis.calculate_net_worth(entity, period, currency, 60)
+    projections_12m = FinancialAnalysis.calculate_net_worth(user_id, period, currency, 12)
+    projections_24m = FinancialAnalysis.calculate_net_worth(user_id, period, currency, 24)
+    projections_60m = FinancialAnalysis.calculate_net_worth(user_id, period, currency, 60)
 
     attrs = %{
+      user_id: user_id,
       snapshot_date: Date.utc_today(),
-      reporting_entity: entity,
       reporting_period: period,
       currency_code: currency,
 
@@ -139,9 +141,9 @@ defmodule SoupAndNutz.FinancialInstruments.NetWorthSnapshot do
   @doc """
   Retrieves net worth history for trend analysis.
   """
-  def get_net_worth_history(entity, start_date, end_date, currency \\ "USD") do
+  def get_net_worth_history(user_id, start_date, end_date, currency \\ "USD") do
     NetWorthSnapshot
-    |> where([n], n.reporting_entity == ^entity and
+    |> where([n], n.user_id == ^user_id and
                 n.currency_code == ^currency and
                 n.is_active == true and
                 n.snapshot_date >= ^start_date and
@@ -153,8 +155,8 @@ defmodule SoupAndNutz.FinancialInstruments.NetWorthSnapshot do
   @doc """
   Calculates net worth growth rate over a period.
   """
-  def calculate_growth_rate(entity, start_date, end_date, currency \\ "USD") do
-    history = get_net_worth_history(entity, start_date, end_date, currency)
+  def calculate_growth_rate(user_id, start_date, end_date, currency \\ "USD") do
+    history = get_net_worth_history(user_id, start_date, end_date, currency)
 
     if length(history) < 2 do
       {:error, "Insufficient data for growth rate calculation"}
@@ -184,8 +186,8 @@ defmodule SoupAndNutz.FinancialInstruments.NetWorthSnapshot do
   @doc """
   Analyzes net worth volatility and stability.
   """
-  def analyze_volatility(entity, start_date, end_date, currency \\ "USD") do
-    history = get_net_worth_history(entity, start_date, end_date, currency)
+  def analyze_volatility(user_id, start_date, end_date, currency \\ "USD") do
+    history = get_net_worth_history(user_id, start_date, end_date, currency)
 
     if length(history) < 3 do
       {:error, "Insufficient data for volatility analysis"}

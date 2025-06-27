@@ -19,11 +19,11 @@ defmodule SoupAndNutz.FinancialInstruments do
   end
 
   @doc """
-  Returns the list of assets for a specific entity.
+  Returns the list of assets for a specific user (XBRL: reporting_entity is retained for context, but user_id is primary).
   """
-  def list_assets_by_entity(entity) do
+  def list_assets_by_user(user_id) do
     Asset
-    |> where([a], a.reporting_entity == ^entity and a.is_active == true)
+    |> where([a], a.user_id == ^user_id and a.is_active == true)
     |> Repo.all()
   end
 
@@ -83,11 +83,11 @@ defmodule SoupAndNutz.FinancialInstruments do
   end
 
   @doc """
-  Returns the list of debt obligations for a specific entity.
+  Returns the list of debt obligations for a specific user (XBRL: reporting_entity is retained for context, but user_id is primary).
   """
-  def list_debt_obligations_by_entity(entity) do
+  def list_debt_obligations_by_user(user_id) do
     DebtObligation
-    |> where([d], d.reporting_entity == ^entity and d.is_active == true)
+    |> where([d], d.user_id == ^user_id and d.is_active == true)
     |> Repo.all()
   end
 
@@ -147,20 +147,20 @@ defmodule SoupAndNutz.FinancialInstruments do
   end
 
   @doc """
-  Returns the list of cash flows for a specific entity.
+  Returns the list of cash flows for a specific user (XBRL: reporting_entity is retained for context, but user_id is primary).
   """
-  def list_cash_flows_by_entity(entity) do
+  def list_cash_flows_by_user(user_id) do
     CashFlow
-    |> where([c], c.reporting_entity == ^entity and c.is_active == true)
+    |> where([c], c.user_id == ^user_id and c.is_active == true)
     |> Repo.all()
   end
 
   @doc """
-  Returns the list of cash flows for a specific entity and period.
+  Returns the list of cash flows for a specific user and period (XBRL: reporting_entity is retained for context, but user_id is primary).
   """
-  def list_cash_flows_by_entity_and_period(entity, period) do
+  def list_cash_flows_by_user_and_period(user_id, period) do
     CashFlow
-    |> where([c], c.reporting_entity == ^entity and c.reporting_period == ^period and c.is_active == true)
+    |> where([c], c.user_id == ^user_id and c.reporting_period == ^period and c.is_active == true)
     |> Repo.all()
   end
 
@@ -211,17 +211,17 @@ defmodule SoupAndNutz.FinancialInstruments do
   end
 
   @doc """
-  Generates a cash flow report for a given entity and period.
+  Generates a cash flow report for a given user and period.
   """
-  def generate_cash_flow_report(entity, period, currency \\ "USD") do
-    cash_flows = list_cash_flows_by_entity_and_period(entity, period)
+  def generate_cash_flow_report(user_id, period, currency \\ "USD") do
+    cash_flows = list_cash_flows_by_user_and_period(user_id, period)
 
-    total_income = CashFlow.total_income(cash_flows, period, entity, currency)
-    total_expenses = CashFlow.total_expenses(cash_flows, period, entity, currency)
-    net_cash_flow = CashFlow.net_cash_flow(cash_flows, period, entity, currency)
+    total_income = CashFlow.total_income(cash_flows, period, user_id, currency)
+    total_expenses = CashFlow.total_expenses(cash_flows, period, user_id, currency)
+    net_cash_flow = CashFlow.net_cash_flow(cash_flows, period, user_id, currency)
 
     %{
-      entity: entity,
+      user_id: user_id,
       reporting_period: period,
       currency: currency,
       total_income: total_income,
@@ -238,18 +238,18 @@ defmodule SoupAndNutz.FinancialInstruments do
   # Financial reporting functions
 
   @doc """
-  Generates a comprehensive financial position report for a given entity and period.
+  Generates a comprehensive financial position report for a given user and period.
   """
-  def generate_financial_position_report(entity, period, currency \\ "USD") do
-    assets = get_assets_by_entity_and_period(entity, period)
-    debts = get_debts_by_entity_and_period(entity, period)
+  def generate_financial_position_report(user_id, period, currency \\ "USD") do
+    assets = get_assets_by_user_and_period(user_id, period)
+    debts = get_debts_by_user_and_period(user_id, period)
 
     total_assets = Asset.total_fair_value(assets, currency)
     total_debt = DebtObligation.total_outstanding_debt(debts, currency)
     net_worth = Decimal.sub(total_assets, total_debt)
 
     %{
-      entity: entity,
+      user_id: user_id,
       reporting_period: period,
       currency: currency,
       total_assets: total_assets,
@@ -265,29 +265,29 @@ defmodule SoupAndNutz.FinancialInstruments do
   @doc """
   Generates a comprehensive net worth report integrating assets, liabilities, and cash flows.
   """
-  def generate_comprehensive_net_worth_report(entity, period, currency \\ "USD") do
+  def generate_comprehensive_net_worth_report(user_id, period, currency \\ "USD") do
     alias SoupAndNutz.FinancialAnalysis
 
     # Get basic financial position
-    position_report = generate_financial_position_report(entity, period, currency)
+    position_report = generate_financial_position_report(user_id, period, currency)
 
     # Get cash flow analysis
-    cash_flow_report = generate_cash_flow_report(entity, period, currency)
+    cash_flow_report = generate_cash_flow_report(user_id, period, currency)
 
     # Get comprehensive financial health analysis
-    health_report = FinancialAnalysis.generate_financial_health_report(entity, period, currency)
+    health_report = FinancialAnalysis.generate_financial_health_report(user_id, period, currency)
 
     # Get projected net worth
-    net_worth_projection = FinancialAnalysis.calculate_net_worth(entity, period, currency, 12)
+    net_worth_projection = FinancialAnalysis.calculate_net_worth(user_id, period, currency, 12)
 
     # Get cash flow impact analysis
-    cash_flow_impact = FinancialAnalysis.analyze_cash_flow_impact(entity, period, currency, 12)
+    cash_flow_impact = FinancialAnalysis.analyze_cash_flow_impact(user_id, period, currency, 12)
 
     # Get financial ratios
-    financial_ratios = FinancialAnalysis.calculate_financial_ratios(entity, period, currency)
+    financial_ratios = FinancialAnalysis.calculate_financial_ratios(user_id, period, currency)
 
     %{
-      entity: entity,
+      user_id: user_id,
       reporting_period: period,
       currency: currency,
 
@@ -343,11 +343,11 @@ defmodule SoupAndNutz.FinancialInstruments do
   @doc """
   Tracks net worth changes over time for trend analysis.
   """
-  def track_net_worth_history(entity, start_period, end_period, currency \\ "USD") do
+  def track_net_worth_history(user_id, start_period, end_period, currency \\ "USD") do
     periods = generate_period_range(start_period, end_period)
 
     history = Enum.map(periods, fn period ->
-      report = generate_comprehensive_net_worth_report(entity, period, currency)
+      report = generate_comprehensive_net_worth_report(user_id, period, currency)
 
       %{
         period: period,
@@ -362,7 +362,7 @@ defmodule SoupAndNutz.FinancialInstruments do
     end)
 
     %{
-      entity: entity,
+      user_id: user_id,
       start_period: start_period,
       end_period: end_period,
       currency: currency,
@@ -374,11 +374,11 @@ defmodule SoupAndNutz.FinancialInstruments do
   @doc """
   Calculates net worth velocity (rate of change) and acceleration.
   """
-  def calculate_net_worth_velocity(entity, period, currency \\ "USD") do
+  def calculate_net_worth_velocity(user_id, period, currency \\ "USD") do
     # Get current and previous period data
-    current_report = generate_comprehensive_net_worth_report(entity, period, currency)
+    current_report = generate_comprehensive_net_worth_report(user_id, period, currency)
     previous_period = get_previous_period(period)
-    previous_report = generate_comprehensive_net_worth_report(entity, previous_period, currency)
+    previous_report = generate_comprehensive_net_worth_report(user_id, previous_period, currency)
 
     current_net_worth = current_report.current_net_worth
     previous_net_worth = previous_report.current_net_worth
@@ -387,11 +387,11 @@ defmodule SoupAndNutz.FinancialInstruments do
     net_worth_velocity = Decimal.div(net_worth_change, Decimal.new("1")) # Monthly velocity
 
     # Calculate acceleration (change in velocity)
-    previous_velocity = calculate_previous_velocity(entity, previous_period, currency)
+    previous_velocity = calculate_previous_velocity(user_id, previous_period, currency)
     acceleration = Decimal.sub(net_worth_velocity, previous_velocity)
 
     %{
-      entity: entity,
+      user_id: user_id,
       period: period,
       currency: currency,
       current_net_worth: current_net_worth,
@@ -463,15 +463,15 @@ defmodule SoupAndNutz.FinancialInstruments do
     end
   end
 
-  defp get_assets_by_entity_and_period(entity, period) do
+  defp get_assets_by_user_and_period(user_id, period) do
     Asset
-    |> where([a], a.reporting_entity == ^entity and a.reporting_period == ^period and a.is_active == true)
+    |> where([a], a.user_id == ^user_id and a.reporting_period == ^period and a.is_active == true)
     |> Repo.all()
   end
 
-  defp get_debts_by_entity_and_period(entity, period) do
+  defp get_debts_by_user_and_period(user_id, period) do
     DebtObligation
-    |> where([d], d.reporting_entity == ^entity and d.reporting_period == ^period and d.is_active == true)
+    |> where([d], d.user_id == ^user_id and d.reporting_period == ^period and d.is_active == true)
     |> Repo.all()
   end
 
@@ -591,7 +591,7 @@ defmodule SoupAndNutz.FinancialInstruments do
     end
   end
 
-  defp calculate_previous_velocity(entity, previous_period, currency) do
+  defp calculate_previous_velocity(_user_id, _previous_period, _currency) do
     # For simplicity, return 0 as previous velocity
     # In a real implementation, you'd calculate this from historical data
     Decimal.new("0")

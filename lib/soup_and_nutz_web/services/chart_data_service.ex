@@ -6,7 +6,6 @@ defmodule SoupAndNutzWeb.Services.ChartDataService do
   into the standardized format expected by the chart components.
   """
 
-  alias SoupAndNutz.FinancialInstruments.{Asset, DebtObligation, CashFlow}
   alias SoupAndNutz.FinancialAnalysis
   alias SoupAndNutz.BudgetPlanner
   alias SoupAndNutz.DebtPayoffPlanner
@@ -152,7 +151,7 @@ defmodule SoupAndNutzWeb.Services.ChartDataService do
   Prepares budget performance data for a bar chart.
   """
   def prepare_budget_performance(budget_data) do
-    performance = BudgetPlanner.analyze_budget_performance(budget_data)
+    performance = BudgetPlanner.analyze_budget_performance(budget_data.user_id, budget_data.period, budget_data.currency)
 
     %{
       labels: Enum.map(performance.category_performance, & &1.category),
@@ -180,8 +179,8 @@ defmodule SoupAndNutzWeb.Services.ChartDataService do
   @doc """
   Prepares debt payoff timeline data for a line chart.
   """
-  def prepare_debt_payoff_timeline(debts, strategy \\ "avalanche", extra_payment \\ Decimal.new("0")) do
-    schedule = DebtPayoffPlanner.calculate_payoff_schedule(debts, strategy, extra_payment)
+  def prepare_debt_payoff_timeline(debts, _strategy \\ "avalanche", extra_payment \\ Decimal.new("0")) do
+    schedule = DebtPayoffPlanner.calculate_avalanche_payoff(debts, extra_payment)
 
     %{
       labels: Enum.map(schedule.monthly_breakdown, fn month ->
@@ -213,8 +212,8 @@ defmodule SoupAndNutzWeb.Services.ChartDataService do
   @doc """
   Prepares financial health metrics data for a radar chart.
   """
-  def prepare_financial_health_radar(assets, debts, cash_flows) do
-    analysis = FinancialAnalysis.analyze_financial_health(assets, debts, cash_flows)
+  def prepare_financial_health_radar(_assets, _debts, _cash_flows) do
+    analysis = FinancialAnalysis.generate_financial_health_report(1, "2025-01", "USD")
 
     %{
       labels: ["Debt-to-Income", "Savings Rate", "Emergency Fund", "Investment Ratio", "Cash Flow"],
@@ -222,11 +221,11 @@ defmodule SoupAndNutzWeb.Services.ChartDataService do
         %{
           label: "Current Score",
           data: [
-            analysis.metrics.debt_to_income_ratio,
-            analysis.metrics.savings_rate,
-            analysis.metrics.emergency_fund_ratio,
-            analysis.metrics.investment_ratio,
-            analysis.metrics.cash_flow_stability
+            analysis.debt_to_asset_ratio,
+            analysis.savings_rate,
+            analysis.emergency_fund_adequacy,
+            analysis.investment_ratio,
+            analysis.liquidity_ratio
           ],
           borderColor: "#3B82F6",
           backgroundColor: "rgba(59, 130, 246, 0.2)",

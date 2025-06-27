@@ -1,22 +1,21 @@
 defmodule SoupAndNutzWeb.BudgetLive.Index do
   use SoupAndNutzWeb, :live_view
 
-  alias SoupAndNutz.{BudgetPlanner, FinancialInstruments}
-  alias SoupAndNutz.FinancialInstruments.CashFlow
+  alias SoupAndNutz.BudgetPlanner
 
   @impl true
   def mount(_params, _session, socket) do
-    entity = "USER_001"  # In a real app, this would come from session
+    user_id = 1  # In a real app, this would come from session
     period = "2025-01"
 
     # Load initial data
-    budget = BudgetPlanner.create_budget(entity, period, "50/30/20")
-    performance = BudgetPlanner.analyze_budget_performance(entity, period, budget)
-    alerts = BudgetPlanner.check_budget_alerts(entity, period, budget)
+    budget = BudgetPlanner.create_budget(user_id, period, "50/30/20")
+    performance = BudgetPlanner.analyze_budget_performance(user_id, period, budget)
+    alerts = BudgetPlanner.check_budget_alerts(user_id, period, budget)
 
     socket =
       socket
-      |> assign(:entity, entity)
+      |> assign(:user_id, user_id)
       |> assign(:period, period)
       |> assign(:budget, budget)
       |> assign(:performance, performance)
@@ -31,13 +30,13 @@ defmodule SoupAndNutzWeb.BudgetLive.Index do
 
   @impl true
   def handle_event("change_budget_type", %{"budget_type" => budget_type}, socket) do
-    entity = socket.assigns.entity
+    user_id = socket.assigns.user_id
     period = socket.assigns.period
 
     # Create new budget with selected type
-    new_budget = BudgetPlanner.create_budget(entity, period, budget_type)
-    new_performance = BudgetPlanner.analyze_budget_performance(entity, period, new_budget)
-    new_alerts = BudgetPlanner.check_budget_alerts(entity, period, new_budget)
+    new_budget = BudgetPlanner.create_budget(user_id, period, budget_type)
+    new_performance = BudgetPlanner.analyze_budget_performance(user_id, period, new_budget)
+    new_alerts = BudgetPlanner.check_budget_alerts(user_id, period, new_budget)
 
     socket =
       socket
@@ -52,13 +51,13 @@ defmodule SoupAndNutzWeb.BudgetLive.Index do
 
   @impl true
   def handle_event("optimize_budget", _params, socket) do
-    entity = socket.assigns.entity
+    user_id = socket.assigns.user_id
     period = socket.assigns.period
     budget = socket.assigns.budget
 
     # Generate optimization recommendations
     financial_goals = []  # In a real app, load from user preferences
-    optimization = BudgetPlanner.optimize_budget(entity, period, budget, financial_goals)
+    optimization = BudgetPlanner.optimize_budget(user_id, period, budget, financial_goals)
 
     socket =
       socket

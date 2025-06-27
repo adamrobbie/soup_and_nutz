@@ -1,8 +1,14 @@
 # Use the official Elixir image as base
 FROM elixir:1.15-alpine
 
-# Install build dependencies
-RUN apk add --no-cache build-base git nodejs npm inotify-tools
+# Install build dependencies including those needed for bcrypt_elixir
+RUN apk add --no-cache build-base git nodejs npm inotify-tools \
+    && apk add --no-cache --virtual .build-deps \
+        gcc \
+        musl-dev \
+        make \
+        libc-dev \
+        openssl-dev
 
 # Set working directory
 WORKDIR /app
@@ -18,9 +24,11 @@ ENV MIX_ENV=dev
 COPY mix.exs ./
 COPY mix.lock* ./
 
-# Install dependencies
-RUN mix deps.get --only $MIX_ENV
-RUN mkdir config
+# Install dependencies with proper error handling
+RUN mix deps.get --only $MIX_ENV || (echo "Dependency installation failed, retrying..." && mix deps.get --only $MIX_ENV)
+
+# Create config directory
+RUN mkdir -p config
 
 # Copy config files
 COPY config/config.exs config/$MIX_ENV.exs config/
@@ -39,6 +47,9 @@ RUN if [ -f assets/package.json ]; then \
 
 # Copy the rest of the application
 COPY lib lib
+
+# Clean up build dependencies
+RUN apk del .build-deps
 
 # Expose port
 EXPOSE 4000

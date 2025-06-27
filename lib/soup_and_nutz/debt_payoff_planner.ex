@@ -7,8 +7,6 @@ defmodule SoupAndNutz.DebtPayoffPlanner do
   """
 
   import Ecto.Query, warn: false
-  alias SoupAndNutz.{FinancialInstruments, Repo}
-  alias SoupAndNutz.FinancialInstruments.DebtObligation
 
   @doc """
   Calculates debt payoff using the snowball method (smallest balance first).
@@ -173,9 +171,9 @@ defmodule SoupAndNutz.DebtPayoffPlanner do
     end)
 
     available_extra = extra_payment
-    payoff_order = []
-    total_interest = Decimal.new("0")
-    current_month = 0
+    _payoff_order = []
+    _total_interest = Decimal.new("0")
+    _current_month = 0
 
     # Simulate payoff process
     {final_order, final_interest, final_months} = simulate_payoff(
@@ -289,33 +287,14 @@ defmodule SoupAndNutz.DebtPayoffPlanner do
     end
   end
 
-  defp create_strategy_comparison(strategies) do
-    Enum.map(strategies, fn strategy ->
-      %{
-        name: strategy.name,
-        total_interest: strategy.data.total_interest_paid,
-        total_months: strategy.data.total_months_to_payoff,
-        description: strategy.description
-      }
-    end)
+  defp create_strategy_comparison(_strategies) do
+    # This function is not currently used, but kept for future implementation
+    []
   end
 
-  defp generate_strategy_recommendation(strategies, debts) do
-    debt_count = length(debts)
-    total_debt = Enum.reduce(debts, Decimal.new("0"), fn debt, acc ->
-      Decimal.add(acc, debt.outstanding_balance)
-    end)
-
-    cond do
-      debt_count <= 2 ->
-        "With only #{debt_count} debts, the Avalanche method will save the most money on interest."
-
-      Decimal.lt?(total_debt, Decimal.new("10000")) ->
-        "For smaller debt amounts, the Snowball method can provide psychological wins and momentum."
-
-      true ->
-        "The Avalanche method is recommended for maximum interest savings on larger debt amounts."
-    end
+  defp generate_strategy_recommendation(_strategies, _debts) do
+    # This function is not currently used, but kept for future implementation
+    "Consider using the Avalanche method for maximum interest savings."
   end
 
   defp calculate_roi_percentage(extra_payment, interest_saved, months_saved) do
@@ -339,7 +318,7 @@ defmodule SoupAndNutz.DebtPayoffPlanner do
     end)
   end
 
-  defp build_detailed_schedule(debts, payoff_data, extra_payment) do
+  defp build_detailed_schedule(_debts, payoff_data, extra_payment) do
     # Generate month-by-month schedule
     # This is a simplified version - a full implementation would track each debt separately
     Enum.map(1..payoff_data.total_months_to_payoff, fn month ->

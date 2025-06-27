@@ -8,15 +8,14 @@ defmodule SoupAndNutz.FinancialAnalysis do
 
   alias SoupAndNutz.FinancialInstruments
   alias SoupAndNutz.FinancialInstruments.{Asset, CashFlow, DebtObligation}
-  alias SoupAndNutz.Repo
 
   @doc """
   Calculates comprehensive net worth including cash flow projections.
   """
-  def calculate_net_worth(entity, period, currency \\ "USD", projection_months \\ 12) do
-    assets = FinancialInstruments.list_assets_by_entity(entity)
-    debts = FinancialInstruments.list_debt_obligations_by_entity(entity)
-    cash_flows = FinancialInstruments.list_cash_flows_by_entity_and_period(entity, period)
+  def calculate_net_worth(user_id, period, currency \\ "USD", projection_months \\ 12) do
+    assets = FinancialInstruments.list_assets_by_user(user_id)
+    debts = FinancialInstruments.list_debt_obligations_by_user(user_id)
+    cash_flows = FinancialInstruments.list_cash_flows_by_user_and_period(user_id, period)
 
     total_assets = Asset.total_fair_value(assets, currency)
     total_debts = DebtObligation.total_outstanding_debt(debts, currency)
@@ -31,7 +30,7 @@ defmodule SoupAndNutz.FinancialAnalysis do
     )
 
     %{
-      entity: entity,
+      user_id: user_id,
       reporting_period: period,
       currency: currency,
       current_net_worth: current_net_worth,
@@ -46,23 +45,23 @@ defmodule SoupAndNutz.FinancialAnalysis do
   @doc """
   Generates a comprehensive financial health report.
   """
-  def generate_financial_health_report(entity, period, currency \\ "USD") do
-    assets = FinancialInstruments.list_assets_by_entity(entity)
-    debts = FinancialInstruments.list_debt_obligations_by_entity(entity)
-    cash_flows = FinancialInstruments.list_cash_flows_by_entity_and_period(entity, period)
+  def generate_financial_health_report(user_id, period, currency \\ "USD") do
+    assets = FinancialInstruments.list_assets_by_user(user_id)
+    debts = FinancialInstruments.list_debt_obligations_by_user(user_id)
+    cash_flows = FinancialInstruments.list_cash_flows_by_user_and_period(user_id, period)
 
     total_assets = Asset.total_fair_value(assets, currency)
     total_debts = DebtObligation.total_outstanding_debt(debts, currency)
     net_worth = Decimal.sub(total_assets, total_debts)
 
-    total_income = CashFlow.total_income(cash_flows, period, entity, currency)
-    total_expenses = CashFlow.total_expenses(cash_flows, period, entity, currency)
-    net_cash_flow = CashFlow.net_cash_flow(cash_flows, period, entity, currency)
+    total_income = CashFlow.total_income(cash_flows, period, user_id, currency)
+    total_expenses = CashFlow.total_expenses(cash_flows, period, user_id, currency)
+    net_cash_flow = CashFlow.net_cash_flow(cash_flows, period, user_id, currency)
 
     monthly_debt_payments = DebtObligation.total_monthly_payments(debts, currency)
 
     %{
-      entity: entity,
+      user_id: user_id,
       reporting_period: period,
       currency: currency,
 
@@ -110,11 +109,11 @@ defmodule SoupAndNutz.FinancialAnalysis do
   @doc """
   Analyzes cash flow impact on net worth over time.
   """
-  def analyze_cash_flow_impact(entity, period, currency \\ "USD", months \\ 12) do
-    cash_flows = FinancialInstruments.list_cash_flows_by_entity_and_period(entity, period)
+  def analyze_cash_flow_impact(user_id, period, currency \\ "USD", months \\ 12) do
+    cash_flows = FinancialInstruments.list_cash_flows_by_user_and_period(user_id, period)
 
-    monthly_income = CashFlow.total_income(cash_flows, period, entity, currency)
-    monthly_expenses = CashFlow.total_expenses(cash_flows, period, entity, currency)
+    monthly_income = CashFlow.total_income(cash_flows, period, user_id, currency)
+    monthly_expenses = CashFlow.total_expenses(cash_flows, period, user_id, currency)
     monthly_net = Decimal.sub(monthly_income, monthly_expenses)
 
     # Calculate cumulative impact
@@ -124,7 +123,7 @@ defmodule SoupAndNutz.FinancialAnalysis do
     end)
 
     %{
-      entity: entity,
+      user_id: user_id,
       period: period,
       currency: currency,
       analysis_months: months,
@@ -142,19 +141,19 @@ defmodule SoupAndNutz.FinancialAnalysis do
   @doc """
   Calculates financial ratios and metrics for comprehensive analysis.
   """
-  def calculate_financial_ratios(entity, period, currency \\ "USD") do
-    assets = FinancialInstruments.list_assets_by_entity(entity)
-    debts = FinancialInstruments.list_debt_obligations_by_entity(entity)
-    cash_flows = FinancialInstruments.list_cash_flows_by_entity_and_period(entity, period)
+  def calculate_financial_ratios(user_id, period, currency \\ "USD") do
+    assets = FinancialInstruments.list_assets_by_user(user_id)
+    debts = FinancialInstruments.list_debt_obligations_by_user(user_id)
+    cash_flows = FinancialInstruments.list_cash_flows_by_user_and_period(user_id, period)
 
     _total_assets = Asset.total_fair_value(assets, currency)
     total_debts = DebtObligation.total_outstanding_debt(debts, currency)
-    monthly_income = CashFlow.total_income(cash_flows, period, entity, currency)
-    monthly_expenses = CashFlow.total_expenses(cash_flows, period, entity, currency)
+    monthly_income = CashFlow.total_income(cash_flows, period, user_id, currency)
+    monthly_expenses = CashFlow.total_expenses(cash_flows, period, user_id, currency)
     monthly_debt_payments = DebtObligation.total_monthly_payments(debts, currency)
 
     %{
-      entity: entity,
+      user_id: user_id,
       period: period,
       currency: currency,
 
@@ -358,7 +357,7 @@ defmodule SoupAndNutz.FinancialAnalysis do
 
   defp calculate_cash_flow_stability(cash_flows) do
     recurring_income = Enum.filter(cash_flows, &(&1.cash_flow_type == "Income" && &1.is_recurring))
-    total_income = CashFlow.total_income(cash_flows, "2025-01", "SMITH_FAMILY_001", "USD")
+    total_income = CashFlow.total_income(cash_flows, "2025-01", 1, "USD")
 
     if Decimal.eq?(total_income, Decimal.new("0")) do
       Decimal.new("0")
@@ -456,25 +455,29 @@ defmodule SoupAndNutz.FinancialAnalysis do
     recommendations = []
 
     # Net worth recommendations
-    if Decimal.lt?(net_worth, Decimal.new("0")) do
-      recommendations = [%{
+    recommendations = if Decimal.lt?(net_worth, Decimal.new("0")) do
+      [%{
         category: "Net Worth",
         priority: "High",
         title: "Negative Net Worth",
         description: "Focus on debt reduction and increasing income to achieve positive net worth",
         action_items: ["Increase income", "Reduce expenses", "Pay down high-interest debt"]
       } | recommendations]
+    else
+      recommendations
     end
 
     # Cash flow recommendations
-    if Decimal.lt?(net_cash_flow, Decimal.new("0")) do
-      recommendations = [%{
+    recommendations = if Decimal.lt?(net_cash_flow, Decimal.new("0")) do
+      [%{
         category: "Cash Flow",
         priority: "Critical",
         title: "Negative Cash Flow",
         description: "Monthly expenses exceed income - immediate action required",
         action_items: ["Reduce discretionary spending", "Increase income", "Review all expenses"]
       } | recommendations]
+    else
+      recommendations
     end
 
     # Emergency fund recommendations
@@ -483,14 +486,16 @@ defmodule SoupAndNutz.FinancialAnalysis do
       Decimal.add(acc, asset.fair_value)
     end)
 
-    if Decimal.lt?(emergency_value, Decimal.new("10000")) do
-      recommendations = [%{
+    recommendations = if Decimal.lt?(emergency_value, Decimal.new("10000")) do
+      [%{
         category: "Emergency Fund",
         priority: "High",
         title: "Insufficient Emergency Fund",
         description: "Emergency fund should cover 3-6 months of expenses",
         action_items: ["Set up automatic savings", "Reduce expenses", "Allocate windfalls to emergency fund"]
       } | recommendations]
+    else
+      recommendations
     end
 
     # Investment recommendations
@@ -499,14 +504,16 @@ defmodule SoupAndNutz.FinancialAnalysis do
       Decimal.add(acc, asset.fair_value)
     end)
 
-    if Decimal.lt?(investment_value, Decimal.new("50000")) do
-      recommendations = [%{
+    recommendations = if Decimal.lt?(investment_value, Decimal.new("50000")) do
+      [%{
         category: "Investments",
         priority: "Medium",
         title: "Increase Investment Allocation",
         description: "Consider increasing investment contributions for long-term wealth building",
         action_items: ["Increase 401(k) contributions", "Start IRA contributions", "Consider taxable investments"]
       } | recommendations]
+    else
+      recommendations
     end
 
     recommendations

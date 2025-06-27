@@ -63,11 +63,17 @@ defmodule SoupAndNutz.MixProject do
       {:bandit, "~> 1.5"},
       {:excoveralls, "~> 0.18", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:money, "~> 1.12"}
+      {:money, "~> 1.12"},
+      {:bcrypt_elixir, "~> 3.0"},
+      # E2E Testing dependencies
+      {:hound, "~> 1.1", only: :test},
+      {:ex_machina, "~> 2.7", only: :test},
+      {:faker, "~> 0.17", only: :test}
     ]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
+  #
   # For example, to install project dependencies and perform other setup tasks, run:
   #
   #     $ mix setup
@@ -82,6 +88,10 @@ defmodule SoupAndNutz.MixProject do
       "test.coverage": ["coveralls"],
       "test.coverage.html": ["coveralls.html"],
       "test.coverage.json": ["coveralls.json"],
+      # E2E Testing aliases
+      "test.e2e": ["ecto.create --quiet", "ecto.migrate --quiet", "test --only e2e"],
+      "test.unit": ["ecto.create --quiet", "ecto.migrate --quiet", "test --exclude e2e"],
+      "test.all": ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind soup_and_nutz", "esbuild soup_and_nutz"],
       "assets.deploy": [
