@@ -8,8 +8,4 @@ defmodule SoupAndNutzWeb.PageHTML do
   import SoupAndNutzWeb.FinancialHelpers
 
   embed_templates "page_html/*"
-
-  def render("welcome.html", assigns) do
-    Phoenix.View.render_to_iodata(__MODULE__, "welcome.html", assigns, layout: false)
-  end
 end

@@ -82,10 +82,10 @@ defmodule SoupAndNutz.BudgetPlanner do
   @doc """
   Generates budget optimization recommendations.
   """
-  def optimize_budget(user_id, period, current_budget, _financial_goals) do
+  def optimize_budget(user_id, period, current_budget, financial_goals) do
     performance = analyze_budget_performance(user_id, period, current_budget)
 
-    _optimization_suggestions = []
+    optimization_suggestions = []
 
     # Analyze overspending categories
     overspent_categories = Enum.filter(performance.category_performance,
@@ -102,9 +102,9 @@ defmodule SoupAndNutz.BudgetPlanner do
           priority: determine_reduction_priority(category)
         }
       end)
-      _optimization_suggestions ++ overspending_suggestions
+      optimization_suggestions ++ overspending_suggestions
     else
-      _optimization_suggestions
+      optimization_suggestions
     end
 
     # Analyze underspending for reallocation
@@ -112,7 +112,7 @@ defmodule SoupAndNutz.BudgetPlanner do
       &(&1.status == "under_budget"))
 
     optimization_suggestions = if length(underspent_categories) > 0 do
-      reallocation_suggestions = suggest_reallocation(underspent_categories, _financial_goals)
+      reallocation_suggestions = suggest_reallocation(underspent_categories, financial_goals)
       optimization_suggestions ++ reallocation_suggestions
     else
       optimization_suggestions
@@ -124,7 +124,7 @@ defmodule SoupAndNutz.BudgetPlanner do
       current_performance: performance.overall_performance,
       optimization_suggestions: optimization_suggestions,
       projected_savings: calculate_projected_savings(optimization_suggestions),
-      goal_impact: analyze_goal_impact(optimization_suggestions, _financial_goals)
+      goal_impact: analyze_goal_impact(optimization_suggestions, financial_goals)
     }
   end
 
@@ -380,7 +380,7 @@ defmodule SoupAndNutz.BudgetPlanner do
     end)
   end
 
-  defp analyze_goal_impact(optimization_suggestions, _financial_goals) do
+  defp analyze_goal_impact(_optimization_suggestions, _financial_goals) do
     # Analyze how optimization suggestions impact financial goals
     %{
       accelerated_goals: [],

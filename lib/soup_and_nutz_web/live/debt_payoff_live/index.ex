@@ -51,7 +51,7 @@ defmodule SoupAndNutzWeb.DebtPayoffLive.Index do
       |> Enum.reject(&(&1 == ""))
       |> Enum.map(fn s ->
         case Decimal.parse(s) do
-          {:ok, d} -> d
+          {d, _} -> d
           _ -> Decimal.new("0")
         end
       end)
@@ -84,8 +84,8 @@ defmodule SoupAndNutzWeb.DebtPayoffLive.Index do
   @impl true
   def handle_event("update_consolidation_rate", %{"rate" => rate_str}, socket) do
     rate = case Decimal.parse(rate_str) do
-      {:ok, decimal} -> decimal
-      :error -> Decimal.new("7.5")
+      {decimal, _} -> decimal
+      _ -> Decimal.new("7.5")
     end
 
     debts = socket.assigns.debts

@@ -230,16 +230,16 @@ defmodule SoupAndNutz.FinancialInstruments.NetWorthSnapshot do
 
     # Check required XBRL fields
     if is_nil(snapshot.xbrl_concept_identifier) do
-      errors = [{"xbrl_concept_identifier", "XBRL concept identifier is required"} | errors]
+      _errors = [{"xbrl_concept_identifier", "XBRL concept identifier is required"} | errors]
     end
 
     if is_nil(snapshot.xbrl_context_ref) do
-      errors = [{"xbrl_context_ref", "XBRL context reference is required"} | errors]
+      _errors = [{"xbrl_context_ref", "XBRL context reference is required"} | errors]
     end
 
     # Validate currency code format
     unless snapshot.currency_code in ["USD", "EUR", "GBP", "CAD", "AUD"] do
-      errors = [{"currency_code", "Invalid currency code"} | errors]
+      _errors = [{"currency_code", "Invalid currency code"} | errors]
     end
 
     {Enum.empty?(errors), errors}

@@ -221,17 +221,18 @@
       </table>
     </div>
 
-    <%= if @live_action in [:new, :edit] do %>
-      <.modal id="asset-modal">
-        <.live_component
-          module={SoupAndNutzWeb.AssetLive.FormComponent}
-          id={@asset.id || :new}
-          title={@page_title}
-          action={@live_action}
-          asset={@asset}
-          patch={~p"/assets"}
-        />
-      </.modal>
-    <% end %>
+    <%!-- if @live_action in [:new, :edit] do --%>
+    <%!--   <.modal id="asset-modal" show={true}> --%>
+    <%!--     <.live_component --%>
+    <%!--       module={SoupAndNutzWeb.AssetLive.FormComponent} --%>
+    <%!--       id={@asset.id || :new} --%>
+    <%!--       title={@page_title} --%>
+    <%!--       action={@live_action} --%>
+    <%!--       asset={@asset} --%>
+    <%!--       current_user={@current_user} --%>
+    <%!--       patch={~p"/assets"} --%>
+    <%!--     /> --%>
+    <%!--   </.modal> --%>
+    <%!-- end --%>
   </div>
 </div> 

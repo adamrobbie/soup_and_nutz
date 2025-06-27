@@ -221,17 +221,18 @@
       </table>
     </div>
 
-    <%= if @live_action in [:new, :edit] do %>
-      <.modal id="cash_flow-modal">
-        <.live_component
-          module={SoupAndNutzWeb.CashFlowLive.FormComponent}
-          id={@cash_flow.id || :new}
-          title={@page_title}
-          action={@live_action}
-          cash_flow={@cash_flow}
-          patch={~p"/cash_flows"}
-        />
-      </.modal>
-    <% end %>
+    <%!-- if @live_action in [:new, :edit] do --%>
+    <%!--   <.modal id="cash-flow-modal" show={true}> --%>
+    <%!--     <.live_component --%>
+    <%!--       module={SoupAndNutzWeb.CashFlowLive.FormComponent} --%>
+    <%!--       id={@cash_flow.id || :new} --%>
+    <%!--       title={@page_title} --%>
+    <%!--       action={@live_action} --%>
+    <%!--       cash_flow={@cash_flow} --%>
+    <%!--       current_user={@current_user} --%>
+    <%!--       patch={~p"/cash_flows"} --%>
+    <%!--     /> --%>
+    <%!--   </.modal> --%>
+    <%!-- end --%>
   </div>
 </div> 

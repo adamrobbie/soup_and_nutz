@@ -183,13 +183,13 @@ defmodule SoupAndNutzWeb.Services.ChartDataService do
     schedule = DebtPayoffPlanner.calculate_avalanche_payoff(debts, extra_payment)
 
     %{
-      labels: Enum.map(schedule.monthly_breakdown, fn month ->
+      labels: Enum.map(Map.get(schedule, :monthly_breakdown, []), fn month ->
         "Month #{month.month}"
       end),
       datasets: [
         %{
           label: "Remaining Debt",
-          data: Enum.map(schedule.monthly_breakdown, fn month ->
+          data: Enum.map(Map.get(schedule, :monthly_breakdown, []), fn month ->
             Decimal.to_float(month.remaining_debt)
           end),
           borderColor: "#EF4444",
@@ -198,7 +198,7 @@ defmodule SoupAndNutzWeb.Services.ChartDataService do
         },
         %{
           label: "Interest Paid",
-          data: Enum.map(schedule.monthly_breakdown, fn month ->
+          data: Enum.map(Map.get(schedule, :monthly_breakdown, []), fn month ->
             Decimal.to_float(month.interest_paid)
           end),
           borderColor: "#F59E0B",

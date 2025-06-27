@@ -32,22 +32,40 @@ defmodule SoupAndNutzWeb.E2E.AuthenticationFeature do
     |> fill_in(Query.text_field("Password"), with: password)
     |> fill_in(Query.text_field("Confirm password"), with: password)
     |> click(Query.button("Create account"))
-    |> assert_has(Query.text("Account created successfully"))
-    |> click(Query.link("sign in to your existing account"))
+    |> assert_has(Query.css("h1", text: "Financial Dashboard"))
+    |> assert_has(Query.text("Account created successfully!"))
+    |> click(Query.css("button", text: "Test"))
+    |> assert_has(Query.link("Sign Out"))
+    |> click(Query.link("Sign Out"))
+    |> assert_has(Query.link("Sign In"))
+    |> click(Query.link("Sign In"))
     |> assert_has(Query.css("h2", text: "Sign in to your account"))
     |> fill_in(Query.text_field("Email address"), with: email)
     |> fill_in(Query.text_field("Password"), with: password)
     |> click(Query.button("Sign in"))
     |> assert_has(Query.css("h1", text: "Financial Dashboard"))
-    |> assert_has(Query.text("Test"))
+    |> assert_has(Query.css("span", text: "Test"))
   end
 
   feature "user can logout", %{session: session} do
-    # First login (assuming user exists from previous test)
-    username = "testuser_#{System.system_time() - 1}"
+    # Create a user directly in the database for this test
+    username = "logout#{System.system_time() |> rem(10000)}"
     email = "#{username}@example.com"
     password = "password123"
 
+    # Create user directly in database
+    user_params = %{
+      "email" => email,
+      "username" => username,
+      "password" => password,
+      "password_confirmation" => password,
+      "first_name" => "Logout",
+      "last_name" => "User"
+    }
+
+    {:ok, _user} = SoupAndNutz.Accounts.create_user(user_params)
+
+    # Now login with the created user
     session
     |> visit("/auth/login")
     |> assert_has(Query.css("h2", text: "Sign in to your account"))
@@ -55,7 +73,7 @@ defmodule SoupAndNutzWeb.E2E.AuthenticationFeature do
     |> fill_in(Query.text_field("Password"), with: password)
     |> click(Query.button("Sign in"))
     |> assert_has(Query.css("h1", text: "Financial Dashboard"))
-    |> click(Query.css("button[aria-label*='User']"))
+    |> click(Query.css("button", text: "Logout"))
     |> assert_has(Query.link("Sign Out"))
     |> click(Query.link("Sign Out"))
     |> assert_has(Query.text("Soup & Nutz"))

@@ -693,9 +693,11 @@ defmodule SoupAndNutz.Accounts.User do
     |> validate_inclusion(:subscription_tier, ["Free", "Basic", "Premium", "Enterprise"])
   end
 
-  defp put_password_hash(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
-    change(changeset, Bcrypt.add_hash(password))
+  defp put_password_hash(changeset) do
+    if password = get_change(changeset, :password) do
+      change(changeset, password_hash: Bcrypt.hash_pwd_salt(password))
+    else
+      changeset
+    end
   end
-
-  defp put_password_hash(changeset), do: changeset
 end

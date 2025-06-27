@@ -6,7 +6,7 @@ defmodule SoupAndNutzWeb.Live.AuthHook do
   def on_mount(:ensure_authenticated, _params, session, socket) do
     case get_user_from_session(session) do
       nil ->
-        {:halt, push_redirect(socket, to: "/auth/login")}
+        {:halt, push_navigate(socket, to: "/auth/login")}
 
       user ->
         {:cont, assign(socket, current_user: user)}

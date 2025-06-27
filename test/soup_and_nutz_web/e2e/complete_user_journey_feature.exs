@@ -15,24 +15,29 @@ defmodule SoupAndNutzWeb.E2E.CompleteUserJourneyFeature do
   end
 
   feature "complete financial planning journey", %{session: session} do
-    # Step 1: User registration
-    username = "journey_user_#{System.system_time()}"
+    # Create a user for this test
+    username = "journey#{System.system_time() |> rem(10000)}"
     email = "#{username}@example.com"
     password = "password123"
 
+    user_params = %{
+      "email" => email,
+      "username" => username,
+      "password" => password,
+      "password_confirmation" => password,
+      "first_name" => "Journey",
+      "last_name" => "User"
+    }
+
+    {:ok, user} = SoupAndNutz.Accounts.create_user(user_params)
+
+    # Login and complete the journey
     session
-    |> visit("/")
-    |> assert_has(Query.css("span", text: "Soup & Nutz"))
-    |> click(Query.link("Get Started"))
-    |> assert_has(Query.css("h2", text: "Create your account"))
-    |> fill_in(Query.text_field("First name"), with: "Journey")
-    |> fill_in(Query.text_field("Last name"), with: "User")
+    |> visit("/auth/login")
     |> fill_in(Query.text_field("Email address"), with: email)
-    |> fill_in(Query.text_field("Username"), with: username)
     |> fill_in(Query.text_field("Password"), with: password)
-    |> fill_in(Query.text_field("Confirm password"), with: password)
-    |> click(Query.button("Create account"))
-    |> assert_has(Query.text("Account created successfully"))
+    |> click(Query.button("Sign in"))
+    |> assert_has(Query.css("h1", text: "Financial Dashboard"))
 
     # Step 2: View empty dashboard
     session

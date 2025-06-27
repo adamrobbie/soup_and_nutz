@@ -215,17 +215,18 @@
       </table>
     </div>
 
-    <%= if @live_action in [:new, :edit] do %>
-      <.modal id="debt-obligation-modal">
-        <.live_component
-          module={SoupAndNutzWeb.DebtObligationLive.FormComponent}
-          id={@debt_obligation.id || :new}
-          title={@page_title}
-          action={@live_action}
-          debt_obligation={@debt_obligation}
-          patch={~p"/debt_obligations"}
-        />
-      </.modal>
-    <% end %>
+    <%!-- if @live_action in [:new, :edit] do --%>
+    <%!--   <.modal id="debt-obligation-modal" show={true}> --%>
+    <%!--     <.live_component --%>
+    <%!--       module={SoupAndNutzWeb.DebtObligationLive.FormComponent} --%>
+    <%!--       id={@debt_obligation.id || :new} --%>
+    <%!--       title={@page_title} --%>
+    <%!--       action={@live_action} --%>
+    <%!--       debt_obligation={@debt_obligation} --%>
+    <%!--       current_user={@current_user} --%>
+    <%!--       patch={~p"/debt_obligations"} --%>
+    <%!--     /> --%>
+    <%!--   </.modal> --%>
+    <%!-- end --%>
   </div>
 </div> 

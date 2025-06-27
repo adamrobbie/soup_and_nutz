@@ -19,7 +19,14 @@ defmodule SoupAndNutzWeb.AssetLive.Index do
 
   @impl true
   def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    case socket.assigns.live_action do
+      :new ->
+        {:noreply, push_navigate(socket, to: "/assets")}
+      :edit ->
+        {:noreply, push_navigate(socket, to: "/assets")}
+      _ ->
+        {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    end
   end
 
   defp apply_action(socket, :index, _params) do

@@ -1,0 +1,84 @@
+<div class="bg-black min-h-screen">
+  <div class="px-6 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-white">Financial Goals</h1>
+      <p class="text-gray-400 mt-2">Track and manage your financial objectives</p>
+    </div>
+
+    <!-- Add New Goal Button -->
+    <div class="mb-6">
+      <.link patch={~p"/financial_goals/new"} class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+        Add New Goal
+      </.link>
+    </div>
+
+    <!-- Form Modal -->
+    <%!-- if @live_action in [:new, :edit] do --%>
+    <%!--   <.modal id="financial-goal-modal" show={true}> --%>
+    <%!--     <.live_component --%>
+    <%!--       module={SoupAndNutzWeb.FinancialGoalLive.FormComponent} --%>
+    <%!--       id={@financial_goal.id || :new} --%>
+    <%!--       title={@page_title} --%>
+    <%!--       action={@live_action} --%>
+    <%!--       financial_goal={@financial_goal} --%>
+    <%!--       current_user={@current_user} --%>
+    <%!--       patch={~p"/financial_goals"} --%>
+    <%!--     /> --%>
+    <%!--   </.modal> --%>
+    <%!-- end --%>
+
+    <!-- Goals List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <%= for goal <- @financial_goals do %>
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-white"><%= goal.goal_name %></h3>
+            <span class="text-sm text-gray-400"><%= goal.goal_type %></span>
+          </div>
+          
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-gray-400">Progress:</span>
+              <span class="text-white"><%= goal.progress_percentage %>%</span>
+            </div>
+            
+            <div class="flex justify-between">
+              <span class="text-gray-400">Target:</span>
+              <span class="text-white">$<%= goal.target_amount %></span>
+            </div>
+            
+            <div class="flex justify-between">
+              <span class="text-gray-400">Current:</span>
+              <span class="text-white">$<%= goal.current_amount %></span>
+            </div>
+            
+            <div class="flex justify-between">
+              <span class="text-gray-400">Target Date:</span>
+              <span class="text-white"><%= goal.target_date %></span>
+            </div>
+          </div>
+          
+          <div class="mt-4 flex space-x-2">
+            <.link navigate={~p"/financial_goals/#{goal}"} class="text-blue-400 hover:text-blue-300 text-sm">
+              View Details
+            </.link>
+            <.link patch={~p"/financial_goals/#{goal}/edit"} class="text-green-400 hover:text-green-300 text-sm">
+              Edit
+            </.link>
+            <.link href="#" phx-click="delete" phx-value-id={goal.id} data-confirm="Are you sure?" class="text-red-400 hover:text-red-300 text-sm">
+              Delete
+            </.link>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <%= if Enum.empty?(@financial_goals) do %>
+      <div class="text-center py-12">
+        <div class="text-gray-400 text-lg">No financial goals yet</div>
+        <p class="text-gray-500 mt-2">Create your first financial goal to get started</p>
+      </div>
+    <% end %>
+  </div>
+</div> 

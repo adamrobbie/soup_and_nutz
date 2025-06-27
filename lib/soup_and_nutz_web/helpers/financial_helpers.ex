@@ -230,6 +230,10 @@ defmodule SoupAndNutzWeb.FinancialHelpers do
   Formats a liquidity level with appropriate styling.
   Returns a tuple with the formatted string and CSS class.
   """
+  def format_liquidity_level(nil) do
+    {"N/A", "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800"}
+  end
+
   def format_liquidity_level(liquidity_level) when is_binary(liquidity_level) do
     case String.downcase(liquidity_level) do
       "high" ->

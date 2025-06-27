@@ -108,12 +108,19 @@ defmodule SoupAndNutzWeb.Router do
     live "/cash_flows/:id", CashFlowLive.Show, :show
     live "/cash_flows/:id/show/edit", CashFlowLive.Show, :edit
 
+    live "/financial_goals", FinancialGoalLive.Index, :index
+    live "/financial_goals/new", FinancialGoalLive.Index, :new
+    live "/financial_goals/:id/edit", FinancialGoalLive.Index, :edit
+    live "/financial_goals/:id", FinancialGoalLive.Show, :show
+    live "/financial_goals/:id/show/edit", FinancialGoalLive.Show, :edit
+
     # Budget and Debt Payoff Planning
     live "/budget", BudgetLive.Index, :index
     live "/debt-payoff", DebtPayoffLive.Index, :index
 
-    resources "/assets", AssetController
-    resources "/debt_obligations", DebtObligationController
+    # Remove these lines that reference undefined controllers
+    # resources "/assets", AssetController
+    # resources "/debt_obligations", DebtObligationController
   end
 
   # API routes

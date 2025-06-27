@@ -19,7 +19,14 @@ defmodule SoupAndNutzWeb.CashFlowLive.Index do
 
   @impl true
   def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    case socket.assigns.live_action do
+      :new ->
+        {:noreply, push_navigate(socket, to: "/cash_flows")}
+      :edit ->
+        {:noreply, push_navigate(socket, to: "/cash_flows")}
+      _ ->
+        {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    end
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do

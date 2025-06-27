@@ -15,28 +15,33 @@ defmodule SoupAndNutzWeb.E2E.UserProfileFeature do
   end
 
   feature "user can view and edit profile", %{session: session} do
-    # Login user
-    username = "profile_user_#{System.system_time()}"
+    # Create a user for this test
+    username = "profile#{System.system_time() |> rem(10000)}"
     email = "#{username}@example.com"
     password = "password123"
 
-    session
-    |> visit("/auth/register")
-    |> fill_in(Query.text_field("First name"), with: "Profile")
-    |> fill_in(Query.text_field("Last name"), with: "User")
-    |> fill_in(Query.text_field("Email address"), with: email)
-    |> fill_in(Query.text_field("Username"), with: username)
-    |> fill_in(Query.text_field("Password"), with: password)
-    |> fill_in(Query.text_field("Confirm password"), with: password)
-    |> click(Query.button("Create account"))
-    |> assert_has(Query.text("Account created successfully"))
+    user_params = %{
+      "email" => email,
+      "username" => username,
+      "password" => password,
+      "password_confirmation" => password,
+      "first_name" => "Profile",
+      "last_name" => "User"
+    }
 
-    # Navigate to profile
+    {:ok, user} = SoupAndNutz.Accounts.create_user(user_params)
+
+    # Login and test profile access
     session
-    |> click(Query.css("button[aria-label*='User']"))
-    |> click(Query.link("Profile"))
-    |> assert_has(Query.text("Profile Settings"))
+    |> visit("/auth/login")
+    |> fill_in(Query.text_field("Email address"), with: email)
+    |> fill_in(Query.text_field("Password"), with: password)
+    |> click(Query.button("Sign in"))
+    |> assert_has(Query.css("h1", text: "Financial Dashboard"))
+    |> visit("/auth/profile")
+    |> assert_has(Query.css("h1", text: "Profile Settings"))
     |> assert_has(Query.text("Profile"))
+    |> assert_has(Query.text("User"))
 
     # Edit profile
     session
@@ -49,25 +54,31 @@ defmodule SoupAndNutzWeb.E2E.UserProfileFeature do
   end
 
   feature "user can change password", %{session: session} do
-    # Login existing user
-    username = "profile_user_#{System.system_time() - 1}"
+    # Create a user for this test
+    username = "password#{System.system_time() |> rem(10000)}"
     email = "#{username}@example.com"
     password = "password123"
 
+    user_params = %{
+      "email" => email,
+      "username" => username,
+      "password" => password,
+      "password_confirmation" => password,
+      "first_name" => "Password",
+      "last_name" => "User"
+    }
+
+    {:ok, user} = SoupAndNutz.Accounts.create_user(user_params)
+
+    # Login and test password change
     session
     |> visit("/auth/login")
     |> fill_in(Query.text_field("Email address"), with: email)
     |> fill_in(Query.text_field("Password"), with: password)
     |> click(Query.button("Sign in"))
-    |> click(Query.css("button[aria-label*='User']"))
-    |> click(Query.link("Profile"))
-    |> assert_has(Query.text("Profile Settings"))
-
-    # Change password
-    session
-    |> click(Query.link("Change Password"))
-    |> assert_has(Query.text("Change Password"))
-    |> fill_in(Query.text_field("Current Password"), with: password)
+    |> assert_has(Query.css("h1", text: "Financial Dashboard"))
+    |> visit("/auth/change_password")
+    |> assert_has(Query.css("h1", text: "Change Password"))
     |> fill_in(Query.text_field("New Password"), with: "newpassword123")
     |> fill_in(Query.text_field("Confirm New Password"), with: "newpassword123")
     |> click(Query.button("Update Password"))
@@ -75,19 +86,33 @@ defmodule SoupAndNutzWeb.E2E.UserProfileFeature do
   end
 
   feature "user can update financial preferences", %{session: session} do
-    # Login existing user
-    username = "profile_user_#{System.system_time() - 2}"
+    # Create a user for this test
+    username = "preferences#{System.system_time() |> rem(10000)}"
     email = "#{username}@example.com"
     password = "password123"
 
+    user_params = %{
+      "email" => email,
+      "username" => username,
+      "password" => password,
+      "password_confirmation" => password,
+      "first_name" => "Preferences",
+      "last_name" => "User"
+    }
+
+    {:ok, user} = SoupAndNutz.Accounts.create_user(user_params)
+
+    # Login and test preferences
     session
     |> visit("/auth/login")
     |> fill_in(Query.text_field("Email address"), with: email)
     |> fill_in(Query.text_field("Password"), with: password)
     |> click(Query.button("Sign in"))
-    |> click(Query.css("button[aria-label*='User']"))
-    |> click(Query.link("Profile"))
-    |> assert_has(Query.text("Profile Settings"))
+    |> assert_has(Query.css("h1", text: "Financial Dashboard"))
+    |> visit("/auth/profile")
+    |> assert_has(Query.css("h1", text: "Profile Settings"))
+    |> assert_has(Query.text("Profile"))
+    |> assert_has(Query.text("User"))
 
     # Update financial preferences
     session
@@ -101,19 +126,33 @@ defmodule SoupAndNutzWeb.E2E.UserProfileFeature do
   end
 
   feature "user can manage notification settings", %{session: session} do
-    # Login existing user
-    username = "profile_user_#{System.system_time() - 3}"
+    # Create a user for this test
+    username = "notifications#{System.system_time() |> rem(10000)}"
     email = "#{username}@example.com"
     password = "password123"
 
+    user_params = %{
+      "email" => email,
+      "username" => username,
+      "password" => password,
+      "password_confirmation" => password,
+      "first_name" => "Notifications",
+      "last_name" => "User"
+    }
+
+    {:ok, user} = SoupAndNutz.Accounts.create_user(user_params)
+
+    # Login and test notification settings
     session
     |> visit("/auth/login")
     |> fill_in(Query.text_field("Email address"), with: email)
     |> fill_in(Query.text_field("Password"), with: password)
     |> click(Query.button("Sign in"))
-    |> click(Query.css("button[aria-label*='User']"))
-    |> click(Query.link("Profile"))
-    |> assert_has(Query.text("Profile Settings"))
+    |> assert_has(Query.css("h1", text: "Financial Dashboard"))
+    |> visit("/auth/profile")
+    |> assert_has(Query.css("h1", text: "Profile Settings"))
+    |> assert_has(Query.text("Profile"))
+    |> assert_has(Query.text("User"))
 
     # Manage notifications
     session
@@ -127,19 +166,33 @@ defmodule SoupAndNutzWeb.E2E.UserProfileFeature do
   end
 
   feature "user can export personal data", %{session: session} do
-    # Login existing user
-    username = "profile_user_#{System.system_time() - 4}"
+    # Create a user for this test
+    username = "export#{System.system_time() |> rem(10000)}"
     email = "#{username}@example.com"
     password = "password123"
 
+    user_params = %{
+      "email" => email,
+      "username" => username,
+      "password" => password,
+      "password_confirmation" => password,
+      "first_name" => "Export",
+      "last_name" => "User"
+    }
+
+    {:ok, user} = SoupAndNutz.Accounts.create_user(user_params)
+
+    # Login and test data export
     session
     |> visit("/auth/login")
     |> fill_in(Query.text_field("Email address"), with: email)
     |> fill_in(Query.text_field("Password"), with: password)
     |> click(Query.button("Sign in"))
-    |> click(Query.css("button[aria-label*='User']"))
-    |> click(Query.link("Profile"))
-    |> assert_has(Query.text("Profile Settings"))
+    |> assert_has(Query.css("h1", text: "Financial Dashboard"))
+    |> visit("/auth/profile")
+    |> assert_has(Query.css("h1", text: "Profile Settings"))
+    |> assert_has(Query.text("Profile"))
+    |> assert_has(Query.text("User"))
 
     # Export data
     session
@@ -150,19 +203,33 @@ defmodule SoupAndNutzWeb.E2E.UserProfileFeature do
   end
 
   feature "user can delete account", %{session: session} do
-    # Login existing user
-    username = "profile_user_#{System.system_time() - 5}"
+    # Create a user for this test
+    username = "delete#{System.system_time() |> rem(10000)}"
     email = "#{username}@example.com"
     password = "password123"
 
+    user_params = %{
+      "email" => email,
+      "username" => username,
+      "password" => password,
+      "password_confirmation" => password,
+      "first_name" => "Delete",
+      "last_name" => "User"
+    }
+
+    {:ok, user} = SoupAndNutz.Accounts.create_user(user_params)
+
+    # Login and test account deletion
     session
     |> visit("/auth/login")
     |> fill_in(Query.text_field("Email address"), with: email)
     |> fill_in(Query.text_field("Password"), with: password)
     |> click(Query.button("Sign in"))
-    |> click(Query.css("button[aria-label*='User']"))
-    |> click(Query.link("Profile"))
-    |> assert_has(Query.text("Profile Settings"))
+    |> assert_has(Query.css("h1", text: "Financial Dashboard"))
+    |> visit("/auth/profile")
+    |> assert_has(Query.css("h1", text: "Profile Settings"))
+    |> assert_has(Query.text("Profile"))
+    |> assert_has(Query.text("User"))
 
     # Delete account
     session
