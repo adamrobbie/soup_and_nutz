@@ -6,9 +6,9 @@ defmodule SoupAndNutzWeb.Services.ChartDataService do
   into the standardized format expected by the chart components.
   """
 
-  alias SoupAndNutz.FinancialAnalysis
   alias SoupAndNutz.BudgetPlanner
   alias SoupAndNutz.DebtPayoffPlanner
+  alias SoupAndNutz.FinancialAnalysis
 
   @doc """
   Prepares debt payoff strategy comparison data for a bar chart.

@@ -389,7 +389,7 @@ defmodule SoupAndNutz.FinancialGoals do
   @doc """
   Checks if a goal is completed.
   """
-  def is_goal_completed?(%FinancialGoal{} = goal) do
+  def goal_completed?(%FinancialGoal{} = goal) do
     Decimal.gte?(goal.current_amount, goal.target_amount)
   end
 

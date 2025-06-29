@@ -19,8 +19,8 @@ defmodule SoupAndNutzWeb.NetWorthProjectionLive.Index do
     end)
 
     # Calculate growth rate (simple: (final - initial) / initial * 100)
-    {first_months, first_value} = List.first(projections)
-    {last_months, last_value} = List.last(projections)
+    {_first_months, first_value} = List.first(projections)
+    {_last_months, last_value} = List.last(projections)
     growth_rate =
       if Decimal.eq?(first_value, Decimal.new("0")) do
         Decimal.new("0")
@@ -50,7 +50,7 @@ defmodule SoupAndNutzWeb.NetWorthProjectionLive.Index do
       <h1 class="text-2xl font-bold mb-4">Net Worth Projection</h1>
       <div class="mb-6">
         <p class="text-gray-300">Growth Rate (#{Enum.join(Enum.map(@projections, fn {months, _} -> "#{months}m" end), ", ")}):
-          <span class={if Decimal.cmp(@growth_rate, 0) == :lt, do: "text-red-400", else: "text-green-400"}>
+          <span class={if Decimal.compare(@growth_rate, 0) == :lt, do: "text-red-400", else: "text-green-400"}>
             <%= SoupAndNutzWeb.FinancialHelpers.format_percentage(@growth_rate) %>
           </span>
         </p>

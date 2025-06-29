@@ -1,7 +1,7 @@
 defmodule SoupAndNutzWeb.PageController do
   use SoupAndNutzWeb, :controller
-  alias SoupAndNutz.FinancialInstruments
   alias SoupAndNutz.Accounts
+  alias SoupAndNutz.FinancialInstruments
 
   def home(conn, _params) do
     # Get current user or nil if not authenticated

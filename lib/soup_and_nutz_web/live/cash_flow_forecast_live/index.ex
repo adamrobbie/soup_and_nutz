@@ -24,7 +24,7 @@ defmodule SoupAndNutzWeb.CashFlowForecastLive.Index do
 
     # Calculate runway (months until cash runs out, if negative net cash flow)
     # For demo, assume starting cash = 0 (could be improved by using actual cash balance)
-    runway = if Decimal.cmp(monthly_net, 0) == :lt do
+    runway = if Decimal.compare(monthly_net, 0) == :lt do
       "∞"
     else
       "N/A"
@@ -51,7 +51,7 @@ defmodule SoupAndNutzWeb.CashFlowForecastLive.Index do
     <div class="p-8">
       <h1 class="text-2xl font-bold mb-4">Cash Flow Forecast & Burn Rate</h1>
       <div class="mb-6">
-        <p class="text-gray-300">Monthly Net Cash Flow: <span class={if Decimal.cmp(@forecast.monthly_net_cash_flow, 0) == :lt, do: "text-red-400", else: "text-green-400"}><%= @forecast.monthly_net_cash_flow %></span></p>
+        <p class="text-gray-300">Monthly Net Cash Flow: <span class={if Decimal.compare(@forecast.monthly_net_cash_flow, 0) == :lt, do: "text-red-400", else: "text-green-400"}><%= @forecast.monthly_net_cash_flow %></span></p>
         <p class="text-gray-300">Runway (months until cash runs out): <%= @runway %></p>
       </div>
       <div class="mb-8">

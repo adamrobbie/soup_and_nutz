@@ -1,9 +1,9 @@
 defmodule SoupAndNutz.FinancialInstrumentsTest do
   use SoupAndNutz.DataCase, async: true
-  alias SoupAndNutz.FinancialInstruments
-  alias SoupAndNutz.FinancialInstrumentsFixtures
-  alias SoupAndNutz.FinancialInstruments.{Asset, DebtObligation, CashFlow}
   alias SoupAndNutz.Factory
+  alias SoupAndNutz.FinancialInstruments
+  alias SoupAndNutz.FinancialInstruments.{Asset, CashFlow, DebtObligation}
+  alias SoupAndNutz.FinancialInstrumentsFixtures
 
   setup do
     user = Factory.insert(:user)

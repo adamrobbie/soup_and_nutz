@@ -1,4 +1,11 @@
 defmodule SoupAndNutzWeb.Live.AuthHook do
+  @moduledoc """
+  Authentication hooks for LiveView modules.
+
+  Provides hooks for ensuring authentication and optional authentication
+  in LiveView components.
+  """
+
   import Phoenix.Component
   import Phoenix.LiveView
   alias SoupAndNutz.Accounts
