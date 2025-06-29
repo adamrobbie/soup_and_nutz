@@ -4,6 +4,9 @@ defmodule SoupAndNutzWeb.FinancialGoalLive.Index do
   alias SoupAndNutz.FinancialGoals
   alias SoupAndNutz.FinancialGoals.FinancialGoal
 
+  # Add auth hook to ensure current_user is set
+  on_mount {SoupAndNutzWeb.Live.AuthHook, :ensure_authenticated}
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok, assign(socket, :financial_goals, list_financial_goals(socket.assigns.current_user.id))}

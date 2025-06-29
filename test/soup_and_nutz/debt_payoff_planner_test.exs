@@ -2,22 +2,30 @@ defmodule SoupAndNutz.DebtPayoffPlannerTest do
   use SoupAndNutz.DataCase
   alias SoupAndNutz.DebtPayoffPlanner
   alias SoupAndNutz.FinancialInstrumentsFixtures
+  alias SoupAndNutz.Factory
+
+  setup do
+    user = Factory.insert(:user)
+    {:ok, user: user}
+  end
 
   describe "calculate_snowball_payoff/2" do
-    test "calculates snowball payoff with smallest balance first" do
+    test "calculates snowball payoff with smallest balance first", %{user: user} do
       # Create debts with different balances (smallest first for snowball)
       small_debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{
         outstanding_balance: "1000.00",
         interest_rate: "5.0",
         monthly_payment: "100.00",
-        debt_name: "Small Credit Card"
+        debt_name: "Small Credit Card",
+        user_id: user.id
       })
 
       large_debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{
         outstanding_balance: "5000.00",
         interest_rate: "3.0",
         monthly_payment: "200.00",
-        debt_name: "Car Loan"
+        debt_name: "Car Loan",
+        user_id: user.id
       })
 
       debts = [large_debt, small_debt]  # Not in order
@@ -40,20 +48,22 @@ defmodule SoupAndNutz.DebtPayoffPlannerTest do
   end
 
   describe "calculate_avalanche_payoff/2" do
-    test "calculates avalanche payoff with highest interest first" do
+    test "calculates avalanche payoff with highest interest first", %{user: user} do
       # Create debts with different interest rates (highest first for avalanche)
       high_interest = FinancialInstrumentsFixtures.debt_obligation_fixture(%{
         outstanding_balance: "3000.00",
         interest_rate: "18.0",
         monthly_payment: "150.00",
-        debt_name: "Credit Card"
+        debt_name: "Credit Card",
+        user_id: user.id
       })
 
       low_interest = FinancialInstrumentsFixtures.debt_obligation_fixture(%{
         outstanding_balance: "2000.00",
         interest_rate: "4.0",
         monthly_payment: "100.00",
-        debt_name: "Student Loan"
+        debt_name: "Student Loan",
+        user_id: user.id
       })
 
       debts = [low_interest, high_interest]  # Not in order
@@ -75,13 +85,14 @@ defmodule SoupAndNutz.DebtPayoffPlannerTest do
   end
 
   describe "calculate_custom_payoff/3" do
-    test "calculates custom payoff based on priority levels" do
+    test "calculates custom payoff based on priority levels", %{user: user} do
       high_priority = FinancialInstrumentsFixtures.debt_obligation_fixture(%{
         outstanding_balance: "4000.00",
         interest_rate: "6.0",
         monthly_payment: "200.00",
         debt_name: "High Priority Debt",
-        priority_level: "High"
+        priority_level: "High",
+        user_id: user.id
       })
 
       low_priority = FinancialInstrumentsFixtures.debt_obligation_fixture(%{
@@ -89,7 +100,8 @@ defmodule SoupAndNutz.DebtPayoffPlannerTest do
         interest_rate: "8.0",
         monthly_payment: "75.00",
         debt_name: "Low Priority Debt",
-        priority_level: "Low"
+        priority_level: "Low",
+        user_id: user.id
       })
 
       debts = [low_priority, high_priority]  # Not in order
@@ -109,13 +121,14 @@ defmodule SoupAndNutz.DebtPayoffPlannerTest do
   end
 
   describe "compare_strategies/2" do
-    test "compares all debt payoff strategies" do
+    test "compares all debt payoff strategies", %{user: user} do
       debt1 = FinancialInstrumentsFixtures.debt_obligation_fixture(%{
         outstanding_balance: "2000.00",
         interest_rate: "15.0",
         monthly_payment: "100.00",
         debt_name: "High Interest Card",
-        priority_level: "Medium"
+        priority_level: "Medium",
+        user_id: user.id
       })
 
       debt2 = FinancialInstrumentsFixtures.debt_obligation_fixture(%{
@@ -123,7 +136,8 @@ defmodule SoupAndNutz.DebtPayoffPlannerTest do
         interest_rate: "5.0",
         monthly_payment: "50.00",
         debt_name: "Small Loan",
-        priority_level: "Low"
+        priority_level: "Low",
+        user_id: user.id
       })
 
       debts = [debt1, debt2]
@@ -147,13 +161,14 @@ defmodule SoupAndNutz.DebtPayoffPlannerTest do
   end
 
   describe "analyze_extra_payment_impact/2" do
-    test "analyzes impact of different extra payment amounts" do
+    test "analyzes impact of different extra payment amounts", %{user: user} do
       debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{
         outstanding_balance: "10000.00",
         principal_amount: "12000.00",  # Must be >= outstanding_balance
         interest_rate: "12.0",
         monthly_payment: "300.00",
-        debt_name: "Large Debt"
+        debt_name: "Large Debt",
+        user_id: user.id
       })
 
       debts = [debt]
@@ -178,12 +193,13 @@ defmodule SoupAndNutz.DebtPayoffPlannerTest do
   end
 
   describe "generate_payoff_schedule/3" do
-    test "generates detailed month-by-month payoff schedule" do
+    test "generates detailed month-by-month payoff schedule", %{user: user} do
       debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{
         outstanding_balance: "5000.00",
         interest_rate: "10.0",
         monthly_payment: "200.00",
-        debt_name: "Test Debt"
+        debt_name: "Test Debt",
+        user_id: user.id
       })
 
       debts = [debt]

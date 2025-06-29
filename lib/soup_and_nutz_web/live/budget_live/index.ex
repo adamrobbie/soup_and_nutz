@@ -3,9 +3,12 @@ defmodule SoupAndNutzWeb.BudgetLive.Index do
 
   alias SoupAndNutz.BudgetPlanner
 
+  # Add auth hook to ensure current_user is set
+  on_mount {SoupAndNutzWeb.Live.AuthHook, :ensure_authenticated}
+
   @impl true
   def mount(_params, _session, socket) do
-    user_id = 1  # In a real app, this would come from session
+    user_id = socket.assigns.current_user.id  # Get from current_user instead of hardcoding
     period = "2025-01"
 
     # Load initial data

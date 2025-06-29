@@ -3,6 +3,12 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
   alias SoupAndNutz.FinancialInstruments
   alias SoupAndNutz.FinancialInstrumentsFixtures
   alias SoupAndNutz.FinancialInstruments.{Asset, DebtObligation, CashFlow}
+  alias SoupAndNutz.Factory
+
+  setup do
+    user = Factory.insert(:user)
+    {:ok, user: user}
+  end
 
   @valid_asset_attrs %{
     asset_identifier: "TEST_ASSET_001",
@@ -14,7 +20,6 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
     currency_code: "USD",
     measurement_date: ~D[2024-12-31],
     reporting_period: "2024-12-31",
-    reporting_entity: "TEST_ENTITY",
     reporting_scenario: "Actual",
     description: "Test asset description",
     location: "Test Bank",
@@ -34,7 +39,6 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
     currency_code: "USD",
     measurement_date: ~D[2024-12-31],
     reporting_period: "2024-12-31",
-    reporting_entity: "TEST_ENTITY",
     reporting_scenario: "Actual",
     lender_name: "Test Bank",
     account_number: "123456789",
@@ -50,38 +54,39 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
   }
 
   describe "asset functions" do
-    test "list_assets/0 returns all assets" do
-      asset = FinancialInstrumentsFixtures.asset_fixture()
+    test "list_assets/0 returns all assets", %{user: user} do
+      asset = FinancialInstrumentsFixtures.asset_fixture(%{user_id: user.id})
       assert FinancialInstruments.list_assets() == [asset]
     end
 
-    test "list_assets_by_entity/1 returns assets for specific entity" do
-      asset1 = FinancialInstrumentsFixtures.asset_fixture(%{reporting_entity: "Test Corp"})
-      _asset2 = FinancialInstrumentsFixtures.asset_fixture(%{reporting_entity: "Other Corp"})
+    test "list_assets_by_user/1 returns assets for specific user", %{user: user} do
+      asset1 = FinancialInstrumentsFixtures.asset_fixture(%{user_id: user.id})
+      other_user = Factory.insert(:user)
+      _asset2 = FinancialInstrumentsFixtures.asset_fixture(%{user_id: other_user.id})
 
-      result = FinancialInstruments.list_assets_by_entity("Test Corp")
+      result = FinancialInstruments.list_assets_by_user(user.id)
       assert length(result) == 1
       assert List.first(result).id == asset1.id
     end
 
-    test "get_asset!/1 returns the asset with given id" do
-      asset = FinancialInstrumentsFixtures.asset_fixture()
+    test "get_asset!/1 returns the asset with given id", %{user: user} do
+      asset = FinancialInstrumentsFixtures.asset_fixture(%{user_id: user.id})
       assert FinancialInstruments.get_asset!(asset.id) == asset
     end
 
-    test "get_asset_by_identifier/1 returns the asset with given identifier" do
-      asset = FinancialInstrumentsFixtures.asset_fixture()
+    test "get_asset_by_identifier/1 returns the asset with given identifier", %{user: user} do
+      asset = FinancialInstrumentsFixtures.asset_fixture(%{user_id: user.id})
       assert FinancialInstruments.get_asset_by_identifier(asset.asset_identifier) == asset
     end
 
-    test "create_asset/1 with valid data creates an asset" do
+    test "create_asset/1 with valid data creates an asset", %{user: user} do
       valid_attrs = %{
         asset_name: "Test Asset",
         asset_type: "InvestmentSecurities",
         asset_category: "Retirement",
         fair_value: "10000.00",
         currency_code: "USD",
-        reporting_entity: "Test Corp",
+        user_id: user.id,
         reporting_period: "2024-Q1",
         asset_identifier: "TEST_ASSET_001",
         measurement_date: ~D[2024-01-15],
@@ -98,61 +103,62 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
       assert {:error, %Ecto.Changeset{}} = FinancialInstruments.create_asset(%{asset_name: nil})
     end
 
-    test "update_asset/2 with valid data updates the asset" do
-      asset = FinancialInstrumentsFixtures.asset_fixture()
+    test "update_asset/2 with valid data updates the asset", %{user: user} do
+      asset = FinancialInstrumentsFixtures.asset_fixture(%{user_id: user.id})
       update_attrs = %{asset_name: "Updated Asset"}
 
       assert {:ok, %Asset{} = updated_asset} = FinancialInstruments.update_asset(asset, update_attrs)
       assert updated_asset.asset_name == "Updated Asset"
     end
 
-    test "update_asset/2 with invalid data returns error changeset" do
-      asset = FinancialInstrumentsFixtures.asset_fixture()
+    test "update_asset/2 with invalid data returns error changeset", %{user: user} do
+      asset = FinancialInstrumentsFixtures.asset_fixture(%{user_id: user.id})
       assert {:error, %Ecto.Changeset{}} = FinancialInstruments.update_asset(asset, %{asset_name: nil})
     end
 
-    test "delete_asset/1 deletes the asset" do
-      asset = FinancialInstrumentsFixtures.asset_fixture()
+    test "delete_asset/1 deletes the asset", %{user: user} do
+      asset = FinancialInstrumentsFixtures.asset_fixture(%{user_id: user.id})
       assert {:ok, %Asset{}} = FinancialInstruments.delete_asset(asset)
       assert_raise Ecto.NoResultsError, fn -> FinancialInstruments.get_asset!(asset.id) end
     end
 
-    test "change_asset/1 returns a asset changeset" do
-      asset = FinancialInstrumentsFixtures.asset_fixture()
+    test "change_asset/1 returns a asset changeset", %{user: user} do
+      asset = FinancialInstrumentsFixtures.asset_fixture(%{user_id: user.id})
       assert %Ecto.Changeset{} = FinancialInstruments.change_asset(asset)
     end
   end
 
   describe "debt obligation functions" do
-    test "list_debt_obligations/0 returns all debt obligations" do
-      debt = FinancialInstrumentsFixtures.debt_obligation_fixture()
+    test "list_debt_obligations/0 returns all debt obligations", %{user: user} do
+      debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{user_id: user.id})
       result = FinancialInstruments.list_debt_obligations()
       assert length(result) == 1
       assert List.first(result).id == debt.id
     end
 
-    test "list_debt_obligations_by_entity/1 returns debts for specific entity" do
-      debt1 = FinancialInstrumentsFixtures.debt_obligation_fixture(%{reporting_entity: "Test Corp"})
-      _debt2 = FinancialInstrumentsFixtures.debt_obligation_fixture(%{reporting_entity: "Other Corp"})
+    test "list_debt_obligations_by_user/1 returns debts for specific user", %{user: user} do
+      debt1 = FinancialInstrumentsFixtures.debt_obligation_fixture(%{user_id: user.id})
+      other_user = Factory.insert(:user)
+      _debt2 = FinancialInstrumentsFixtures.debt_obligation_fixture(%{user_id: other_user.id})
 
-      result = FinancialInstruments.list_debt_obligations_by_entity("Test Corp")
+      result = FinancialInstruments.list_debt_obligations_by_user(user.id)
       assert length(result) == 1
       assert List.first(result).id == debt1.id
     end
 
-    test "get_debt_obligation!/1 returns the debt obligation with given id" do
-      debt = FinancialInstrumentsFixtures.debt_obligation_fixture()
+    test "get_debt_obligation!/1 returns the debt obligation with given id", %{user: user} do
+      debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{user_id: user.id})
       result = FinancialInstruments.get_debt_obligation!(debt.id)
       assert result.id == debt.id
     end
 
-    test "get_debt_obligation_by_identifier/1 returns the debt obligation with given identifier" do
-      debt = FinancialInstrumentsFixtures.debt_obligation_fixture()
+    test "get_debt_obligation_by_identifier/1 returns the debt obligation with given identifier", %{user: user} do
+      debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{user_id: user.id})
       result = FinancialInstruments.get_debt_obligation_by_identifier(debt.debt_identifier)
       assert result.id == debt.id
     end
 
-    test "create_debt_obligation/1 with valid data creates a debt obligation" do
+    test "create_debt_obligation/1 with valid data creates a debt obligation", %{user: user} do
       valid_attrs = %{
         debt_name: "Test Debt",
         debt_type: "LongTermDebt",
@@ -160,7 +166,7 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
         outstanding_balance: "8000.00",
         interest_rate: "5.0",
         currency_code: "USD",
-        reporting_entity: "Test Corp",
+        user_id: user.id,
         reporting_period: "2024-Q1",
         debt_identifier: "TEST_DEBT_001",
         measurement_date: ~D[2024-01-15],
@@ -177,73 +183,74 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
       assert {:error, %Ecto.Changeset{}} = FinancialInstruments.create_debt_obligation(%{debt_name: nil})
     end
 
-    test "update_debt_obligation/2 with valid data updates the debt obligation" do
-      debt = FinancialInstrumentsFixtures.debt_obligation_fixture()
+    test "update_debt_obligation/2 with valid data updates the debt obligation", %{user: user} do
+      debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{user_id: user.id})
       update_attrs = %{debt_name: "Updated Debt"}
 
       assert {:ok, %DebtObligation{} = updated_debt} = FinancialInstruments.update_debt_obligation(debt, update_attrs)
       assert updated_debt.debt_name == "Updated Debt"
     end
 
-    test "update_debt_obligation/2 with invalid data returns error changeset" do
-      debt = FinancialInstrumentsFixtures.debt_obligation_fixture()
+    test "update_debt_obligation/2 with invalid data returns error changeset", %{user: user} do
+      debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{user_id: user.id})
       assert {:error, %Ecto.Changeset{}} = FinancialInstruments.update_debt_obligation(debt, %{debt_name: nil})
     end
 
-    test "delete_debt_obligation/1 deletes the debt obligation" do
-      debt = FinancialInstrumentsFixtures.debt_obligation_fixture()
+    test "delete_debt_obligation/1 deletes the debt obligation", %{user: user} do
+      debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{user_id: user.id})
       assert {:ok, %DebtObligation{}} = FinancialInstruments.delete_debt_obligation(debt)
       assert_raise Ecto.NoResultsError, fn -> FinancialInstruments.get_debt_obligation!(debt.id) end
     end
 
-    test "change_debt_obligation/1 returns a debt obligation changeset" do
-      debt = FinancialInstrumentsFixtures.debt_obligation_fixture()
+    test "change_debt_obligation/1 returns a debt obligation changeset", %{user: user} do
+      debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{user_id: user.id})
       assert %Ecto.Changeset{} = FinancialInstruments.change_debt_obligation(debt)
     end
   end
 
   describe "cash flow functions" do
-    test "list_cash_flows/0 returns all cash flows" do
-      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture()
+    test "list_cash_flows/0 returns all cash flows", %{user: user} do
+      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture(%{user_id: user.id})
       assert FinancialInstruments.list_cash_flows() == [cash_flow]
     end
 
-    test "list_cash_flows_by_entity/1 returns cash flows for specific entity" do
-      cash_flow1 = FinancialInstrumentsFixtures.cash_flow_fixture(%{reporting_entity: "Test Corp"})
-      _cash_flow2 = FinancialInstrumentsFixtures.cash_flow_fixture(%{reporting_entity: "Other Corp"})
+    test "list_cash_flows_by_user/1 returns cash flows for specific user", %{user: user} do
+      cash_flow1 = FinancialInstrumentsFixtures.cash_flow_fixture(%{user_id: user.id})
+      other_user = Factory.insert(:user)
+      _cash_flow2 = FinancialInstrumentsFixtures.cash_flow_fixture(%{user_id: other_user.id})
 
-      result = FinancialInstruments.list_cash_flows_by_entity("Test Corp")
+      result = FinancialInstruments.list_cash_flows_by_user(user.id)
       assert length(result) == 1
       assert List.first(result).id == cash_flow1.id
     end
 
-    test "list_cash_flows_by_entity_and_period/2 returns cash flows for specific entity and period" do
-      cash_flow1 = FinancialInstrumentsFixtures.cash_flow_fixture(%{reporting_entity: "Test Corp", reporting_period: "2024-Q1"})
-      _cash_flow2 = FinancialInstrumentsFixtures.cash_flow_fixture(%{reporting_entity: "Test Corp", reporting_period: "2024-Q2"})
+    test "list_cash_flows_by_user_and_period/2 returns cash flows for specific user and period", %{user: user} do
+      cash_flow1 = FinancialInstrumentsFixtures.cash_flow_fixture(%{user_id: user.id, reporting_period: "2024-Q1"})
+      _cash_flow2 = FinancialInstrumentsFixtures.cash_flow_fixture(%{user_id: user.id, reporting_period: "2024-Q2"})
 
-      result = FinancialInstruments.list_cash_flows_by_entity_and_period("Test Corp", "2024-Q1")
+      result = FinancialInstruments.list_cash_flows_by_user_and_period(user.id, "2024-Q1")
       assert length(result) == 1
       assert List.first(result).id == cash_flow1.id
     end
 
-    test "get_cash_flow!/1 returns the cash flow with given id" do
-      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture()
+    test "get_cash_flow!/1 returns the cash flow with given id", %{user: user} do
+      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture(%{user_id: user.id})
       assert FinancialInstruments.get_cash_flow!(cash_flow.id) == cash_flow
     end
 
-    test "get_cash_flow_by_identifier/1 returns the cash flow with given identifier" do
-      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture()
+    test "get_cash_flow_by_identifier/1 returns the cash flow with given identifier", %{user: user} do
+      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture(%{user_id: user.id})
       assert FinancialInstruments.get_cash_flow_by_identifier(cash_flow.cash_flow_identifier) == cash_flow
     end
 
-    test "create_cash_flow/1 with valid data creates a cash flow" do
+    test "create_cash_flow/1 with valid data creates a cash flow", %{user: user} do
       valid_attrs = %{
         cash_flow_name: "Test Cash Flow",
         cash_flow_type: "Income",
         cash_flow_category: "Salary",
         amount: "5000.00",
         currency_code: "USD",
-        reporting_entity: "Test Corp",
+        user_id: user.id,
         reporting_period: "2024-Q1",
         cash_flow_identifier: "TEST_CF_001",
         transaction_date: ~D[2024-01-01],
@@ -259,34 +266,33 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
       assert {:error, %Ecto.Changeset{}} = FinancialInstruments.create_cash_flow(%{cash_flow_name: nil})
     end
 
-    test "update_cash_flow/2 with valid data updates the cash flow" do
-      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture()
+    test "update_cash_flow/2 with valid data updates the cash flow", %{user: user} do
+      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture(%{user_id: user.id})
       update_attrs = %{cash_flow_name: "Updated Cash Flow"}
 
       assert {:ok, %CashFlow{} = updated_cash_flow} = FinancialInstruments.update_cash_flow(cash_flow, update_attrs)
       assert updated_cash_flow.cash_flow_name == "Updated Cash Flow"
     end
 
-    test "update_cash_flow/2 with invalid data returns error changeset" do
-      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture()
+    test "update_cash_flow/2 with invalid data returns error changeset", %{user: user} do
+      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture(%{user_id: user.id})
       assert {:error, %Ecto.Changeset{}} = FinancialInstruments.update_cash_flow(cash_flow, %{cash_flow_name: nil})
     end
 
-    test "delete_cash_flow/1 deletes the cash flow" do
-      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture()
+    test "delete_cash_flow/1 deletes the cash flow", %{user: user} do
+      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture(%{user_id: user.id})
       assert {:ok, %CashFlow{}} = FinancialInstruments.delete_cash_flow(cash_flow)
       assert_raise Ecto.NoResultsError, fn -> FinancialInstruments.get_cash_flow!(cash_flow.id) end
     end
 
-    test "change_cash_flow/1 returns a cash flow changeset" do
-      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture()
+    test "change_cash_flow/1 returns a cash flow changeset", %{user: user} do
+      cash_flow = FinancialInstrumentsFixtures.cash_flow_fixture(%{user_id: user.id})
       assert %Ecto.Changeset{} = FinancialInstruments.change_cash_flow(cash_flow)
     end
   end
 
   describe "reporting functions" do
-    test "generate_cash_flow_report/3 generates comprehensive cash flow report" do
-      entity = "Test Corp"
+    test "generate_cash_flow_report/3 generates comprehensive cash flow report", %{user: user} do
       period = "2024-Q1"
       currency = "USD"
 
@@ -294,20 +300,20 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
       _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{
         cash_flow_type: "Income",
         amount: "4000.00",
-        reporting_entity: entity,
+        user_id: user.id,
         reporting_period: period
       })
 
       _expense = FinancialInstrumentsFixtures.cash_flow_fixture(%{
         cash_flow_type: "Expense",
         amount: "2000.00",
-        reporting_entity: entity,
+        user_id: user.id,
         reporting_period: period
       })
 
-      report = FinancialInstruments.generate_cash_flow_report(entity, period, currency)
+      report = FinancialInstruments.generate_cash_flow_report(user.id, period, currency)
 
-      assert report.entity == entity
+      assert report.user_id == user.id
       assert report.reporting_period == period
       assert report.currency == currency
       assert Decimal.gt?(report.total_income, Decimal.new("0"))
@@ -320,28 +326,27 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
       assert is_list(report.recurring_expenses)
     end
 
-    test "generate_financial_position_report/3 generates comprehensive financial position report" do
-      entity = "Test Corp"
+    test "generate_financial_position_report/3 generates comprehensive financial position report", %{user: user} do
       period = "2024-Q1"
       currency = "USD"
 
       # Create test data
       _asset = FinancialInstrumentsFixtures.asset_fixture(%{
         fair_value: "10000.00",
-        reporting_entity: entity,
+        user_id: user.id,
         reporting_period: period
       })
 
       _debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{
         outstanding_balance: "5000.00",
         monthly_payment: "200.00",
-        reporting_entity: entity,
+        user_id: user.id,
         reporting_period: period
       })
 
-      report = FinancialInstruments.generate_financial_position_report(entity, period, currency)
+      report = FinancialInstruments.generate_financial_position_report(user.id, period, currency)
 
-      assert report.entity == entity
+      assert report.user_id == user.id
       assert report.reporting_period == period
       assert report.currency == currency
       assert Decimal.gt?(report.total_assets, Decimal.new("0"))
@@ -353,8 +358,7 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
       assert Decimal.gt?(report.monthly_debt_payments, Decimal.new("0"))
     end
 
-    test "generate_comprehensive_net_worth_report/3 generates comprehensive net worth report" do
-      entity = "Test Corp"
+    test "generate_comprehensive_net_worth_report/3 generates comprehensive net worth report", %{user: user} do
       period = "2024-Q1"
       currency = "USD"
 
@@ -362,33 +366,33 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
       _asset = FinancialInstrumentsFixtures.asset_fixture(%{
         fair_value: "15000.00",
         asset_category: "Savings",
-        reporting_entity: entity,
+        user_id: user.id,
         reporting_period: period
       })
 
       _debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{
         outstanding_balance: "5000.00",
-        reporting_entity: entity,
+        user_id: user.id,
         reporting_period: period
       })
 
       _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{
         cash_flow_type: "Income",
         amount: "4000.00",
-        reporting_entity: entity,
+        user_id: user.id,
         reporting_period: period
       })
 
       _expense = FinancialInstrumentsFixtures.cash_flow_fixture(%{
         cash_flow_type: "Expense",
         amount: "2000.00",
-        reporting_entity: entity,
+        user_id: user.id,
         reporting_period: period
       })
 
-      report = FinancialInstruments.generate_comprehensive_net_worth_report(entity, period, currency)
+      report = FinancialInstruments.generate_comprehensive_net_worth_report(user.id, period, currency)
 
-      assert report.entity == entity
+      assert report.user_id == user.id
       assert report.reporting_period == period
       assert report.currency == currency
       assert Decimal.gt?(report.current_net_worth, Decimal.new("0"))
@@ -424,8 +428,7 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
       assert is_list(report.recurring_expenses)
     end
 
-    test "track_net_worth_history/4 tracks net worth changes over time" do
-      entity = "Test Corp"
+    test "track_net_worth_history/4 tracks net worth changes over time", %{user: user} do
       start_period = "2024-Q1"
       end_period = "2024-Q2"
       currency = "USD"
@@ -433,19 +436,19 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
       # Create test data for both periods
       _asset1 = FinancialInstrumentsFixtures.asset_fixture(%{
         fair_value: "10000.00",
-        reporting_entity: entity,
+        user_id: user.id,
         reporting_period: start_period
       })
 
       _asset2 = FinancialInstrumentsFixtures.asset_fixture(%{
         fair_value: "12000.00",
-        reporting_entity: entity,
+        user_id: user.id,
         reporting_period: end_period
       })
 
-      history = FinancialInstruments.track_net_worth_history(entity, start_period, end_period, currency)
+      history = FinancialInstruments.track_net_worth_history(user.id, start_period, end_period, currency)
 
-      assert history.entity == entity
+      assert history.user_id == user.id
       assert history.start_period == start_period
       assert history.end_period == end_period
       assert history.currency == currency
@@ -459,27 +462,26 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
       assert Decimal.gt?(trend.growth_rate, Decimal.new("0"))
     end
 
-    test "calculate_net_worth_velocity/3 calculates net worth velocity and acceleration" do
-      entity = "Test Corp"
+    test "calculate_net_worth_velocity/3 calculates net worth velocity and acceleration", %{user: user} do
       period = "2025-02"
       currency = "USD"
 
       # Create test data for current and previous periods
       _asset_current = FinancialInstrumentsFixtures.asset_fixture(%{
         fair_value: "12000.00",
-        reporting_entity: entity,
+        user_id: user.id,
         reporting_period: period
       })
 
       _asset_previous = FinancialInstrumentsFixtures.asset_fixture(%{
         fair_value: "10000.00",
-        reporting_entity: entity,
+        user_id: user.id,
         reporting_period: "2025-01"
       })
 
-      velocity = FinancialInstruments.calculate_net_worth_velocity(entity, period, currency)
+      velocity = FinancialInstruments.calculate_net_worth_velocity(user.id, period, currency)
 
-      assert velocity.entity == entity
+      assert velocity.user_id == user.id
       assert velocity.period == period
       assert velocity.currency == currency
       assert Decimal.gt?(velocity.current_net_worth, Decimal.new("0"))
@@ -492,10 +494,10 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
   end
 
   describe "XBRL compliance functions" do
-    test "validate_all_xbrl_compliance/0 validates all financial instruments" do
+    test "validate_all_xbrl_compliance/0 validates all financial instruments", %{user: user} do
       # Create test data
-      _asset = FinancialInstrumentsFixtures.asset_fixture()
-      _debt = FinancialInstrumentsFixtures.debt_obligation_fixture()
+      _asset = FinancialInstrumentsFixtures.asset_fixture(%{user_id: user.id})
+      _debt = FinancialInstrumentsFixtures.debt_obligation_fixture(%{user_id: user.id})
 
       compliance = FinancialInstruments.validate_all_xbrl_compliance()
 

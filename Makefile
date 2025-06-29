@@ -1,4 +1,4 @@
-.PHONY: help build up down logs shell db-setup db-reset clean
+.PHONY: help build up down logs shell db-setup db-reset clean restart
 
 # Default target
 help:
@@ -6,6 +6,7 @@ help:
 	@echo "  make build      - Build the Docker images"
 	@echo "  make up         - Start the development environment"
 	@echo "  make down       - Stop the development environment"
+	@echo "  make restart    - Restart the container services"
 	@echo "  make logs       - Show logs from all services"
 	@echo "  make shell      - Open a shell in the web container"
 	@echo "  make db-setup   - Setup the database (create, migrate, seed)"
@@ -43,6 +44,10 @@ up: ensure-mix-lock setup-assets
 # Stop the development environment
 down:
 	docker-compose -f docker-compose.dev.yml down
+
+# Restart the development environment
+restart: down up
+	@echo "Containers restarted."
 
 # Show logs from all services
 logs:

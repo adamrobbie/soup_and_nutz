@@ -330,4 +330,78 @@ if (document.readyState === 'loading') {
   });
 } else {
   chartRenderer.init();
-} 
+}
+
+window.CashFlowForecastChart = {
+  mounted() {
+    const ctx = document.getElementById("cashFlowForecastChart").getContext("2d");
+    const chartData = window.cashFlowForecastChartData || { labels: [], data: [] };
+    if (!ctx || !chartData) return;
+    new window.Chart(ctx, {
+      type: "line",
+      data: {
+        labels: chartData.labels,
+        datasets: [
+          {
+            label: "Net Cash Flow",
+            data: chartData.data,
+            borderColor: "#38bdf8",
+            backgroundColor: "rgba(56,189,248,0.2)",
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3,
+            pointBackgroundColor: "#38bdf8"
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: { display: false }
+        },
+        scales: {
+          x: { grid: { color: "#374151" }, ticks: { color: "#d1d5db" } },
+          y: { grid: { color: "#374151" }, ticks: { color: "#d1d5db" } }
+        }
+      }
+    });
+  }
+};
+
+window.NetWorthProjectionChart = {
+  mounted() {
+    const ctx = document.getElementById("netWorthProjectionChart").getContext("2d");
+    const chartData = window.netWorthProjectionChartData || { labels: [], data: [] };
+    if (!ctx || !chartData) return;
+    new window.Chart(ctx, {
+      type: "line",
+      data: {
+        labels: chartData.labels,
+        datasets: [
+          {
+            label: "Net Worth",
+            data: chartData.data,
+            borderColor: "#a3e635",
+            backgroundColor: "rgba(163,230,53,0.2)",
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3,
+            pointBackgroundColor: "#a3e635"
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: { display: false }
+        },
+        scales: {
+          x: { grid: { color: "#374151" }, ticks: { color: "#d1d5db" } },
+          y: { grid: { color: "#374151" }, ticks: { color: "#d1d5db" } }
+        }
+      }
+    });
+  }
+}; 

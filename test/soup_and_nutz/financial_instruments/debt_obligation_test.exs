@@ -2,11 +2,17 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligationTest do
   use SoupAndNutz.DataCase, async: true
   alias SoupAndNutz.FinancialInstruments.DebtObligation
   alias SoupAndNutz.XBRL.Concepts
+  alias SoupAndNutz.Factory
+
+  setup do
+    user = Factory.insert(:user)
+    {:ok, user: user}
+  end
 
   @valid_attrs %{
     debt_identifier: "TEST_DEBT_001",
     debt_name: "Test Debt",
-    debt_type: "Mortgage",
+    debt_type: "LongTermDebt",
     debt_category: "Residential",
     principal_amount: Decimal.new("200000.00"),
     outstanding_balance: Decimal.new("180000.00"),
@@ -14,7 +20,7 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligationTest do
     currency_code: "USD",
     measurement_date: ~D[2024-12-31],
     reporting_period: "2024-12-31",
-    reporting_entity: "TEST_ENTITY",
+    user_id: 1,
     reporting_scenario: "Actual",
     lender_name: "Test Bank",
     account_number: "123456789",
@@ -36,12 +42,13 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligationTest do
     currency_code: nil,
     measurement_date: nil,
     reporting_period: nil,
-    reporting_entity: nil
+    user_id: nil
   }
 
   describe "changeset/2" do
-    test "changeset with valid attributes" do
-      changeset = DebtObligation.changeset(%DebtObligation{}, @valid_attrs)
+    test "changeset with valid attributes", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       assert changeset.valid?
     end
 
@@ -50,144 +57,164 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligationTest do
       refute changeset.valid?
     end
 
-    test "changeset requires debt_identifier" do
-      attrs = Map.delete(@valid_attrs, :debt_identifier)
+    test "changeset requires debt_identifier", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.delete(attrs, :debt_identifier)
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{debt_identifier: ["can't be blank"]} = errors_on(changeset)
     end
 
-    test "changeset requires debt_name" do
-      attrs = Map.delete(@valid_attrs, :debt_name)
+    test "changeset requires debt_name", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.delete(attrs, :debt_name)
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{debt_name: ["can't be blank"]} = errors_on(changeset)
     end
 
-    test "changeset requires debt_type" do
-      attrs = Map.delete(@valid_attrs, :debt_type)
+    test "changeset requires debt_type", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.delete(attrs, :debt_type)
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{debt_type: ["can't be blank"]} = errors_on(changeset)
     end
 
-    test "changeset requires currency_code" do
-      attrs = Map.delete(@valid_attrs, :currency_code)
+    test "changeset requires currency_code", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.delete(attrs, :currency_code)
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{currency_code: ["can't be blank"]} = errors_on(changeset)
     end
 
-    test "changeset requires measurement_date" do
-      attrs = Map.delete(@valid_attrs, :measurement_date)
+    test "changeset requires measurement_date", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.delete(attrs, :measurement_date)
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{measurement_date: ["can't be blank"]} = errors_on(changeset)
     end
 
-    test "changeset requires reporting_period" do
-      attrs = Map.delete(@valid_attrs, :reporting_period)
+    test "changeset requires reporting_period", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.delete(attrs, :reporting_period)
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{reporting_period: ["can't be blank"]} = errors_on(changeset)
     end
 
-    test "changeset requires reporting_entity" do
-      attrs = Map.delete(@valid_attrs, :reporting_entity)
+    test "changeset requires user_id", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.delete(attrs, :user_id)
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
-      assert %{reporting_entity: ["can't be blank"]} = errors_on(changeset)
+      assert %{user_id: ["can't be blank"]} = errors_on(changeset)
     end
 
-    test "changeset validates debt_type inclusion" do
-      attrs = Map.put(@valid_attrs, :debt_type, "InvalidType")
+    test "changeset validates debt_type inclusion", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.put(attrs, :debt_type, "InvalidType")
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{debt_type: ["is invalid"]} = errors_on(changeset)
     end
 
-    test "changeset validates currency_code inclusion" do
-      attrs = Map.put(@valid_attrs, :currency_code, "INVALID")
+    test "changeset validates currency_code inclusion", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.put(attrs, :currency_code, "INVALID")
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{currency_code: ["is invalid"]} = errors_on(changeset)
     end
 
-    test "changeset validates payment_frequency inclusion" do
-      attrs = Map.put(@valid_attrs, :payment_frequency, "Invalid")
+    test "changeset validates payment_frequency inclusion", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.put(attrs, :payment_frequency, "Invalid")
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{payment_frequency: ["is invalid"]} = errors_on(changeset)
     end
 
-    test "changeset validates risk_level inclusion" do
-      attrs = Map.put(@valid_attrs, :risk_level, "Invalid")
+    test "changeset validates risk_level inclusion", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.put(attrs, :risk_level, "Invalid")
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{risk_level: ["is invalid"]} = errors_on(changeset)
     end
 
-    test "changeset validates priority_level inclusion" do
-      attrs = Map.put(@valid_attrs, :priority_level, "Invalid")
+    test "changeset validates priority_level inclusion", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.put(attrs, :priority_level, "Invalid")
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{priority_level: ["is invalid"]} = errors_on(changeset)
     end
 
-    test "changeset validates principal_amount is positive" do
-      attrs = Map.put(@valid_attrs, :principal_amount, Decimal.new("0"))
+    test "changeset validates principal_amount is positive", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.put(attrs, :principal_amount, Decimal.new("0"))
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{principal_amount: ["must be greater than 0"]} = errors_on(changeset)
     end
 
-    test "changeset validates outstanding_balance is non-negative" do
-      attrs = Map.put(@valid_attrs, :outstanding_balance, Decimal.new("-1000.00"))
+    test "changeset validates outstanding_balance is non-negative", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.put(attrs, :outstanding_balance, Decimal.new("-1000.00"))
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{outstanding_balance: ["must be greater than or equal to 0"]} = errors_on(changeset)
     end
 
-    test "changeset validates interest_rate is non-negative" do
-      attrs = Map.put(@valid_attrs, :interest_rate, Decimal.new("-1.00"))
+    test "changeset validates interest_rate is non-negative", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.put(attrs, :interest_rate, Decimal.new("-1.00"))
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{interest_rate: ["must be greater than or equal to 0"]} = errors_on(changeset)
     end
 
-    test "changeset validates monthly_payment is non-negative" do
-      attrs = Map.put(@valid_attrs, :monthly_payment, Decimal.new("-100.00"))
+    test "changeset validates monthly_payment is non-negative", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.put(attrs, :monthly_payment, Decimal.new("-100.00"))
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{monthly_payment: ["must be greater than or equal to 0"]} = errors_on(changeset)
     end
 
-    test "changeset validates debt_identifier format" do
-      attrs = Map.put(@valid_attrs, :debt_identifier, "invalid-identifier")
+    test "changeset validates debt_identifier format", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.put(attrs, :debt_identifier, "invalid-identifier")
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{debt_identifier: ["must contain only uppercase letters, numbers, underscores, and hyphens"]} = errors_on(changeset)
     end
 
-    test "changeset enforces unique debt_identifier" do
+    test "changeset enforces unique debt_identifier", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
       # First, create a debt obligation
-      {:ok, _debt} = Repo.insert(DebtObligation.changeset(%DebtObligation{}, @valid_attrs))
+      {:ok, _debt} = Repo.insert(DebtObligation.changeset(%DebtObligation{}, attrs))
 
       # Try to create another with the same identifier
-      changeset = DebtObligation.changeset(%DebtObligation{}, @valid_attrs)
+      changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       assert {:error, changeset} = Repo.insert(changeset)
       assert %{debt_identifier: ["has already been taken"]} = errors_on(changeset)
     end
 
-    test "changeset validates outstanding balance does not exceed principal amount" do
-      attrs = Map.put(@valid_attrs, :outstanding_balance, Decimal.new("250000.00"))
+    test "changeset validates outstanding balance does not exceed principal amount", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.put(attrs, :outstanding_balance, Decimal.new("250000.00"))
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{outstanding_balance: ["Outstanding balance cannot exceed principal amount"]} = errors_on(changeset)
     end
 
-    test "changeset validates maturity date is not before measurement date" do
-      attrs = Map.put(@valid_attrs, :maturity_date, ~D[2020-01-01])
+    test "changeset validates maturity date is not before measurement date", %{user: user} do
+      attrs = Map.put(@valid_attrs, :user_id, user.id)
+      attrs = Map.put(attrs, :maturity_date, ~D[2020-01-01])
       changeset = DebtObligation.changeset(%DebtObligation{}, attrs)
       refute changeset.valid?
       assert %{maturity_date: ["Maturity date cannot be before measurement date"]} = errors_on(changeset)

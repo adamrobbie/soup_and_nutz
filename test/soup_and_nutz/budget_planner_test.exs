@@ -2,17 +2,22 @@ defmodule SoupAndNutz.BudgetPlannerTest do
   use SoupAndNutz.DataCase
   alias SoupAndNutz.BudgetPlanner
   alias SoupAndNutz.FinancialInstrumentsFixtures
+  alias SoupAndNutz.Factory
+
+  setup do
+    user = Factory.insert(:user)
+    {:ok, user: user}
+  end
 
   describe "create_budget/4" do
-    test "creates 50/30/20 budget with income and expenses" do
-      entity = "Test Corp"
+    test "creates 50/30/20 budget with income and expenses", %{user: user} do
       period = "2024-Q1"
-      _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "4000.00", cash_flow_type: "Income", cash_flow_category: "Salary", currency_code: "USD", reporting_entity: entity, reporting_period: period})
-      _expense = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "1000.00", cash_flow_type: "Expense", cash_flow_category: "Housing", currency_code: "USD", reporting_entity: entity, reporting_period: period})
+      _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "4000.00", cash_flow_type: "Income", cash_flow_category: "Salary", currency_code: "USD", user_id: user.id, reporting_period: period})
+      _expense = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "1000.00", cash_flow_type: "Expense", cash_flow_category: "Housing", currency_code: "USD", user_id: user.id, reporting_period: period})
 
-      budget = BudgetPlanner.create_budget(entity, period, "50/30/20")
+      budget = BudgetPlanner.create_budget(user.id, period, "50/30/20")
 
-      assert budget.entity == entity
+      assert budget.user_id == user.id
       assert budget.period == period
       assert budget.budget_type == "50/30/20"
       assert budget.total_income == Decimal.new("4000.00")
@@ -21,13 +26,12 @@ defmodule SoupAndNutz.BudgetPlannerTest do
       assert Decimal.compare(budget.savings_goal, Decimal.new("800.00")) == :eq  # 20% of 4000
     end
 
-    test "creates zero-based budget with historical data" do
-      entity = "Test Corp"
+    test "creates zero-based budget with historical data", %{user: user} do
       period = "2024-Q1"
-      _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "3000.00", cash_flow_type: "Income", cash_flow_category: "Salary", currency_code: "USD", reporting_entity: entity, reporting_period: period})
-      _expense = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "800.00", cash_flow_type: "Expense", cash_flow_category: "Housing", currency_code: "USD", reporting_entity: entity, reporting_period: period})
+      _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "3000.00", cash_flow_type: "Income", cash_flow_category: "Salary", currency_code: "USD", user_id: user.id, reporting_period: period})
+      _expense = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "800.00", cash_flow_type: "Expense", cash_flow_category: "Housing", currency_code: "USD", user_id: user.id, reporting_period: period})
 
-      budget = BudgetPlanner.create_budget(entity, period, "zero_based")
+      budget = BudgetPlanner.create_budget(user.id, period, "zero_based")
 
       assert budget.budget_type == "zero_based"
       assert budget.total_income == Decimal.new("3000.00")
@@ -35,13 +39,12 @@ defmodule SoupAndNutz.BudgetPlannerTest do
       assert Map.has_key?(budget.budget_allocation, "Savings")
     end
 
-    test "creates custom budget with goals" do
-      entity = "Test Corp"
+    test "creates custom budget with goals", %{user: user} do
       period = "2024-Q1"
       goals = [%{name: "Vacation", amount: "1000.00"}]
-      _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "5000.00", cash_flow_type: "Income", cash_flow_category: "Salary", currency_code: "USD", reporting_entity: entity, reporting_period: period})
+      _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "5000.00", cash_flow_type: "Income", cash_flow_category: "Salary", currency_code: "USD", user_id: user.id, reporting_period: period})
 
-      budget = BudgetPlanner.create_budget(entity, period, "custom", goals)
+      budget = BudgetPlanner.create_budget(user.id, period, "custom", goals)
 
       assert budget.budget_type == "custom"
       assert budget.goals == goals
@@ -51,21 +54,20 @@ defmodule SoupAndNutz.BudgetPlannerTest do
   end
 
   describe "analyze_budget_performance/3" do
-    test "analyzes budget vs actual spending" do
-      entity = "Test Corp"
+    test "analyzes budget vs actual spending", %{user: user} do
       period = "2024-Q1"
 
       # Create budget
-      _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "4000.00", cash_flow_type: "Income", cash_flow_category: "Salary", currency_code: "USD", reporting_entity: entity, reporting_period: period})
-      budget = BudgetPlanner.create_budget(entity, period, "50/30/20")
+      _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "4000.00", cash_flow_type: "Income", cash_flow_category: "Salary", currency_code: "USD", user_id: user.id, reporting_period: period})
+      budget = BudgetPlanner.create_budget(user.id, period, "50/30/20")
 
       # Create actual spending (over budget in Housing)
-      _actual_housing = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "1500.00", cash_flow_type: "Expense", cash_flow_category: "Housing", currency_code: "USD", reporting_entity: entity, reporting_period: period})
-      _actual_food = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "400.00", cash_flow_type: "Expense", cash_flow_category: "Food", currency_code: "USD", reporting_entity: entity, reporting_period: period})
+      _actual_housing = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "1500.00", cash_flow_type: "Expense", cash_flow_category: "Housing", currency_code: "USD", user_id: user.id, reporting_period: period})
+      _actual_food = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "400.00", cash_flow_type: "Expense", cash_flow_category: "Food", currency_code: "USD", user_id: user.id, reporting_period: period})
 
-      performance = BudgetPlanner.analyze_budget_performance(entity, period, budget)
+      performance = BudgetPlanner.analyze_budget_performance(user.id, period, budget)
 
-      assert performance.entity == entity
+      assert performance.user_id == user.id
       assert performance.period == period
       assert is_map(performance.overall_performance)
       assert is_list(performance.category_performance)
@@ -79,21 +81,20 @@ defmodule SoupAndNutz.BudgetPlannerTest do
   end
 
   describe "optimize_budget/4" do
-    test "generates optimization recommendations" do
-      entity = "Test Corp"
+    test "generates optimization recommendations", %{user: user} do
       period = "2024-Q1"
       financial_goals = [%{name: "Emergency Fund", target: "10000.00"}]
 
       # Create budget
-      _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "4000.00", cash_flow_type: "Income", cash_flow_category: "Salary", currency_code: "USD", reporting_entity: entity, reporting_period: period})
-      budget = BudgetPlanner.create_budget(entity, period, "50/30/20")
+      _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "4000.00", cash_flow_type: "Income", cash_flow_category: "Salary", currency_code: "USD", user_id: user.id, reporting_period: period})
+      budget = BudgetPlanner.create_budget(user.id, period, "50/30/20")
 
       # Create overspending scenario
-      _actual_housing = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "1500.00", cash_flow_type: "Expense", cash_flow_category: "Housing", currency_code: "USD", reporting_entity: entity, reporting_period: period})
+      _actual_housing = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "1500.00", cash_flow_type: "Expense", cash_flow_category: "Housing", currency_code: "USD", user_id: user.id, reporting_period: period})
 
-      optimization = BudgetPlanner.optimize_budget(entity, period, budget, financial_goals)
+      optimization = BudgetPlanner.optimize_budget(user.id, period, budget, financial_goals)
 
-      assert optimization.entity == entity
+      assert optimization.user_id == user.id
       assert optimization.period == period
       assert is_map(optimization.current_performance)
       assert is_list(optimization.optimization_suggestions)
@@ -103,20 +104,19 @@ defmodule SoupAndNutz.BudgetPlannerTest do
   end
 
   describe "check_budget_alerts/3" do
-    test "generates budget alerts for overspending" do
-      entity = "Test Corp"
+    test "generates budget alerts for overspending", %{user: user} do
       period = "2024-Q1"
 
       # Create budget
-      _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "4000.00", cash_flow_type: "Income", cash_flow_category: "Salary", currency_code: "USD", reporting_entity: entity, reporting_period: period})
-      budget = BudgetPlanner.create_budget(entity, period, "50/30/20")
+      _income = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "4000.00", cash_flow_type: "Income", cash_flow_category: "Salary", currency_code: "USD", user_id: user.id, reporting_period: period})
+      budget = BudgetPlanner.create_budget(user.id, period, "50/30/20")
 
       # Create significant overspending to trigger alerts
-      _actual_housing = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "2000.00", cash_flow_type: "Expense", cash_flow_category: "Housing", currency_code: "USD", reporting_entity: entity, reporting_period: period})
+      _actual_housing = FinancialInstrumentsFixtures.cash_flow_fixture(%{amount: "2000.00", cash_flow_type: "Expense", cash_flow_category: "Housing", currency_code: "USD", user_id: user.id, reporting_period: period})
 
-      alerts = BudgetPlanner.check_budget_alerts(entity, period, budget)
+      alerts = BudgetPlanner.check_budget_alerts(user.id, period, budget)
 
-      assert alerts.entity == entity
+      assert alerts.user_id == user.id
       assert alerts.period == period
       assert is_list(alerts.alerts)
       assert is_integer(alerts.alert_count)

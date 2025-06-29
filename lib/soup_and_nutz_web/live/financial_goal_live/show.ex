@@ -1,6 +1,8 @@
 defmodule SoupAndNutzWeb.FinancialGoalLive.Show do
   use SoupAndNutzWeb, :live_view
 
+  on_mount {SoupAndNutzWeb.Live.AuthHook, :ensure_authenticated}
+
   alias SoupAndNutz.FinancialGoals
 
   @impl true

@@ -31,6 +31,11 @@ import "./charts.js"
 // Make Chart available globally for use in templates
 window.Chart = Chart
 
+import React from "react";
+import { createRoot } from "react-dom/client";
+// Import the ProfileDropdown component (to be created)
+import ProfileDropdown from "./components/ProfileDropdown";
+
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
@@ -50,4 +55,11 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
+
+document.addEventListener("DOMContentLoaded", () => {
+  const el = document.getElementById("profile-dropdown-root");
+  if (el) {
+    createRoot(el).render(<ProfileDropdown />);
+  }
+});
 

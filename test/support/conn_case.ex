@@ -33,6 +33,6 @@ defmodule SoupAndNutzWeb.ConnCase do
 
   setup tags do
     SoupAndNutz.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    {:ok, conn: Phoenix.ConnTest.build_conn() |> Plug.Session.call(Plug.Session.init(store: :cookie, key: "_soup_and_nutz_key", signing_salt: "test_salt"))}
   end
 end

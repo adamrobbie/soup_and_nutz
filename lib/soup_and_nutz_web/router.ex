@@ -116,7 +116,12 @@ defmodule SoupAndNutzWeb.Router do
 
     # Budget and Debt Payoff Planning
     live "/budget", BudgetLive.Index, :index
+    live "/budget-tracking", BudgetTrackingLive.Index, :index
     live "/debt-payoff", DebtPayoffLive.Index, :index
+
+    # Advanced Analysis
+    live "/cash-flow-forecast", CashFlowForecastLive.Index, :index
+    live "/net-worth-projection", NetWorthProjectionLive.Index, :index
 
     # Remove these lines that reference undefined controllers
     # resources "/assets", AssetController

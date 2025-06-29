@@ -4,11 +4,14 @@ defmodule SoupAndNutzWeb.DebtPayoffLive.Index do
   alias SoupAndNutz.{DebtPayoffPlanner, FinancialInstruments}
   alias SoupAndNutz.FinancialInstruments.DebtObligation
 
+  # Add auth hook to ensure current_user is set
+  on_mount {SoupAndNutzWeb.Live.AuthHook, :ensure_authenticated}
+
   @default_extra_payments [0, 50, 100, 200, 500]
 
   @impl true
   def mount(_params, _session, socket) do
-    user_id = 1  # In a real app, this would come from session
+    user_id = socket.assigns.current_user.id  # Get from current_user instead of hardcoding
     debts = FinancialInstruments.list_debt_obligations_by_user(user_id)
     extra_payments = @default_extra_payments
     extra_payment_input = Enum.join(extra_payments, ", ")
