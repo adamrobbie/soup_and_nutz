@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: '1.15.7'
+          otp-version: '26.0'
+          
+      - name: Restore dependencies cache
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+          
+      - name: Install dependencies
+        run: mix deps.get
+        
+      - name: Run tests
+        run: mix test
+        
+      - name: Run credo
+        run: mix credo --strict
+        
+      - name: Build release
+        run: mix compile
+        
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            ## What's Changed
+            
+            This release includes:
+            - Personal finance management features
+            - Debt tracking and payoff planning
+            - Asset management and net worth tracking
+            - Cash flow analysis and forecasting
+            - Budget planning and tracking
+            - User authentication and profiles
+            - Comprehensive test suite
+            - Docker and Kubernetes support
+            
+            ## Installation
+            
+            ```bash
+            git clone https://github.com/adamrobbie/soup_and_nutz.git
+            cd soup_and_nutz
+            mix deps.get
+            mix setup
+            mix phx.server
+            ```
+            
+            ## Docker
+            
+            ```bash
+            docker-compose up
+            ```
+            
+            See [DOCKER.md](DOCKER.md) for more details.
+          draft: false
+          prerelease: false 
