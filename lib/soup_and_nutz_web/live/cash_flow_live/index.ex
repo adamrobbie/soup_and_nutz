@@ -3,15 +3,30 @@ defmodule SoupAndNutzWeb.CashFlowLive.Index do
 
   alias SoupAndNutz.FinancialInstruments
   alias SoupAndNutz.FinancialInstruments.CashFlow
+  import SoupAndNutzWeb.FinancialHelpers
+
+  on_mount {SoupAndNutzWeb.Live.AuthHook, :ensure_authenticated}
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :cash_flows, FinancialInstruments.list_cash_flows())}
+    cash_flows = FinancialInstruments.list_cash_flows_by_user(socket.assigns.current_user.id)
+    {:ok,
+     socket
+     |> stream(:cash_flows, cash_flows)
+     |> assign(:cash_flows, cash_flows)
+    }
   end
 
   @impl true
   def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    case socket.assigns.live_action do
+      :new ->
+        {:noreply, push_navigate(socket, to: "/cash_flows")}
+      :edit ->
+        {:noreply, push_navigate(socket, to: "/cash_flows")}
+      _ ->
+        {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    end
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
@@ -34,7 +49,12 @@ defmodule SoupAndNutzWeb.CashFlowLive.Index do
 
   @impl true
   def handle_info({SoupAndNutzWeb.CashFlowLive.FormComponent, {:saved, cash_flow}}, socket) do
-    {:noreply, stream_insert(socket, :cash_flows, cash_flow)}
+    updated_cash_flows = FinancialInstruments.list_cash_flows_by_user(socket.assigns.current_user.id)
+    {:noreply,
+     socket
+     |> stream_insert(:cash_flows, cash_flow)
+     |> assign(:cash_flows, updated_cash_flows)
+    }
   end
 
   @impl true
@@ -42,6 +62,36 @@ defmodule SoupAndNutzWeb.CashFlowLive.Index do
     cash_flow = FinancialInstruments.get_cash_flow!(id)
     {:ok, _} = FinancialInstruments.delete_cash_flow(cash_flow)
 
-    {:noreply, stream_delete(socket, :cash_flows, cash_flow)}
+    updated_cash_flows = FinancialInstruments.list_cash_flows_by_user(socket.assigns.current_user.id)
+    {:noreply,
+     socket
+     |> stream_delete(:cash_flows, cash_flow)
+     |> assign(:cash_flows, updated_cash_flows)
+    }
+  end
+
+  def total_cash_inflow(cash_flows) do
+    cash_flows
+    |> Enum.filter(&(&1.cash_flow_type == "Income"))
+    |> Enum.reduce(Decimal.new(0), fn cf, acc -> Decimal.add(acc, cf.amount) end)
+  end
+
+  def total_cash_outflow(cash_flows) do
+    cash_flows
+    |> Enum.filter(&(&1.cash_flow_type == "Expense"))
+    |> Enum.reduce(Decimal.new(0), fn cf, acc -> Decimal.add(acc, cf.amount) end)
+  end
+
+  def net_cash_flow(cash_flows) do
+    Decimal.sub(total_cash_inflow(cash_flows), total_cash_outflow(cash_flows))
+  end
+
+  def format_datetime(datetime) do
+    case datetime do
+      nil -> "N/A"
+      datetime when is_struct(datetime, DateTime) ->
+        Calendar.strftime(datetime, "%Y-%m-%d %H:%M:%S")
+      _ -> "N/A"
+    end
   end
 end

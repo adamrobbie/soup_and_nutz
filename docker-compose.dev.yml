@@ -14,7 +14,6 @@ services:
       - SECRET_KEY_BASE=k6p+012lEAfmh1DOQuHtU8tlvULSSuszREFLrm0brzXwJsjfoPmZwKol9zW/bchA
     volumes:
       - .:/app
-      - /app/deps
       - /app/_build
       - /app/assets/node_modules
     depends_on:

@@ -3,12 +3,15 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Index do
 
   alias SoupAndNutz.FinancialInstruments
   alias SoupAndNutz.FinancialInstruments.DebtObligation
+  import SoupAndNutzWeb.FinancialHelpers
+
+  on_mount {SoupAndNutzWeb.Live.AuthHook, :ensure_authenticated}
 
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:debt_obligations, list_debt_obligations())
+     |> assign(:debt_obligations, list_debt_obligations(socket.assigns.current_user.id))
      |> assign(:filter_form, to_form(%{"debt_type" => "", "risk_level" => ""}))
      |> assign(:search_form, to_form(%{"query" => ""}))
     }
@@ -16,7 +19,14 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Index do
 
   @impl true
   def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    case socket.assigns.live_action do
+      :new ->
+        {:noreply, push_navigate(socket, to: "/debt_obligations")}
+      :edit ->
+        {:noreply, push_navigate(socket, to: "/debt_obligations")}
+      _ ->
+        {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    end
   end
 
   defp apply_action(socket, :index, _params) do
@@ -52,12 +62,12 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Index do
     debt_obligation = FinancialInstruments.get_debt_obligation!(id)
     {:ok, _} = FinancialInstruments.delete_debt_obligation(debt_obligation)
 
-    {:noreply, assign(socket, :debt_obligations, list_debt_obligations())}
+    {:noreply, assign(socket, :debt_obligations, list_debt_obligations(socket.assigns.current_user.id))}
   end
 
   @impl true
   def handle_event("filter", %{"debt_type" => debt_type, "risk_level" => risk_level}, socket) do
-    filtered_debts = list_debt_obligations()
+    filtered_debts = list_debt_obligations(socket.assigns.current_user.id)
     |> Enum.filter(fn debt ->
       (debt_type == "" or debt.debt_type == debt_type) and
       (risk_level == "" or debt.risk_level == risk_level)
@@ -69,9 +79,9 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Index do
   @impl true
   def handle_event("search", %{"query" => query}, socket) do
     filtered_debts = if query == "" do
-      list_debt_obligations()
+      list_debt_obligations(socket.assigns.current_user.id)
     else
-      list_debt_obligations()
+      list_debt_obligations(socket.assigns.current_user.id)
       |> Enum.filter(fn debt ->
         String.contains?(String.downcase(debt.debt_name || ""), String.downcase(query))
       end)
@@ -80,8 +90,8 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Index do
     {:noreply, assign(socket, :debt_obligations, filtered_debts)}
   end
 
-  defp list_debt_obligations do
-    FinancialInstruments.list_debt_obligations()
+  defp list_debt_obligations(user_id) do
+    FinancialInstruments.list_debt_obligations_by_user(user_id)
   end
 
   def debt_type_options do
@@ -143,29 +153,6 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Index do
           Decimal.add(acc, rate)
         end)
         Decimal.div(total_rate, Decimal.new(length(debts)))
-    end
-  end
-
-  def format_currency(amount) do
-    case amount do
-      nil -> "$0.00"
-      amount when is_struct(amount, Decimal) ->
-        amount
-        |> Decimal.round(2)
-        |> Decimal.to_string()
-        |> then(&"$#{&1}")
-      _ -> "$0.00"
-    end
-  end
-
-  def format_percentage(amount) do
-    case amount do
-      nil -> "0.00"
-      amount when is_struct(amount, Decimal) ->
-        amount
-        |> Decimal.round(2)
-        |> Decimal.to_string()
-      _ -> "0.00"
     end
   end
 

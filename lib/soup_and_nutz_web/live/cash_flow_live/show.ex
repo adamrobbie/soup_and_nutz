@@ -18,4 +18,6 @@ defmodule SoupAndNutzWeb.CashFlowLive.Show do
 
   defp page_title(:show), do: "Show Cash flow"
   defp page_title(:edit), do: "Edit Cash flow"
+
+  on_mount {SoupAndNutzWeb.Live.AuthHook, :ensure_authenticated}
 end

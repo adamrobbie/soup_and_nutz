@@ -4,7 +4,7 @@ defmodule SoupAndNutz.MixProject do
   def project do
     [
       app: :soup_and_nutz,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -22,7 +22,7 @@ defmodule SoupAndNutz.MixProject do
   def application do
     [
       mod: {SoupAndNutz.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools] ++ if(Mix.env() == :test, do: [:wallaby], else: [])
     ]
   end
 
@@ -62,11 +62,18 @@ defmodule SoupAndNutz.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:excoveralls, "~> 0.18", only: :test},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:money, "~> 1.12"},
+      {:bcrypt_elixir, "~> 3.0"},
+      # E2E Testing dependencies
+      {:wallaby, "~> 0.30", runtime: false, only: :test},
+      {:ex_machina, "~> 2.7", only: :test},
+      {:faker, "~> 0.17", only: :test}
     ]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
+  #
   # For example, to install project dependencies and perform other setup tasks, run:
   #
   #     $ mix setup
@@ -81,6 +88,10 @@ defmodule SoupAndNutz.MixProject do
       "test.coverage": ["coveralls"],
       "test.coverage.html": ["coveralls.html"],
       "test.coverage.json": ["coveralls.json"],
+      # E2E Testing aliases
+      "test.e2e": ["ecto.create --quiet", "ecto.migrate --quiet", "test --only feature"],
+      "test.unit": ["ecto.create --quiet", "ecto.migrate --quiet", "test --exclude feature"],
+      "test.all": ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind soup_and_nutz", "esbuild soup_and_nutz"],
       "assets.deploy": [

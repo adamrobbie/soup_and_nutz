@@ -29,7 +29,6 @@ defmodule SoupAndNutzWeb.AssetLive.FormComponent do
         <.input field={@form[:currency_code]} type="text" label="Currency code" />
         <.input field={@form[:measurement_date]} type="date" label="Measurement date" />
         <.input field={@form[:reporting_period]} type="text" label="Reporting period" />
-        <.input field={@form[:reporting_entity]} type="text" label="Reporting entity" />
         <.input field={@form[:reporting_scenario]} type="text" label="Reporting scenario" />
         <.input field={@form[:description]} type="textarea" label="Description" />
         <.input field={@form[:location]} type="text" label="Location" />
@@ -86,7 +85,9 @@ defmodule SoupAndNutzWeb.AssetLive.FormComponent do
   end
 
   defp save_asset(socket, :new, asset_params) do
-    case FinancialInstruments.create_asset(asset_params) do
+    asset_params_with_user = Map.put(asset_params, "user_id", socket.assigns.current_user.id)
+
+    case FinancialInstruments.create_asset(asset_params_with_user) do
       {:ok, asset} ->
         notify_parent({:saved, asset})
 

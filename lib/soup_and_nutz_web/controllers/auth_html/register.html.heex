@@ -1,0 +1,82 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <div>
+      <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-white/10">
+        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+        </svg>
+      </div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
+        Create your account
+      </h2>
+      <p class="mt-2 text-center text-sm text-gray-300">
+        Or
+        <a href={~p"/auth/login"} class="font-medium text-blue-400 hover:text-blue-300">
+          sign in to your existing account
+        </a>
+      </p>
+    </div>
+    
+    <.flash_group flash={@flash} />
+
+    <.form for={@changeset} action={~p"/auth/register"} class="mt-8 space-y-6">
+      <div class="rounded-md shadow-sm -space-y-px">
+        <div>
+          <label for="user_first_name" class="sr-only">First name</label>
+          <input type="text" name="user[first_name]" id="user_first_name" autocomplete="given-name" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="First name" />
+        </div>
+        <div>
+          <label for="user_last_name" class="sr-only">Last name</label>
+          <input type="text" name="user[last_name]" id="user_last_name" autocomplete="family-name" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="Last name" />
+        </div>
+        <div>
+          <label for="user_email" class="sr-only">Email address</label>
+          <input type="email" name="user[email]" id="user_email" autocomplete="email" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="Email address" />
+        </div>
+        <div>
+          <label for="user_username" class="sr-only">Username</label>
+          <input type="text" name="user[username]" id="user_username" autocomplete="username" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="Username" />
+        </div>
+        <div>
+          <label for="user_password" class="sr-only">Password</label>
+          <input type="password" name="user[password]" id="user_password" autocomplete="new-password" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="Password" />
+        </div>
+        <div>
+          <label for="user_password_confirmation" class="sr-only">Confirm password</label>
+          <input type="password" name="user[password_confirmation]" id="user_password_confirmation" autocomplete="new-password" required 
+                 class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-800 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                 placeholder="Confirm password" />
+        </div>
+      </div>
+
+      <div>
+        <button type="submit" 
+                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+          <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+            <svg class="h-5 w-5 text-blue-400 group-hover:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </span>
+          Create account
+        </button>
+      </div>
+
+      <div class="text-sm text-center text-gray-300">
+        By creating an account, you agree to our
+        <a href="#" class="font-medium text-blue-400 hover:text-blue-300">Terms of Service</a>
+        and
+        <a href="#" class="font-medium text-blue-400 hover:text-blue-300">Privacy Policy</a>
+      </div>
+    </.form>
+  </div>
+</div> 

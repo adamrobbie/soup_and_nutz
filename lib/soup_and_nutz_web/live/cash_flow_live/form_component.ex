@@ -77,7 +77,9 @@ defmodule SoupAndNutzWeb.CashFlowLive.FormComponent do
   end
 
   defp save_cash_flow(socket, :new, cash_flow_params) do
-    case FinancialInstruments.create_cash_flow(cash_flow_params) do
+    cash_flow_params_with_user = Map.put(cash_flow_params, "user_id", socket.assigns.current_user.id)
+
+    case FinancialInstruments.create_cash_flow(cash_flow_params_with_user) do
       {:ok, cash_flow} ->
         notify_parent({:saved, cash_flow})
 
@@ -99,16 +101,19 @@ defmodule SoupAndNutzWeb.CashFlowLive.FormComponent do
 
   defp flow_type_options do
     Concepts.cash_flow_types()
-    |> Enum.map(fn {key, value} -> {value, key} end)
+    |> Enum.map(fn type -> {type, type} end)
   end
 
   defp category_options do
     Concepts.cash_flow_categories()
-    |> Enum.map(fn {key, value} -> {value, key} end)
+    |> Enum.flat_map(fn {_type, categories} ->
+      categories
+    end)
+    |> Enum.map(fn category -> {category, category} end)
   end
 
   defp frequency_options do
     Concepts.cash_flow_frequencies()
-    |> Enum.map(fn {key, value} -> {value, key} end)
+    |> Enum.map(fn frequency -> {frequency, frequency} end)
   end
 end

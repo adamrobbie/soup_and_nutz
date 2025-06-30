@@ -2,10 +2,16 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlowTest do
   use SoupAndNutz.DataCase, async: true
   alias SoupAndNutz.FinancialInstruments.CashFlow
   alias SoupAndNutz.XBRL.Concepts
+  alias SoupAndNutz.Factory
+
+  setup do
+    user = Factory.insert(:user)
+    {:ok, user: user}
+  end
 
   @valid_attrs %{
     cash_flow_identifier: "TEST_CF_001",
-    cash_flow_name: "Test Salary",
+    cash_flow_name: "Test Cash Flow",
     cash_flow_type: "Income",
     cash_flow_category: "Salary",
     cash_flow_subcategory: "Base Salary",
@@ -14,7 +20,7 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlowTest do
     transaction_date: ~D[2024-12-31],
     effective_date: ~D[2024-12-31],
     reporting_period: "2024-12",
-    reporting_entity: "TEST_ENTITY",
+    user_id: 1,
     reporting_scenario: "Actual",
     frequency: "Monthly",
     is_recurring: true,
@@ -38,11 +44,12 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlowTest do
     transaction_date: nil,
     effective_date: nil,
     reporting_period: nil,
-    reporting_entity: nil
+    user_id: nil
   }
 
-  test "changeset with valid attributes" do
-    changeset = CashFlow.changeset(%CashFlow{}, @valid_attrs)
+  test "changeset with valid attributes", %{user: user} do
+    attrs = Map.put(@valid_attrs, :user_id, user.id)
+    changeset = CashFlow.changeset(%CashFlow{}, attrs)
     assert changeset.valid?
   end
 
@@ -51,50 +58,57 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlowTest do
     refute changeset.valid?
   end
 
-  test "changeset requires cash_flow_identifier" do
-    attrs = Map.delete(@valid_attrs, :cash_flow_identifier)
+  test "changeset requires cash_flow_identifier", %{user: user} do
+    attrs = Map.put(@valid_attrs, :user_id, user.id)
+    attrs = Map.delete(attrs, :cash_flow_identifier)
     changeset = CashFlow.changeset(%CashFlow{}, attrs)
     refute changeset.valid?
     assert %{cash_flow_identifier: ["can't be blank"]} = errors_on(changeset)
   end
 
-  test "changeset validates cash_flow_type inclusion" do
-    attrs = Map.put(@valid_attrs, :cash_flow_type, "InvalidType")
+  test "changeset validates cash_flow_type inclusion", %{user: user} do
+    attrs = Map.put(@valid_attrs, :user_id, user.id)
+    attrs = Map.put(attrs, :cash_flow_type, "InvalidType")
     changeset = CashFlow.changeset(%CashFlow{}, attrs)
     refute changeset.valid?
     assert %{cash_flow_type: ["is invalid"]} = errors_on(changeset)
   end
 
-  test "changeset validates currency_code inclusion" do
-    attrs = Map.put(@valid_attrs, :currency_code, "INVALID")
+  test "changeset validates currency_code inclusion", %{user: user} do
+    attrs = Map.put(@valid_attrs, :user_id, user.id)
+    attrs = Map.put(attrs, :currency_code, "INVALID")
     changeset = CashFlow.changeset(%CashFlow{}, attrs)
     refute changeset.valid?
     assert %{currency_code: ["is invalid"]} = errors_on(changeset)
   end
 
-  test "changeset validates amount is positive" do
-    attrs = Map.put(@valid_attrs, :amount, Decimal.new("-100.00"))
+  test "changeset validates amount is positive", %{user: user} do
+    attrs = Map.put(@valid_attrs, :user_id, user.id)
+    attrs = Map.put(attrs, :amount, Decimal.new("-100.00"))
     changeset = CashFlow.changeset(%CashFlow{}, attrs)
     refute changeset.valid?
     assert %{amount: ["must be greater than 0"]} = errors_on(changeset)
   end
 
-  test "changeset validates cash_flow_identifier format" do
-    attrs = Map.put(@valid_attrs, :cash_flow_identifier, "invalid-identifier")
+  test "changeset validates cash_flow_identifier format", %{user: user} do
+    attrs = Map.put(@valid_attrs, :user_id, user.id)
+    attrs = Map.put(attrs, :cash_flow_identifier, "invalid-identifier")
     changeset = CashFlow.changeset(%CashFlow{}, attrs)
     refute changeset.valid?
     assert %{cash_flow_identifier: ["must contain only uppercase letters, numbers, underscores, and hyphens"]} = errors_on(changeset)
   end
 
-  test "changeset validates effective_date is not before transaction_date" do
-    attrs = Map.put(@valid_attrs, :effective_date, ~D[2024-12-30])
+  test "changeset validates effective_date is not before transaction_date", %{user: user} do
+    attrs = Map.put(@valid_attrs, :user_id, user.id)
+    attrs = Map.put(attrs, :effective_date, ~D[2024-12-30])
     changeset = CashFlow.changeset(%CashFlow{}, attrs)
     refute changeset.valid?
     assert %{effective_date: ["Effective date cannot be before transaction date"]} = errors_on(changeset)
   end
 
-  test "changeset validates recurring fields when is_recurring is true" do
-    attrs = Map.put(@valid_attrs, :is_recurring, true)
+  test "changeset validates recurring fields when is_recurring is true", %{user: user} do
+    attrs = Map.put(@valid_attrs, :user_id, user.id)
+    attrs = Map.put(attrs, :is_recurring, true)
     attrs = Map.delete(attrs, :recurrence_pattern)
     changeset = CashFlow.changeset(%CashFlow{}, attrs)
     refute changeset.valid?
@@ -142,7 +156,7 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlowTest do
       %CashFlow{
         cash_flow_type: "Income",
         reporting_period: "2024-12",
-        reporting_entity: "TEST_ENTITY",
+        user_id: 1,
         currency_code: "USD",
         is_active: true,
         amount: Decimal.new("5000.00")
@@ -150,14 +164,14 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlowTest do
       %CashFlow{
         cash_flow_type: "Income",
         reporting_period: "2024-12",
-        reporting_entity: "TEST_ENTITY",
+        user_id: 1,
         currency_code: "USD",
         is_active: true,
         amount: Decimal.new("1000.00")
       }
     ]
 
-    total = CashFlow.total_income(income_flows, "2024-12", "TEST_ENTITY", "USD")
+    total = CashFlow.total_income(income_flows, "2024-12", 1, "USD")
     assert Decimal.eq?(total, Decimal.new("6000.00"))
   end
 
@@ -166,7 +180,7 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlowTest do
       %CashFlow{
         cash_flow_type: "Expense",
         reporting_period: "2024-12",
-        reporting_entity: "TEST_ENTITY",
+        user_id: 1,
         currency_code: "USD",
         is_active: true,
         amount: Decimal.new("2000.00")
@@ -174,14 +188,14 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlowTest do
       %CashFlow{
         cash_flow_type: "Expense",
         reporting_period: "2024-12",
-        reporting_entity: "TEST_ENTITY",
+        user_id: 1,
         currency_code: "USD",
         is_active: true,
         amount: Decimal.new("500.00")
       }
     ]
 
-    total = CashFlow.total_expenses(expense_flows, "2024-12", "TEST_ENTITY", "USD")
+    total = CashFlow.total_expenses(expense_flows, "2024-12", 1, "USD")
     assert Decimal.eq?(total, Decimal.new("2500.00"))
   end
 
@@ -190,7 +204,7 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlowTest do
       %CashFlow{
         cash_flow_type: "Income",
         reporting_period: "2024-12",
-        reporting_entity: "TEST_ENTITY",
+        user_id: 1,
         currency_code: "USD",
         is_active: true,
         amount: Decimal.new("5000.00")
@@ -198,14 +212,14 @@ defmodule SoupAndNutz.FinancialInstruments.CashFlowTest do
       %CashFlow{
         cash_flow_type: "Expense",
         reporting_period: "2024-12",
-        reporting_entity: "TEST_ENTITY",
+        user_id: 1,
         currency_code: "USD",
         is_active: true,
         amount: Decimal.new("3000.00")
       }
     ]
 
-    net = CashFlow.net_cash_flow(cash_flows, "2024-12", "TEST_ENTITY", "USD")
+    net = CashFlow.net_cash_flow(cash_flows, "2024-12", 1, "USD")
     assert Decimal.eq?(net, Decimal.new("2000.00"))
   end
 

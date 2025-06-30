@@ -1,53 +1,84 @@
 defmodule SoupAndNutzWeb.RouterTest do
   use SoupAndNutzWeb.ConnCase
+  alias SoupAndNutz.Factory
 
-  test "GET /", %{conn: conn} do
-    conn = get(conn, ~p"/")
+  setup do
+    user = Factory.insert(:user)
+    {:ok, user: user}
+  end
+
+  defp authenticate_user(conn, user) do
+    conn
+    |> fetch_session([])
+    |> put_session(:user_id, user.id)
+    |> assign(:current_user, user)
+  end
+
+  test "GET /", %{conn: conn, user: user} do
+    conn = conn
+    |> authenticate_user(user)
+    |> get(~p"/")
     assert html_response(conn, 200) =~ "Financial Dashboard"
   end
 
-  test "GET /assets", %{conn: conn} do
-    conn = get(conn, ~p"/assets")
+  test "GET /assets", %{conn: conn, user: user} do
+    conn = conn
+    |> authenticate_user(user)
+    |> get(~p"/assets")
     assert html_response(conn, 200) =~ "Assets"
   end
 
-  test "GET /assets/new", %{conn: conn} do
-    conn = get(conn, ~p"/assets/new")
-    assert html_response(conn, 200) =~ "New Asset"
+  test "GET /assets/new", %{conn: conn, user: user} do
+    conn = conn
+    |> authenticate_user(user)
+    |> get(~p"/assets/new")
+    assert redirected_to(conn) == ~p"/assets"
   end
 
-  test "GET /assets/:id", %{conn: conn} do
-    asset = SoupAndNutz.FinancialInstrumentsFixtures.asset_fixture()
-    conn = get(conn, ~p"/assets/#{asset}")
+  test "GET /assets/:id", %{conn: conn, user: user} do
+    asset = SoupAndNutz.FinancialInstrumentsFixtures.asset_fixture(%{user_id: user.id})
+    conn = conn
+    |> authenticate_user(user)
+    |> get(~p"/assets/#{asset}")
     assert html_response(conn, 200) =~ "Show Asset"
   end
 
-  test "GET /assets/:id/edit", %{conn: conn} do
-    asset = SoupAndNutz.FinancialInstrumentsFixtures.asset_fixture()
-    conn = get(conn, ~p"/assets/#{asset}/edit")
-    assert html_response(conn, 200) =~ "Edit Asset"
+  test "GET /assets/:id/edit", %{conn: conn, user: user} do
+    asset = SoupAndNutz.FinancialInstrumentsFixtures.asset_fixture(%{user_id: user.id})
+    conn = conn
+    |> authenticate_user(user)
+    |> get(~p"/assets/#{asset}/edit")
+    assert redirected_to(conn) == ~p"/assets"
   end
 
-  test "GET /debt_obligations", %{conn: conn} do
-    conn = get(conn, ~p"/debt_obligations")
+  test "GET /debt_obligations", %{conn: conn, user: user} do
+    conn = conn
+    |> authenticate_user(user)
+    |> get(~p"/debt_obligations")
     assert html_response(conn, 200) =~ "Debt Obligations"
   end
 
-  test "GET /debt_obligations/new", %{conn: conn} do
-    conn = get(conn, ~p"/debt_obligations/new")
-    assert html_response(conn, 200) =~ "New Debt Obligation"
+  test "GET /debt_obligations/new", %{conn: conn, user: user} do
+    conn = conn
+    |> authenticate_user(user)
+    |> get(~p"/debt_obligations/new")
+    assert redirected_to(conn) == ~p"/debt_obligations"
   end
 
-  test "GET /debt_obligations/:id", %{conn: conn} do
-    debt = SoupAndNutz.FinancialInstrumentsFixtures.debt_obligation_fixture()
-    conn = get(conn, ~p"/debt_obligations/#{debt}")
+  test "GET /debt_obligations/:id", %{conn: conn, user: user} do
+    debt = SoupAndNutz.FinancialInstrumentsFixtures.debt_obligation_fixture(%{user_id: user.id})
+    conn = conn
+    |> authenticate_user(user)
+    |> get(~p"/debt_obligations/#{debt}")
     assert html_response(conn, 200) =~ "Show Debt Obligation"
   end
 
-  test "GET /debt_obligations/:id/edit", %{conn: conn} do
-    debt = SoupAndNutz.FinancialInstrumentsFixtures.debt_obligation_fixture()
-    conn = get(conn, ~p"/debt_obligations/#{debt}/edit")
-    assert html_response(conn, 200) =~ "Edit Debt Obligation"
+  test "GET /debt_obligations/:id/edit", %{conn: conn, user: user} do
+    debt = SoupAndNutz.FinancialInstrumentsFixtures.debt_obligation_fixture(%{user_id: user.id})
+    conn = conn
+    |> authenticate_user(user)
+    |> get(~p"/debt_obligations/#{debt}/edit")
+    assert redirected_to(conn) == ~p"/debt_obligations"
   end
 
   test "GET /health", %{conn: conn} do

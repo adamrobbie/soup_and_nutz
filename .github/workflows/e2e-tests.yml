@@ -1,0 +1,84 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: '1.14'
+        otp-version: '25'
+
+    - name: Install Chrome and ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable chromium-chromedriver
+        google-chrome --version
+        chromedriver --version
+
+    - name: Install dependencies
+      run: |
+        mix local.hex --force
+        mix local.rebar --force
+        mix deps.get
+
+    - name: Setup test database
+      env:
+        MIX_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/soup_and_nutz_test
+      run: |
+        mix ecto.create
+        mix ecto.migrate
+
+    - name: Run E2E tests
+      env:
+        MIX_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/soup_and_nutz_test
+      run: |
+        mix test.e2e
+
+    - name: Upload screenshots
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: e2e-screenshots
+        path: test/screenshots/
+        retention-days: 7
+
+    - name: Run all tests with coverage
+      env:
+        MIX_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/soup_and_nutz_test
+      run: |
+        mix test.all --cover
+
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-reports
+        path: cover/
+        retention-days: 30 

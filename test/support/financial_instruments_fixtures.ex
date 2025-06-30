@@ -4,7 +4,11 @@ defmodule SoupAndNutz.FinancialInstrumentsFixtures do
   entities via the `SoupAndNutz.FinancialInstruments` context.
   """
 
+  alias SoupAndNutz.Factory
+
   def asset_fixture(attrs \\ %{}) do
+    user = Factory.insert(:user)
+
     {:ok, asset} =
       attrs
       |> Enum.into(%{
@@ -15,11 +19,9 @@ defmodule SoupAndNutz.FinancialInstrumentsFixtures do
         currency_code: "USD",
         risk_level: "Medium",
         liquidity_level: "High",
-        reporting_entity: "Test Corp",
+        user_id: user.id,
         reporting_period: "2024-Q1",
         is_active: true,
-        acquisition_date: ~D[2024-01-01],
-        last_valuation_date: ~D[2024-01-15],
         measurement_date: ~D[2024-01-15]
       })
       |> SoupAndNutz.FinancialInstruments.create_asset()
@@ -28,25 +30,23 @@ defmodule SoupAndNutz.FinancialInstrumentsFixtures do
   end
 
   def debt_obligation_fixture(attrs \\ %{}) do
+    user = Factory.insert(:user)
+
     {:ok, debt_obligation} =
       attrs
       |> Enum.into(%{
         debt_identifier: "DEBT#{System.unique_integer()}",
         debt_name: "Test Debt #{System.unique_integer()}",
-        debt_description: "Test Debt Description",
         debt_type: "LongTermDebt",
         principal_amount: Decimal.new("5000.00"),
         currency_code: "USD",
         interest_rate: Decimal.new("5.5"),
         maturity_date: ~D[2025-12-31],
         payment_frequency: "Monthly",
-        collateral_type: "Unsecured",
         risk_level: "Medium",
-        reporting_entity: "Test Corp",
+        user_id: user.id,
         reporting_period: "2024-Q1",
         is_active: true,
-        origination_date: ~D[2024-01-01],
-        last_payment_date: ~D[2024-01-15],
         measurement_date: ~D[2024-01-15]
       })
       |> SoupAndNutz.FinancialInstruments.create_debt_obligation()
@@ -55,6 +55,8 @@ defmodule SoupAndNutz.FinancialInstrumentsFixtures do
   end
 
   def cash_flow_fixture(attrs \\ %{}) do
+    user = Factory.insert(:user)
+
     {:ok, cash_flow} =
       attrs
       |> Enum.into(%{
@@ -67,11 +69,8 @@ defmodule SoupAndNutz.FinancialInstrumentsFixtures do
         transaction_date: ~D[2024-01-01],
         effective_date: ~D[2024-01-01],
         reporting_period: "2024-Q1",
-        reporting_entity: "Test Corp",
+        user_id: user.id,
         frequency: "Monthly",
-        start_date: ~D[2024-01-01],
-        end_date: ~D[2024-12-31],
-        entity_id: "Test Corp",
         notes: "Test cash flow notes"
       })
       |> SoupAndNutz.FinancialInstruments.create_cash_flow()

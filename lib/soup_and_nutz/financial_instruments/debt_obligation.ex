@@ -1,10 +1,20 @@
 defmodule SoupAndNutz.FinancialInstruments.DebtObligation do
+  @moduledoc """
+  Schema and business logic for debt obligations in the financial instruments system.
+
+  This module manages debt obligations such as loans, mortgages, credit cards, and other
+  liabilities. It follows XBRL reporting standards for financial data consistency and
+  includes validation for debt-specific business rules.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
   alias SoupAndNutz.XBRL.Concepts
 
-
   schema "debt_obligations" do
+    # User association
+    belongs_to :user, SoupAndNutz.Accounts.User
+
     # XBRL-inspired identifier fields
     field :debt_identifier, :string    # Unique identifier for the debt obligation
     field :debt_name, :string         # Human-readable name
@@ -20,7 +30,6 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligation do
 
     # XBRL context fields
     field :reporting_period, :string  # e.g., "2024-12-31"
-    field :reporting_entity, :string  # Entity identifier
     field :reporting_scenario, :string # e.g., "Actual", "Budget", "Forecast"
 
     # Debt-specific fields
@@ -50,17 +59,17 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligation do
   def changeset(debt_obligation, attrs) do
     debt_obligation
     |> cast(attrs, [
-      :debt_identifier, :debt_name, :debt_type, :debt_category,
+      :user_id, :debt_identifier, :debt_name, :debt_type, :debt_category,
       :principal_amount, :outstanding_balance, :interest_rate, :currency_code, :measurement_date,
-      :reporting_period, :reporting_entity, :reporting_scenario,
+      :reporting_period, :reporting_scenario,
       :lender_name, :account_number, :maturity_date, :payment_frequency,
       :monthly_payment, :next_payment_date, :description, :is_active,
       :is_secured, :collateral_description, :risk_level, :priority_level,
       :validation_status, :last_validated_at
     ])
     |> validate_required([
-      :debt_identifier, :debt_name, :debt_type, :currency_code,
-      :measurement_date, :reporting_period, :reporting_entity
+      :user_id, :debt_identifier, :debt_name, :debt_type, :currency_code,
+      :measurement_date, :reporting_period
     ])
     |> validate_inclusion(:debt_type, Concepts.debt_types())
     |> validate_inclusion(:currency_code, Concepts.currency_codes())
@@ -152,23 +161,24 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligation do
       errors
     end
 
-    {length(errors) == 0, errors}
+    {Enum.empty?(errors), errors}
   end
 
   # Private validation functions
   defp validate_maturity_date(changeset) do
-    case get_field(changeset, :maturity_date) do
-      nil -> changeset
-      maturity_date ->
-        case get_field(changeset, :measurement_date) do
-          nil -> changeset
-          measurement_date ->
-            if Date.compare(maturity_date, measurement_date) == :lt do
-              add_error(changeset, :maturity_date, "Maturity date cannot be before measurement date")
-            else
-              changeset
-            end
-        end
+    maturity_date = get_field(changeset, :maturity_date)
+    measurement_date = get_field(changeset, :measurement_date)
+
+    validate_dates(changeset, maturity_date, measurement_date)
+  end
+
+  defp validate_dates(changeset, nil, _), do: changeset
+  defp validate_dates(changeset, _, nil), do: changeset
+  defp validate_dates(changeset, maturity_date, measurement_date) do
+    if Date.compare(maturity_date, measurement_date) == :lt do
+      add_error(changeset, :maturity_date, "Maturity date cannot be before measurement date")
+    else
+      changeset
     end
   end
 

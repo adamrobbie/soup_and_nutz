@@ -18,4 +18,6 @@ defmodule SoupAndNutzWeb.AssetLive.Show do
 
   defp page_title(:show), do: "Show Asset"
   defp page_title(:edit), do: "Edit Asset"
+
+  on_mount {SoupAndNutzWeb.Live.AuthHook, :ensure_authenticated}
 end

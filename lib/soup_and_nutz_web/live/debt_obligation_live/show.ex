@@ -18,4 +18,6 @@ defmodule SoupAndNutzWeb.DebtObligationLive.Show do
 
   defp page_title(:show), do: "Show Debt Obligation"
   defp page_title(:edit), do: "Edit Debt Obligation"
+
+  on_mount {SoupAndNutzWeb.Live.AuthHook, :ensure_authenticated}
 end

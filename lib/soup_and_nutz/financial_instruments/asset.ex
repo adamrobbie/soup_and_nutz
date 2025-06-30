@@ -1,9 +1,20 @@
 defmodule SoupAndNutz.FinancialInstruments.Asset do
+  @moduledoc """
+  Schema and business logic for assets in the financial instruments system.
+
+  This module manages various types of financial assets including cash, investments,
+  real estate, and other valuable holdings. It follows XBRL reporting standards
+  for consistent financial data representation and validation.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
   alias SoupAndNutz.XBRL.Concepts
 
   schema "assets" do
+    # User association
+    belongs_to :user, SoupAndNutz.Accounts.User
+
     # XBRL-inspired identifier fields
     field :asset_identifier, :string  # Unique identifier for the asset
     field :asset_name, :string       # Human-readable name
@@ -18,7 +29,6 @@ defmodule SoupAndNutz.FinancialInstruments.Asset do
 
     # XBRL context fields
     field :reporting_period, :string # e.g., "2024-12-31"
-    field :reporting_entity, :string # Entity identifier
     field :reporting_scenario, :string # e.g., "Actual", "Budget", "Forecast"
 
     # Additional metadata
@@ -40,15 +50,15 @@ defmodule SoupAndNutz.FinancialInstruments.Asset do
   def changeset(asset, attrs) do
     asset
     |> cast(attrs, [
-      :asset_identifier, :asset_name, :asset_type, :asset_category,
+      :user_id, :asset_identifier, :asset_name, :asset_type, :asset_category,
       :fair_value, :book_value, :currency_code, :measurement_date,
-      :reporting_period, :reporting_entity, :reporting_scenario,
+      :reporting_period, :reporting_scenario,
       :description, :location, :custodian, :is_active,
       :risk_level, :liquidity_level, :validation_status, :last_validated_at
     ])
     |> validate_required([
-      :asset_identifier, :asset_name, :asset_type, :currency_code,
-      :measurement_date, :reporting_period, :reporting_entity
+      :user_id, :asset_identifier, :asset_name, :asset_type, :currency_code,
+      :measurement_date, :reporting_period
     ])
     |> validate_inclusion(:asset_type, Concepts.asset_types())
     |> validate_inclusion(:currency_code, Concepts.currency_codes())
@@ -107,6 +117,6 @@ defmodule SoupAndNutz.FinancialInstruments.Asset do
       errors
     end
 
-    {length(errors) == 0, errors}
+    {Enum.empty?(errors), errors}
   end
 end

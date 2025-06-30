@@ -1,4 +1,11 @@
 defmodule SoupAndNutzWeb.Plugs.MethodNotAllowed do
+  @moduledoc """
+  A plug that returns a 405 Method Not Allowed response.
+
+  This plug is used to handle HTTP methods that are not supported
+  for a particular endpoint, returning a proper HTTP 405 status code.
+  """
+
   import Plug.Conn
 
   def init(opts), do: opts

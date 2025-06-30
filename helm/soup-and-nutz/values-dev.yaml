@@ -1,0 +1,57 @@
+# Development environment values
+replicaCount: 1
+
+image:
+  repository: adamrobbie549/soup-and-nutz
+  tag: "latest"
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 4000
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: soup-and-nutz-dev.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "dev-password"
+    database: "soup_and_nutz_dev"
+  primary:
+    persistence:
+      enabled: false
+
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: false
+
+config:
+  secretKeyBase: "dev-secret-key-base-for-development-only"
+  databaseUrl: "postgresql://postgres:dev-password@soup-and-nutz-postgresql:5432/soup_and_nutz_dev"
+  host: "0.0.0.0"
+  port: 4000 

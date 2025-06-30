@@ -1,0 +1,101 @@
+# Default values for soup-and-nutz
+replicaCount: 2
+
+image:
+  repository: adamrobbie549/soup-and-nutz
+  tag: "0.2.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 4000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: soup-and-nutz.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Application configuration
+config:
+  secretKeyBase: ""
+  databaseUrl: ""
+  host: "0.0.0.0"
+  port: 4000
+  ssl: false
+  
+# Database configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "soup-and-nutz-postgres"
+    database: "soup_and_nutz_prod"
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+# Redis configuration (for caching/sessions)
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 1Gi
+
+# Monitoring and logging
+monitoring:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+
+# Backup configuration
+backup:
+  enabled: false
+  schedule: "0 2 * * *"
+  retention: 7 

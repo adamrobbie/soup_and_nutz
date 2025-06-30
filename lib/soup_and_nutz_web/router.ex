@@ -14,11 +14,82 @@ defmodule SoupAndNutzWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # Authentication pipelines
+  pipeline :auth do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {SoupAndNutzWeb.Layouts, :root}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug SoupAndNutzWeb.Plugs.OptionalAuthenticate
+  end
+
+  # Authentication routes without CSRF protection (for login/register)
+  pipeline :auth_no_csrf do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {SoupAndNutzWeb.Layouts, :root}
+    plug :put_secure_browser_headers
+    plug SoupAndNutzWeb.Plugs.OptionalAuthenticate
+  end
+
+  pipeline :protected do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {SoupAndNutzWeb.Layouts, :root}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug SoupAndNutzWeb.Plugs.Authenticate
+  end
+
+  pipeline :optional_auth do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {SoupAndNutzWeb.Layouts, :root}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug SoupAndNutzWeb.Plugs.OptionalAuthenticate
+  end
+
+  # Public routes (no authentication required)
   scope "/", SoupAndNutzWeb do
-    pipe_through :browser
+    pipe_through :optional_auth
 
     get "/", PageController, :home
+  end
 
+  # Authentication routes
+  scope "/auth", SoupAndNutzWeb do
+    pipe_through :auth
+
+    get "/login", AuthController, :login
+    get "/register", AuthController, :register
+    delete "/logout", AuthController, :logout
+  end
+
+  # Authentication POST routes (without CSRF for now)
+  scope "/auth", SoupAndNutzWeb do
+    pipe_through :auth_no_csrf
+
+    post "/login", AuthController, :login_post
+    post "/register", AuthController, :register_post
+  end
+
+  # Protected routes (authentication required)
+  scope "/", SoupAndNutzWeb do
+    pipe_through :protected
+
+    # User profile management
+    get "/auth/profile", AuthController, :profile
+    put "/auth/profile", AuthController, :profile_update
+    get "/auth/change_password", AuthController, :change_password
+    put "/auth/change_password", AuthController, :change_password_post
+
+    # Financial data management (protected)
     live "/assets", AssetLive.Index, :index
     live "/assets/new", AssetLive.Index, :new
     live "/assets/:id/edit", AssetLive.Index, :edit
@@ -37,10 +108,27 @@ defmodule SoupAndNutzWeb.Router do
     live "/cash_flows/:id", CashFlowLive.Show, :show
     live "/cash_flows/:id/show/edit", CashFlowLive.Show, :edit
 
-    resources "/assets", AssetController
-    resources "/debt_obligations", DebtObligationController
+    live "/financial_goals", FinancialGoalLive.Index, :index
+    live "/financial_goals/new", FinancialGoalLive.Index, :new
+    live "/financial_goals/:id/edit", FinancialGoalLive.Index, :edit
+    live "/financial_goals/:id", FinancialGoalLive.Show, :show
+    live "/financial_goals/:id/show/edit", FinancialGoalLive.Show, :edit
+
+    # Budget and Debt Payoff Planning
+    live "/budget", BudgetLive.Index, :index
+    live "/budget-tracking", BudgetTrackingLive.Index, :index
+    live "/debt-payoff", DebtPayoffLive.Index, :index
+
+    # Advanced Analysis
+    live "/cash-flow-forecast", CashFlowForecastLive.Index, :index
+    live "/net-worth-projection", NetWorthProjectionLive.Index, :index
+
+    # Remove these lines that reference undefined controllers
+    # resources "/assets", AssetController
+    # resources "/debt_obligations", DebtObligationController
   end
 
+  # API routes
   scope "/", SoupAndNutzWeb do
     pipe_through :api
     get "/health", HealthController, :index

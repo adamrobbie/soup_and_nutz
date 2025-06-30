@@ -33,7 +33,6 @@ defmodule SoupAndNutzWeb.DebtObligationLive.FormComponent do
         <.input field={@form[:next_payment_date]} type="date" label="Next payment date" />
         <.input field={@form[:payment_frequency]} type="select" label="Payment frequency" options={payment_frequency_options()} />
         <.input field={@form[:reporting_period]} type="text" label="Reporting period" />
-        <.input field={@form[:reporting_entity]} type="text" label="Reporting entity" />
         <.input field={@form[:reporting_scenario]} type="select" label="Reporting scenario" options={scenario_options()} />
         <.input field={@form[:description]} type="textarea" label="Description" />
         <.input field={@form[:lender]} type="text" label="Lender" />
@@ -89,7 +88,9 @@ defmodule SoupAndNutzWeb.DebtObligationLive.FormComponent do
   end
 
   defp save_debt_obligation(socket, :new, debt_obligation_params) do
-    case FinancialInstruments.create_debt_obligation(debt_obligation_params) do
+    debt_obligation_params_with_user = Map.put(debt_obligation_params, "user_id", socket.assigns.current_user.id)
+
+    case FinancialInstruments.create_debt_obligation(debt_obligation_params_with_user) do
       {:ok, debt_obligation} ->
         notify_parent({:saved, debt_obligation})
 
