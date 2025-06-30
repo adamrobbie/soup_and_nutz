@@ -9,6 +9,8 @@
 
 Soup & Nutz is a comprehensive financial planning application designed to help individuals and families gain complete visibility into their financial health through detailed asset tracking, debt management, and strategic financial planning.
 
+I called it Soup & Nuts because I like both things and I went with a weird naming convention to mess with the AI's honestly.
+
 ## Project Goals
 
 ### Primary Objectives

@@ -1,0 +1,29 @@
+apiVersion: v2
+name: soup-and-nutz
+description: A personal finance management application built with Phoenix LiveView
+type: application
+version: 0.2.0
+appVersion: "0.2.0"
+keywords:
+  - phoenix
+  - elixir
+  - finance
+  - personal-finance
+  - debt-tracking
+home: https://github.com/adamrobbie/soup_and_nutz
+sources:
+  - https://github.com/adamrobbie/soup_and_nutz
+maintainers:
+  - name: Adam Robbie
+    email: adam@example.com
+icon: https://raw.githubusercontent.com/adamrobbie/soup_and_nutz/main/priv/static/images/logo.svg
+
+dependencies:
+  - name: postgresql
+    version: 12.5.31
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: 17.10.3
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled 
