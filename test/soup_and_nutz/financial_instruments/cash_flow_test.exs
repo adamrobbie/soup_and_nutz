@@ -1,7 +1,6 @@
 defmodule SoupAndNutz.FinancialInstruments.CashFlowTest do
   use SoupAndNutz.DataCase, async: true
   alias SoupAndNutz.FinancialInstruments.CashFlow
-  alias SoupAndNutz.XBRL.Concepts
   alias SoupAndNutz.Factory
 
   setup do
