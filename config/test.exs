@@ -6,10 +6,11 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :soup_and_nutz, SoupAndNutz.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "soup_and_nutz_test#{System.get_env("MIX_TEST_PARTITION")}",
+  username: System.get_env("PGUSER") || "postgres",
+  password: System.get_env("PGPASSWORD") || "postgres",
+  hostname: System.get_env("PGHOST"),
+  database: System.get_env("PGDATABASE"),
+  url: System.get_env("DATABASE_URL"),
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
