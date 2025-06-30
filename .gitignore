@@ -41,6 +41,7 @@ test/screenshots/
 .env
 .env.local
 .env.*.local
+.env.test
 
 # Helm chart .gitignore
 helm/soup-and-nutz/charts/*.tgz           # Downloaded dependency packages

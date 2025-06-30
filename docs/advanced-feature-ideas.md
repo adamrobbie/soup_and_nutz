@@ -24,8 +24,8 @@ Suggest optimal savings or debt payments based on user's goals and cash flow. Im
 ## 8. Alerts & Smart Notifications
 Notify users of upcoming bills, budget overruns, or goal progress. Provide actionable insights.
 
-## 9. Financial Health Score
-Give users a score based on their financial habits, savings rate, debt-to-income, etc., and show how to improve it.
+## 9. ~~Financial Health Score~~
+~~Give users a score based on their financial habits, savings rate, debt-to-income, etc., and show how to improve it.~~
 
 ## 10. Collaboration & Shared Planning
 Allow couples or families to share a financial plan and collaborate.

@@ -8,6 +8,7 @@ defmodule SoupAndNutz.FinancialHealthScore do
 
   alias SoupAndNutz.FinancialInstruments.{Asset, DebtObligation, CashFlow}
   alias Decimal, as: D
+  alias SoupAndNutz.FinancialInstruments
 
   @doc """
   Calculates a comprehensive financial health score for a user.
@@ -24,9 +25,9 @@ defmodule SoupAndNutz.FinancialHealthScore do
     cash_flows = get_user_cash_flows(user_id, currency)
 
     # Calculate individual metrics
-    savings_rate = calculate_savings_rate(cash_flows, currency)
-    debt_to_income = calculate_debt_to_income_ratio(debts, cash_flows, currency)
-    emergency_fund = calculate_emergency_fund_adequacy(assets, cash_flows, currency)
+    savings_rate = calculate_savings_rate(cash_flows, user_id, currency)
+    debt_to_income = calculate_debt_to_income_ratio(debts, cash_flows, user_id, currency)
+    emergency_fund = calculate_emergency_fund_adequacy(assets, cash_flows, user_id, currency)
     investment_diversification = calculate_investment_diversification(assets, currency)
     net_worth_trend = calculate_net_worth_trend(assets, debts, currency)
 
@@ -65,10 +66,9 @@ defmodule SoupAndNutz.FinancialHealthScore do
   @doc """
   Calculates savings rate as a percentage of income.
   """
-  def calculate_savings_rate(cash_flows, currency) do
-    # Get monthly income and expenses
-    monthly_income = CashFlow.total_income(cash_flows, get_current_period(), currency)
-    monthly_expenses = CashFlow.total_expenses(cash_flows, get_current_period(), currency)
+  def calculate_savings_rate(cash_flows, user_id, currency) do
+    monthly_income = CashFlow.total_income(cash_flows, get_current_period(), user_id, currency)
+    monthly_expenses = CashFlow.total_expenses(cash_flows, get_current_period(), user_id, currency)
     monthly_savings = D.sub(monthly_income, monthly_expenses)
 
     savings_rate_percentage = if D.gt?(monthly_income, D.new(0)) do
@@ -100,9 +100,9 @@ defmodule SoupAndNutz.FinancialHealthScore do
   @doc """
   Calculates debt-to-income ratio.
   """
-  def calculate_debt_to_income_ratio(debts, cash_flows, currency) do
+  def calculate_debt_to_income_ratio(debts, cash_flows, user_id, currency) do
     monthly_debt_payments = DebtObligation.total_monthly_payments(debts, currency)
-    monthly_income = CashFlow.total_income(cash_flows, get_current_period(), currency)
+    monthly_income = CashFlow.total_income(cash_flows, get_current_period(), user_id, currency)
 
     debt_to_income_ratio = if D.gt?(monthly_income, D.new(0)) do
       D.mult(D.div(monthly_debt_payments, monthly_income), D.new(100))
@@ -132,13 +132,13 @@ defmodule SoupAndNutz.FinancialHealthScore do
   @doc """
   Calculates emergency fund adequacy (liquid assets vs monthly expenses).
   """
-  def calculate_emergency_fund_adequacy(assets, cash_flows, currency) do
+  def calculate_emergency_fund_adequacy(assets, cash_flows, user_id, currency) do
     # Get liquid assets (cash, checking, savings)
     liquid_assets = assets
     |> Enum.filter(&(&1.asset_type in ["Cash", "Checking", "Savings"] && &1.is_active))
     |> Asset.total_fair_value(currency)
 
-    monthly_expenses = CashFlow.total_expenses(cash_flows, get_current_period(), currency)
+    monthly_expenses = CashFlow.total_expenses(cash_flows, get_current_period(), user_id, currency)
 
     months_of_expenses = if D.gt?(monthly_expenses, D.new(0)) do
       D.div(liquid_assets, monthly_expenses)
@@ -322,22 +322,16 @@ defmodule SoupAndNutz.FinancialHealthScore do
 
   # Helper functions
 
-  defp get_user_assets(user_id, currency) do
-    # This would typically query the database
-    # For now, return empty list - implement based on your repo
-    []
+  defp get_user_assets(user_id, _currency) do
+    FinancialInstruments.list_assets_by_user(user_id)
   end
 
-  defp get_user_debts(user_id, currency) do
-    # This would typically query the database
-    # For now, return empty list - implement based on your repo
-    []
+  defp get_user_debts(user_id, _currency) do
+    FinancialInstruments.list_debt_obligations_by_user(user_id)
   end
 
-  defp get_user_cash_flows(user_id, currency) do
-    # This would typically query the database
-    # For now, return empty list - implement based on your repo
-    []
+  defp get_user_cash_flows(user_id, _currency) do
+    FinancialInstruments.list_cash_flows_by_user(user_id)
   end
 
   defp get_current_period do

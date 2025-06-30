@@ -4,22 +4,25 @@ defmodule SoupAndNutzWeb.FinancialHealthLive.Index do
   alias SoupAndNutz.FinancialHealthScore
 
   @impl true
-  def mount(_params, _session, socket) do
-    current_user = Map.get(socket.assigns, :current_user)
+  def mount(_params, session, socket) do
+    user_id = session["user_id"]
+    current_user = if user_id, do: SoupAndNutz.Accounts.get_user(user_id), else: nil
 
-    if current_user do
-      health_score = FinancialHealthScore.calculate_health_score(current_user.id)
+    health_score =
+      if current_user do
+        score = SoupAndNutz.FinancialHealthScore.calculate_health_score(current_user.id)
+        Map.put(score, :calculated_at, DateTime.utc_now())
+      else
+        nil
+      end
 
-      {:ok,
-       socket
-       |> assign(:health_score, health_score)
-       |> assign(:page_title, "Financial Health Score")}
-    else
-      {:ok,
-       socket
-       |> assign(:health_score, nil)
-       |> assign(:page_title, "Financial Health Score")}
-    end
+    socket =
+      socket
+      |> assign(:current_user, current_user)
+      |> assign(:page_title, "Financial Health Score")
+      |> assign(:health_score, health_score)
+
+    {:ok, socket}
   end
 
   @impl true

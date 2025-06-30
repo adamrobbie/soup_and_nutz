@@ -1,184 +1,180 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">Financial Health Score</h1>
-    <p class="mt-2 text-gray-600">Get insights into your financial well-being and personalized recommendations.</p>
-  </div>
-
-  <%= if @health_score do %>
-    <!-- Overall Score Card -->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-xl font-semibold text-gray-900">Overall Financial Health</h2>
-          <p class="text-gray-600">Your comprehensive financial wellness score</p>
-        </div>
-        <div class="text-right">
-          <div class={"text-4xl font-bold #{get_score_color(@health_score.overall_score)}"}>
-            <%= @health_score.overall_score %>
-          </div>
-          <div class="text-sm text-gray-500">
-            <%= get_score_label(@health_score.overall_score) %>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Progress Bar -->
-      <div class="mt-4">
-        <div class="w-full bg-gray-200 rounded-full h-3">
-          <div class={"h-3 rounded-full #{get_score_bg_color(@health_score.overall_score)}"} 
-               style={"width: #{@health_score.overall_score}%"}>
-          </div>
-        </div>
-      </div>
+<div class="px-6 py-8 bg-black min-h-screen">
+  <div class="mx-auto max-w-7xl">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Financial Health Score</h1>
+      <p class="mt-2 text-sm text-gray-400">Get insights into your financial well-being and personalized recommendations.</p>
     </div>
 
-    <!-- Individual Metrics Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      <!-- Savings Rate -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900">Savings Rate</h3>
-          <div class={"text-2xl font-bold #{get_score_color(@health_score.metrics.savings_rate.score)}"}>
-            <%= @health_score.metrics.savings_rate.score %>
+    <%= if @health_score do %>
+      <!-- Overall Score Card -->
+      <div class="bg-gray-900 border border-gray-800 rounded-lg shadow p-6 mb-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-semibold text-white">Overall Financial Health</h2>
+            <p class="text-gray-400">Your comprehensive financial wellness score</p>
           </div>
-        </div>
-        <div class="text-sm text-gray-600 mb-2">
-          <%= @health_score.metrics.savings_rate.description %>
-        </div>
-        <div class="text-lg font-semibold text-gray-900">
-          <%= Decimal.round(@health_score.metrics.savings_rate.percentage, 1) %>%
-        </div>
-        <div class="text-sm text-gray-500">
-          Monthly savings: $<%= Decimal.round(@health_score.metrics.savings_rate.monthly_savings, 2) %>
-        </div>
-      </div>
-
-      <!-- Debt-to-Income Ratio -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900">Debt-to-Income</h3>
-          <div class={"text-2xl font-bold #{get_score_color(@health_score.metrics.debt_to_income.score)}"}>
-            <%= @health_score.metrics.debt_to_income.score %>
-          </div>
-        </div>
-        <div class="text-sm text-gray-600 mb-2">
-          <%= @health_score.metrics.debt_to_income.description %>
-        </div>
-        <div class="text-lg font-semibold text-gray-900">
-          <%= Decimal.round(@health_score.metrics.debt_to_income.ratio, 1) %>%
-        </div>
-        <div class="text-sm text-gray-500">
-          Monthly payments: $<%= Decimal.round(@health_score.metrics.debt_to_income.monthly_debt_payments, 2) %>
-        </div>
-      </div>
-
-      <!-- Emergency Fund -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900">Emergency Fund</h3>
-          <div class={"text-2xl font-bold #{get_score_color(@health_score.metrics.emergency_fund.score)}"}>
-            <%= @health_score.metrics.emergency_fund.score %>
-          </div>
-        </div>
-        <div class="text-sm text-gray-600 mb-2">
-          <%= @health_score.metrics.emergency_fund.description %>
-        </div>
-        <div class="text-lg font-semibold text-gray-900">
-          <%= Decimal.round(@health_score.metrics.emergency_fund.months_of_expenses, 1) %> months
-        </div>
-        <div class="text-sm text-gray-500">
-          Liquid assets: $<%= Decimal.round(@health_score.metrics.emergency_fund.liquid_assets, 2) %>
-        </div>
-      </div>
-
-      <!-- Investment Diversification -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900">Diversification</h3>
-          <div class={"text-2xl font-bold #{get_score_color(@health_score.metrics.investment_diversification.score)}"}>
-            <%= @health_score.metrics.investment_diversification.score %>
-          </div>
-        </div>
-        <div class="text-sm text-gray-600 mb-2">
-          <%= @health_score.metrics.investment_diversification.description %>
-        </div>
-        <div class="text-lg font-semibold text-gray-900">
-          <%= @health_score.metrics.investment_diversification.asset_categories %> categories
-        </div>
-        <div class="text-sm text-gray-500">
-          Total invested: $<%= Decimal.round(@health_score.metrics.investment_diversification.total_investment_value, 2) %>
-        </div>
-      </div>
-
-      <!-- Net Worth -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900">Net Worth</h3>
-          <div class={"text-2xl font-bold #{get_score_color(@health_score.metrics.net_worth_trend.score)}"}>
-            <%= @health_score.metrics.net_worth_trend.score %>
-          </div>
-        </div>
-        <div class="text-sm text-gray-600 mb-2">
-          <%= @health_score.metrics.net_worth_trend.description %>
-        </div>
-        <div class={"text-lg font-semibold #{if Decimal.gt?(@health_score.metrics.net_worth_trend.net_worth, Decimal.new(0)), do: "text-green-600", else: "text-red-600"}"}>
-          $<%= Decimal.round(@health_score.metrics.net_worth_trend.net_worth, 2) %>
-        </div>
-        <div class="text-sm text-gray-500">
-          Assets: $<%= Decimal.round(@health_score.metrics.net_worth_trend.total_assets, 2) %>
-        </div>
-      </div>
-    </div>
-
-    <!-- Recommendations Section -->
-    <div class="bg-white rounded-lg shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-gray-900 mb-4">Recommendations</h3>
-      <%= if length(@health_score.recommendations) > 0 do %>
-        <div class="space-y-3">
-          <%= for recommendation <- @health_score.recommendations do %>
-            <div class="flex items-start">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-blue-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-gray-700"><%= recommendation %></p>
-              </div>
+          <div class="text-right">
+            <div class={"text-4xl font-bold " <> get_score_color(@health_score.overall_score)}>
+              <%= @health_score.overall_score %>
             </div>
-          <% end %>
+            <div class="text-sm text-gray-400">
+              <%= get_score_label(@health_score.overall_score) %>
+            </div>
+          </div>
         </div>
-      <% else %>
-        <p class="text-gray-600">No specific recommendations at this time. Keep up the great work!</p>
-      <% end %>
-    </div>
-
-    <!-- Last Updated -->
-    <div class="mt-6 text-center text-sm text-gray-500">
-      Last calculated: <%= Calendar.strftime(@health_score.calculated_at, "%B %d, %Y at %I:%M %p") %>
-    </div>
-
-  <% else %>
-    <!-- No Data State -->
-    <div class="bg-white rounded-lg shadow-lg p-12 text-center">
-      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-      <h3 class="mt-4 text-lg font-medium text-gray-900">No Financial Data Available</h3>
-      <p class="mt-2 text-gray-600">
-        Add some assets, debts, and cash flows to get your personalized financial health score.
-      </p>
-      <div class="mt-6">
-        <a href="/assets" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-          Add Assets
-        </a>
-        <a href="/debt_obligations" class="ml-3 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-          Add Debts
-        </a>
-        <a href="/cash_flows" class="ml-3 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-          Add Cash Flows
-        </a>
+        <!-- Progress Bar -->
+        <div class="mt-4">
+          <div class="w-full bg-gray-800 rounded-full h-3">
+            <div class={"h-3 rounded-full " <> get_score_bg_color(@health_score.overall_score)} 
+                 style={"width: #{@health_score.overall_score}%"}>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  <% end %>
+
+      <!-- Individual Metrics Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Savings Rate -->
+        <div class="bg-gray-900 border border-gray-800 rounded-lg shadow p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-white">Savings Rate</h3>
+            <div class={"text-2xl font-bold " <> get_score_color(@health_score.metrics.savings_rate.score)}>
+              <%= @health_score.metrics.savings_rate.score %>
+            </div>
+          </div>
+          <div class="text-sm text-gray-400 mb-2">
+            <%= @health_score.metrics.savings_rate.description %>
+          </div>
+          <div class="text-lg font-semibold text-white">
+            <%= Decimal.round(@health_score.metrics.savings_rate.percentage, 1) %>%
+          </div>
+          <div class="text-sm text-gray-400">
+            Monthly savings: $<%= Decimal.round(@health_score.metrics.savings_rate.monthly_savings, 2) %>
+          </div>
+        </div>
+
+        <!-- Debt-to-Income Ratio -->
+        <div class="bg-gray-900 border border-gray-800 rounded-lg shadow p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-white">Debt-to-Income</h3>
+            <div class={"text-2xl font-bold " <> get_score_color(@health_score.metrics.debt_to_income.score)}>
+              <%= @health_score.metrics.debt_to_income.score %>
+            </div>
+          </div>
+          <div class="text-sm text-gray-400 mb-2">
+            <%= @health_score.metrics.debt_to_income.description %>
+          </div>
+          <div class="text-lg font-semibold text-white">
+            <%= Decimal.round(@health_score.metrics.debt_to_income.ratio, 1) %>%
+          </div>
+          <div class="text-sm text-gray-400">
+            Monthly payments: $<%= Decimal.round(@health_score.metrics.debt_to_income.monthly_debt_payments, 2) %>
+          </div>
+        </div>
+
+        <!-- Emergency Fund -->
+        <div class="bg-gray-900 border border-gray-800 rounded-lg shadow p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-white">Emergency Fund</h3>
+            <div class={"text-2xl font-bold " <> get_score_color(@health_score.metrics.emergency_fund.score)}>
+              <%= @health_score.metrics.emergency_fund.score %>
+            </div>
+          </div>
+          <div class="text-sm text-gray-400 mb-2">
+            <%= @health_score.metrics.emergency_fund.description %>
+          </div>
+          <div class="text-lg font-semibold text-white">
+            <%= Decimal.round(@health_score.metrics.emergency_fund.months_of_expenses, 1) %> months
+          </div>
+          <div class="text-sm text-gray-400">
+            Liquid assets: $<%= Decimal.round(@health_score.metrics.emergency_fund.liquid_assets, 2) %>
+          </div>
+        </div>
+
+        <!-- Investment Diversification -->
+        <div class="bg-gray-900 border border-gray-800 rounded-lg shadow p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-white">Diversification</h3>
+            <div class={"text-2xl font-bold " <> get_score_color(@health_score.metrics.investment_diversification.score)}>
+              <%= @health_score.metrics.investment_diversification.score %>
+            </div>
+          </div>
+          <div class="text-sm text-gray-400 mb-2">
+            <%= @health_score.metrics.investment_diversification.description %>
+          </div>
+          <div class="text-lg font-semibold text-white">
+            <%= @health_score.metrics.investment_diversification.asset_categories %> categories
+          </div>
+          <div class="text-sm text-gray-400">
+            Total invested: $<%= Decimal.round(@health_score.metrics.investment_diversification.total_investment_value, 2) %>
+          </div>
+        </div>
+
+        <!-- Net Worth -->
+        <div class="bg-gray-900 border border-gray-800 rounded-lg shadow p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-white">Net Worth</h3>
+            <div class={"text-2xl font-bold " <> get_score_color(@health_score.metrics.net_worth_trend.score)}>
+              <%= @health_score.metrics.net_worth_trend.score %>
+            </div>
+          </div>
+          <div class="text-sm text-gray-400 mb-2">
+            <%= @health_score.metrics.net_worth_trend.description %>
+          </div>
+          <div class={"text-lg font-semibold " <> (if Decimal.gt?(@health_score.metrics.net_worth_trend.net_worth, Decimal.new(0)), do: "text-green-400", else: "text-red-400")}>
+            $<%= Decimal.round(@health_score.metrics.net_worth_trend.net_worth, 2) %>
+          </div>
+          <div class="text-sm text-gray-400">
+            Assets: $<%= Decimal.round(@health_score.metrics.net_worth_trend.total_assets, 2) %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendations Section -->
+      <div class="bg-gray-900 border border-gray-800 rounded-lg shadow p-6">
+        <h3 class="text-xl font-semibold text-white mb-4">Recommendations</h3>
+        <%= if length(@health_score.recommendations) > 0 do %>
+          <div class="space-y-3">
+            <%= for recommendation <- @health_score.recommendations do %>
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-blue-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-gray-300"><%= recommendation %></p>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-gray-400">No specific recommendations at this time. Keep up the great work!</p>
+        <% end %>
+      </div>
+
+      <!-- Last Updated -->
+      <div class="mt-6 text-center text-sm text-gray-500">
+        Last calculated: <%= Calendar.strftime(@health_score.calculated_at, "%B %d, %Y at %I:%M %p") %>
+      </div>
+
+    <% else %>
+      <!-- No Data State -->
+      <div class="bg-gray-900 border border-gray-800 rounded-lg shadow p-12 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-white">No Financial Data Available</h3>
+        <p class="mt-2 text-gray-400">
+          Add some assets, debts, and cash flows to get your personalized financial health score.
+        </p>
+        <div class="mt-6">
+          <a href="/assets" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">Add Assets</a>
+          <a href="/debt_obligations" class="ml-3 inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md text-gray-200 bg-gray-800 hover:bg-gray-700">Add Debts</a>
+          <a href="/cash_flows" class="ml-3 inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md text-gray-200 bg-gray-800 hover:bg-gray-700">Add Cash Flows</a>
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div> 
