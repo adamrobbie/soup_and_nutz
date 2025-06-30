@@ -2,7 +2,7 @@
 replicaCount: 3
 
 image:
-  repository: adamrobbie/soup-and-nutz
+  repository: adamrobbie549/soup-and-nutz
   tag: "0.2.0"
   pullPolicy: IfNotPresent
 

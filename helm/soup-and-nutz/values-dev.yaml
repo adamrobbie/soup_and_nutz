@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  repository: adamrobbie/soup-and-nutz
+  repository: adamrobbie549/soup-and-nutz
   tag: "latest"
   pullPolicy: Always
 

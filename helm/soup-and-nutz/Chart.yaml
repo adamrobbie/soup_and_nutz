@@ -15,12 +15,12 @@ sources:
   - https://github.com/adamrobbie/soup_and_nutz
 maintainers:
   - name: Adam Robbie
-    email: adam@example.com
+    email: adam.robbie@gmail.com
 icon: https://raw.githubusercontent.com/adamrobbie/soup_and_nutz/main/priv/static/images/logo.svg
 
 dependencies:
   - name: postgresql
-    version: 12.5.31
+    version: 16.7.14
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: redis

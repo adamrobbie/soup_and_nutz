@@ -35,3 +35,11 @@ soup_and_nutz-*.tar
 npm-debug.log
 /assets/node_modules/
 test/screenshots/
+
+# Helm chart .gitignore
+helm/soup-and-nutz/charts/*.tgz           # Downloaded dependency packages
+*.tgz                  # Packaged charts
+# Local values files with secrets
+helm/soup-and-nutz/values-dev.yaml
+helm/soup-and-nutz/values-*.dev.yaml
+helm/soup-and-nutz/secrets.yaml
