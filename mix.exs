@@ -68,7 +68,9 @@ defmodule SoupAndNutz.MixProject do
       # E2E Testing dependencies
       {:wallaby, "~> 0.30", runtime: false, only: :test},
       {:ex_machina, "~> 2.7", only: :test},
-      {:faker, "~> 0.17", only: :test}
+      {:faker, "~> 0.17", only: :test},
+      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:dotenvy, "~> 0.8.0", only: [:dev, :test]}
     ]
   end
 

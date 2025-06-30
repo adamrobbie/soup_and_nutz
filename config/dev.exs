@@ -1,3 +1,7 @@
+if Code.ensure_loaded?(Dotenvy) do
+  Dotenvy.source!()
+end
+
 import Config
 
 # Configure your database
