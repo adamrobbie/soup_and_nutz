@@ -411,7 +411,7 @@ defmodule SoupAndNutz.FinancialInstrumentsTest do
       assert Decimal.gt?(report.liquidity_ratio, Decimal.new("0"))
       assert Decimal.gt?(report.emergency_fund_adequacy, Decimal.new("0"))
       assert is_map(report.annual_cash_flow_impact)
-      assert Decimal.cmp(report.cash_flow_stability, Decimal.new("0")) in [:eq, :gt]
+      assert Decimal.compare(report.cash_flow_stability, Decimal.new("0")) in [:eq, :gt]
       assert is_integer(report.income_diversity) or is_binary(report.income_diversity)
       assert Decimal.gt?(report.current_ratio, Decimal.new("0"))
       assert Decimal.gt?(report.quick_ratio, Decimal.new("0"))

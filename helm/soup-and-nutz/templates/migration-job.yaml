@@ -4,10 +4,10 @@ metadata:
   name: {{ include "soup-and-nutz.fullname" . }}-migration
   labels:
     {{- include "soup-and-nutz.labels" . | nindent 4 }}
-  annotations:
-    "helm.sh/hook": pre-upgrade,pre-install
-    "helm.sh/hook-weight": "-1"
-    "helm.sh/hook-delete-policy": before-hook-creation
+  # annotations:
+  #   "helm.sh/hook": pre-upgrade,pre-install
+  #   "helm.sh/hook-weight": "-1"
+  #   "helm.sh/hook-delete-policy": before-hook-creation
 spec:
   template:
     metadata:
@@ -19,7 +19,10 @@ spec:
       - name: migration
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        command: ["mix", "ecto.migrate"]
+        command:
+        - "bin/soup_and_nutz"
+        - "eval"
+        - "Application.ensure_all_started(:soup_and_nutz); Ecto.Migrator.run(SoupAndNutz.Repo, :up, all: true)"
         env:
           - name: DATABASE_URL
             valueFrom:

@@ -2,9 +2,9 @@ name: E2E Tests
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ master ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ master ]
 
 jobs:
   test:
@@ -12,7 +12,7 @@ jobs:
     
     services:
       postgres:
-        image: postgres:13
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
@@ -60,14 +60,6 @@ jobs:
         DATABASE_URL: postgres://postgres:postgres@localhost:5432/soup_and_nutz_test
       run: |
         mix test.e2e
-
-    - name: Upload screenshots
-      if: failure()
-      uses: actions/upload-artifact@v3
-      with:
-        name: e2e-screenshots
-        path: test/screenshots/
-        retention-days: 7
 
     - name: Run all tests with coverage
       env:
