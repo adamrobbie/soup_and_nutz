@@ -16,7 +16,13 @@ defmodule SoupAndNutzWeb.Plugs.OptionalAuthenticate do
         assign(conn, :current_user, nil)
 
       id ->
-        case Accounts.get_user!(id) do
+        case Accounts.get_user(id) do
+          nil ->
+            # User not found, clear session
+            conn
+            |> delete_session(:user_id)
+            |> assign(:current_user, nil)
+
           user when user.is_active ->
             assign(conn, :current_user, user)
 

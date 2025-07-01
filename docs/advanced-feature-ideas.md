@@ -9,11 +9,11 @@ Model retirement readiness, projected retirement age, safe withdrawal rate, Mont
 ## 3. Investment Portfolio Analysis
 Asset allocation visualization, risk assessment, backtesting, and rebalancing suggestions.
 
-## 4. Cash Flow Forecasting & Burn Rate
-Predict future cash flow based on trends, recurring expenses, and income. Show "runway" (how long until cash runs out at current burn rate).
+## 4. ~~Cash Flow Forecasting & Burn Rate~~
+~~Predict future cash flow based on trends, recurring expenses, and income. Show "runway" (how long until cash runs out at current burn rate).~~
 
-## 5. Net Worth Projection
-Graph net worth over time, with future projections based on savings, investments, and debt payoff.
+## 5. ~~Net Worth Projection~~
+~~Graph net worth over time, with future projections based on savings, investments, and debt payoff.~~
 
 ## 6. Tax Optimization Tools
 Estimate annual tax liability, suggest tax-advantaged accounts, and run "what if" scenarios for tax optimization.
@@ -24,8 +24,8 @@ Suggest optimal savings or debt payments based on user's goals and cash flow. Im
 ## 8. Alerts & Smart Notifications
 Notify users of upcoming bills, budget overruns, or goal progress. Provide actionable insights.
 
-## 9. Financial Health Score
-Give users a score based on their financial habits, savings rate, debt-to-income, etc., and show how to improve it.
+## 9. ~~Financial Health Score~~
+~~Give users a score based on their financial habits, savings rate, debt-to-income, etc., and show how to improve it.~~
 
 ## 10. Collaboration & Shared Planning
 Allow couples or families to share a financial plan and collaborate.

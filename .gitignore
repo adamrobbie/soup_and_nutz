@@ -34,7 +34,14 @@ soup_and_nutz-*.tar
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
 /assets/node_modules/
+node_modules/
 test/screenshots/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.test
 
 # Helm chart .gitignore
 helm/soup-and-nutz/charts/*.tgz           # Downloaded dependency packages

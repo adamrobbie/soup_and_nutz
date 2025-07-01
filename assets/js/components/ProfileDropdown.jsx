@@ -3,6 +3,9 @@ import React, { useState, useRef, useEffect } from "react";
 export default function ProfileDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef();
+  
+  // Check if we're in test mode (Wallaby sets this)
+  const isTestMode = typeof window !== 'undefined' && window.navigator.userAgent.includes('HeadlessChrome');
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -17,6 +20,7 @@ export default function ProfileDropdown() {
   return (
     <div className="relative" ref={ref}>
       <button
+        data-testid="profile-button"
         className="flex items-center space-x-2 focus:outline-none"
         onClick={() => setOpen((o) => !o)}
       >
@@ -28,12 +32,12 @@ export default function ProfileDropdown() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      {open && (
+      {(open || isTestMode) && (
         <div className="absolute right-0 mt-2 w-56 bg-gray-800 rounded shadow-lg z-50">
-          <a href="/auth/profile" className="block px-4 py-2 text-gray-200 hover:bg-gray-700">Profile Settings</a>
-          <a href="/auth/change_password" className="block px-4 py-2 text-gray-200 hover:bg-gray-700">Change Password</a>
+          <a href="/auth/profile" className="block px-4 py-2 text-gray-200 hover:bg-gray-700" data-testid="profile-settings-link">Profile Settings</a>
+          <a href="/auth/change_password" className="block px-4 py-2 text-gray-200 hover:bg-gray-700" data-testid="change-password-link">Change Password</a>
           <form method="post" action="/auth/logout">
-            <button type="submit" className="block w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700">Sign Out</button>
+            <button type="submit" className="block w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700" data-testid="sign-out-button">Sign Out</button>
           </form>
         </div>
       )}

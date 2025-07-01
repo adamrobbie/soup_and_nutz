@@ -1,8 +1,12 @@
+if Code.ensure_loaded?(Dotenvy) do
+  Dotenvy.source!()
+end
+
 import Config
 
 # Configure your database
 config :soup_and_nutz, SoupAndNutz.Repo,
-  url: System.get_env("DATABASE_URL") || "postgres://postgres:postgres@localhost:5432/soup_and_nutz_dev",
+  url: System.get_env("DATABASE_URL"),
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10

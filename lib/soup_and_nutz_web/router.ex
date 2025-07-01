@@ -122,6 +122,7 @@ defmodule SoupAndNutzWeb.Router do
     # Advanced Analysis
     live "/cash-flow-forecast", CashFlowForecastLive.Index, :index
     live "/net-worth-projection", NetWorthProjectionLive.Index, :index
+    live "/financial-health", FinancialHealthLive.Index, :index
 
     # Remove these lines that reference undefined controllers
     # resources "/assets", AssetController

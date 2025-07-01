@@ -29,6 +29,11 @@ defmodule SoupAndNutz.Accounts do
   def get_user!(id), do: Repo.get!(User, id)
 
   @doc """
+  Gets a single user by ID, returns nil if not found.
+  """
+  def get_user(id), do: Repo.get(User, id)
+
+  @doc """
   Gets a single user by ID with preloaded associations.
   """
   def get_user_with_goals!(id), do: User.get_user!(id)
