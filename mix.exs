@@ -12,7 +12,9 @@ defmodule SoupAndNutz.MixProject do
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_coverage: :coveralls,
-      coveralls_options: [minimum_coverage: 80]
+      coveralls_options: [minimum_coverage: 80],
+      test_paths: ["test"],
+      test_pattern: "*_test.exs"
     ]
   end
 
@@ -90,6 +92,8 @@ defmodule SoupAndNutz.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      "test.fast": ["ecto.create --quiet", "ecto.migrate --quiet", "test --max-cases=8 --timeout=30000"],
+      "test.parallel": ["ecto.create --quiet", "ecto.migrate --quiet", "test --max-cases=16 --timeout=30000"],
       "test.coverage": ["coveralls"],
       "test.coverage.html": ["coveralls.html"],
       "test.coverage.json": ["coveralls.json"],

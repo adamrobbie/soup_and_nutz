@@ -1,4 +1,4 @@
-.PHONY: help build up down logs shell db-setup db-reset clean restart deploy release test-docker test-unit-docker test-file-docker test-prod-docker test-docker-up test-docker-down test
+.PHONY: help build up down logs shell db-setup db-reset clean restart deploy release test test-fast test-parallel test-coverage test-file test-local test-watch test-docker test-unit-docker test-file-docker test-prod-docker test-docker-up test-docker-down
 
 # Default target
 help:
@@ -14,7 +14,15 @@ help:
 	@echo "  make clean      - Remove containers, networks, and volumes"
 	@echo "  make deploy     - Deploy the application to a Kubernetes cluster"
 	@echo "  make release    - Create a new release of the application"
+	@echo ""
+	@echo "Testing commands:"
 	@echo "  make test       - Run all tests in Docker"
+	@echo "  make test-fast  - Run tests with optimized settings for speed"
+	@echo "  make test-parallel - Run tests with maximum parallelism"
+	@echo "  make test-coverage - Run tests with coverage"
+	@echo "  make test-local - Run tests locally (no Docker)"
+	@echo "  make test-watch - Run tests in watch mode"
+	@echo "  make test-file FILE=path - Run specific test file"
 	@echo ""
 	@echo "Services will be available at:"
 	@echo "  - Phoenix app: http://localhost:4000"
@@ -198,15 +206,64 @@ release:
 	echo '[INFO] You can view the release at: https://github.com/adamrobbie/soup_and_nutz/releases'
 
 # =====================
-# Docker Testing Commands
+# Testing Commands
 # =====================
 
-# Run all tests in Docker
+# Run all tests (standard)
 test: test-docker-up
 	MIX_ENV=test mix ecto.create
 	MIX_ENV=test mix ecto.migrate
 	mix test
 	make test-docker-down
+
+# Run tests with optimized settings for speed
+test-fast: test-docker-up
+	@echo "🚀 Running fast tests with optimized settings..."
+	MIX_ENV=test mix ecto.create
+	MIX_ENV=test mix ecto.migrate
+	mix test --max-cases=16 --timeout=30000 --seed=1 --exclude=slow
+	make test-docker-down
+
+# Run tests with maximum parallelism
+test-parallel: test-docker-up
+	@echo "⚡ Running tests with maximum parallelism..."
+	MIX_ENV=test mix ecto.create
+	MIX_ENV=test mix ecto.migrate
+	mix test --max-cases=24 --timeout=30000 --seed=1 --exclude=slow
+	make test-docker-down
+
+# Run tests with coverage
+test-coverage: test-docker-up
+	@echo "📊 Running tests with coverage..."
+	MIX_ENV=test mix ecto.create
+	MIX_ENV=test mix ecto.migrate
+	mix test --cover --max-cases=16 --timeout=30000
+	make test-docker-down
+
+# Run specific test file
+test-file:
+	@if [ -z "$(FILE)" ]; then \
+		echo "Usage: make test-file FILE=test/soup_and_nutz_web/controllers/page_controller_test.exs"; \
+		exit 1; \
+	fi
+	@echo "🧪 Running test file: $(FILE)"
+	MIX_ENV=test mix ecto.create
+	MIX_ENV=test mix ecto.migrate
+	mix test $(FILE) --max-cases=8 --timeout=30000
+
+# Run tests without Docker (local development)
+test-local:
+	@echo "🏠 Running tests locally..."
+	MIX_ENV=test mix ecto.create
+	MIX_ENV=test mix ecto.migrate
+	mix test --max-cases=16 --timeout=30000 --seed=1 --exclude=slow
+
+# Run tests with watch mode (for development)
+test-watch:
+	@echo "👀 Running tests in watch mode..."
+	MIX_ENV=test mix ecto.create
+	MIX_ENV=test ecto.migrate
+	mix test.watch --max-cases=8 --timeout=30000
 
 # Run unit tests in Docker
 test-unit-docker: build

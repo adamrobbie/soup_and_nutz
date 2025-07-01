@@ -99,7 +99,7 @@ defmodule SoupAndNutz.AI.OpenAIServiceTest do
 
   describe "validate_financial_data/2" do
     test "validates asset data successfully" do
-      Application.put_env(:soup_and_nutz, :openai_client, __MODULE__.ValidationMock)
+      Application.put_env(:soup_and_nutz, :openai_client, ValidationMock)
       asset_data = %{
         "asset_name" => "Test Asset",
         "asset_type" => "InvestmentSecurities",
@@ -111,7 +111,7 @@ defmodule SoupAndNutz.AI.OpenAIServiceTest do
     end
 
     test "validates debt data successfully" do
-      Application.put_env(:soup_and_nutz, :openai_client, __MODULE__.ValidationMock)
+      Application.put_env(:soup_and_nutz, :openai_client, ValidationMock)
       debt_data = %{
         "debt_name" => "Test Debt",
         "debt_type" => "Loan",

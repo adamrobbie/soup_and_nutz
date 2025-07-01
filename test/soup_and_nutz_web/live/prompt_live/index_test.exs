@@ -61,6 +61,17 @@ defmodule SoupAndNutzWeb.PromptLive.IndexTest do
 
   describe "submit_prompt event" do
     test "processes asset creation prompt successfully", %{conn: conn, user: user} do
+      # Mock FinancialAdvisor response
+      mock_financial_advisor = %{
+        process_user_input: fn _prompt, _user_id ->
+          {:ok, %{
+            type: :asset_created,
+            asset: %{id: 1, asset_name: "Test Asset"}
+          }}
+        end
+      }
+      Application.put_env(:soup_and_nutz, :financial_advisor, mock_financial_advisor)
+
       conn = authenticate_user(conn, user)
       {:ok, view, _html} = live(conn, ~p"/prompt")
 
