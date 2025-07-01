@@ -1,0 +1,28 @@
+<form phx-submit="submit_prompt">
+  <div class="mb-4">
+    <label for="prompt" class="block text-lg font-semibold mb-2">What would you like to do?</label>
+    <textarea name="prompt" id="prompt" rows="3" class="w-full p-2 border rounded" placeholder="e.g. Add a $5000 car loan at 5% interest for 5 years." required><%= @prompt %></textarea>
+  </div>
+  <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded" disabled={@loading}>
+    <%= if @loading, do: "Processing...", else: "Submit" %>
+  </button>
+</form>
+
+<%= if @result do %>
+  <div class="mt-6">
+    <%= case @result do %>
+      <% {:ok, msg} -> %>
+        <div class="bg-green-100 text-green-800 p-4 rounded"> <%= msg %> </div>
+      <% {:error, %Ecto.Changeset{} = changeset} -> %>
+        <div class="bg-red-100 text-red-800 p-4 rounded">
+          <%= for {field, {message, _}} <- changeset.errors do %>
+            <div><%= to_string(field) %>: <%= message %></div>
+          <% end %>
+        </div>
+      <% {:error, err} when is_binary(err) -> %>
+        <div class="bg-red-100 text-red-800 p-4 rounded"> <%= err %> </div>
+      <% {:error, err} -> %>
+        <div class="bg-red-100 text-red-800 p-4 rounded"> <%= inspect(err) %> </div>
+    <% end %>
+  </div>
+<% end %> 

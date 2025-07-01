@@ -52,6 +52,9 @@ defmodule SoupAndNutz.FinancialInstruments.DebtObligation do
     field :validation_status, :string, default: "Pending" # Pending, Valid, Invalid
     field :last_validated_at, :utc_datetime
 
+    # Vector embedding for semantic search
+    field :embedding, Pgvector.Ecto.Vector
+
     timestamps(type: :utc_datetime)
   end
 

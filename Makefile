@@ -1,4 +1,4 @@
-.PHONY: help build up down logs shell db-setup db-reset clean restart deploy release test-docker test-unit-docker test-file-docker test-prod-docker
+.PHONY: help build up down logs shell db-setup db-reset clean restart deploy release test-docker test-unit-docker test-file-docker test-prod-docker test-docker-up test-docker-down test
 
 # Default target
 help:
@@ -14,7 +14,7 @@ help:
 	@echo "  make clean      - Remove containers, networks, and volumes"
 	@echo "  make deploy     - Deploy the application to a Kubernetes cluster"
 	@echo "  make release    - Create a new release of the application"
-	@echo "  make test-docker  - Run all tests in Docker"
+	@echo "  make test       - Run all tests in Docker"
 	@echo ""
 	@echo "Services will be available at:"
 	@echo "  - Phoenix app: http://localhost:4000"
@@ -202,10 +202,11 @@ release:
 # =====================
 
 # Run all tests in Docker
-test-docker: build
-	@echo "🧪 Running all tests in Docker..."
-	@docker-compose -f docker-compose.dev.yml --profile test up --abort-on-container-exit --exit-code-from e2e-test e2e-test unit-test
-	@docker-compose -f docker-compose.dev.yml --profile test down
+test: test-docker-up
+	MIX_ENV=test mix ecto.create
+	MIX_ENV=test mix ecto.migrate
+	mix test
+	make test-docker-down
 
 # Run unit tests in Docker
 test-unit-docker: build
@@ -227,4 +228,14 @@ test-file-docker: build
 test-prod-docker:
 	@echo "🧪 Building production image and running tests..."
 	@docker build -t soup-and-nutz-test .
-	@docker run --rm -e MIX_ENV=test soup-and-nutz-test mix test 
+	@docker run --rm -e MIX_ENV=test soup-and-nutz-test mix test
+
+test-docker-up:
+	docker-compose -f docker-compose.test.yml up -d db_test
+	@echo "Waiting for test database to be ready..."
+	@until docker exec $$(docker-compose -f docker-compose.test.yml ps -q db_test) pg_isready -U postgres; do \
+		sleep 1; \
+	done
+
+test-docker-down:
+	docker-compose -f docker-compose.test.yml down 

@@ -171,7 +171,7 @@ defmodule SoupAndNutz.FinancialHealthScore do
   def calculate_investment_diversification(assets, currency) do
     # Get investment assets only
     investment_assets = assets
-    |> Enum.filter(&(&1.asset_type in ["Investment", "Retirement", "RealEstate"] && &1.is_active))
+    |> Enum.filter(&(&1.asset_type in ["InvestmentSecurities", "Investment", "Retirement", "RealEstate"] && &1.is_active))
     |> Enum.filter(&(&1.currency_code == currency))
 
     total_investment_value = Asset.total_fair_value(investment_assets, currency)

@@ -6,7 +6,7 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :soup_and_nutz, SoupAndNutz.Repo,
-  url: System.get_env("DATABASE_URL") || "postgres://postgres:postgres@localhost/soup_and_nutz_test#{System.get_env("MIX_TEST_PARTITION")}",
+  url: "postgres://postgres:postgres@localhost:5434/soup_and_nutz_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
@@ -20,15 +20,37 @@ config :soup_and_nutz, SoupAndNutzWeb.Endpoint,
 # In test we don't send emails
 config :soup_and_nutz, SoupAndNutz.Mailer, adapter: Swoosh.Adapters.Test
 
-# Disable swoosh api client as it is only required for production adapters
-config :swoosh, :api_client, false
-
 # Print only warnings and errors during test
-config :logger, level: :warning
+config :logger, level: :warn
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
+# Disable swoosh api client as it is only required for production adapters.
+config :swoosh, :api_client, false
+
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# Disable embedding service during tests to avoid vector type issues
+config :soup_and_nutz, :enable_embeddings, false
+
+# Mock OpenAI service for testing
+config :soup_and_nutz, :openai_service, %{
+  process_natural_language_input: fn _prompt, _user_id ->
+    {:ok, %{
+      "type" => "asset",
+      "data" => %{
+        "asset_name" => "Test Asset",
+        "fair_value" => "10000"
+      },
+      "confidence" => 0.95,
+      "missing_fields" => [],
+      "suggestions" => []
+    }}
+  end,
+  generate_embedding: fn _text ->
+    {:ok, [0.1, 0.2, 0.3, 0.4, 0.5]}
+  end
+}

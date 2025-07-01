@@ -61,6 +61,18 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Configure OpenAI for AI services
+config :soup_and_nutz, :openai_client, OpenAI
+
+# Configure OpenAI API
+config :openai,
+  api_key: System.get_env("OPENAI_API_KEY"),
+  organization_key: System.get_env("OPENAI_ORG_KEY")
+
+# Configure Repo to use custom PostgrexTypes for pgvector
+config :soup_and_nutz, SoupAndNutz.Repo,
+  types: SoupAndNutz.PostgrexTypes
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

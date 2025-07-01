@@ -1,0 +1,186 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-4xl mx-auto p-4">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">AI Financial Assistant</h1>
+          <p class="text-gray-600">Your intelligent financial advisor powered by AI</p>
+        </div>
+        <div class="flex space-x-2">
+          <button
+            phx-click="show_conversation_switcher"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Switch Conversation
+          </button>
+          <button
+            phx-click="clear_chat"
+            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            New Chat
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conversation Switcher Modal -->
+    <%= if @show_conversation_switcher do %>
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold">Switch Conversation</h2>
+            <button
+              phx-click="hide_conversation_switcher"
+              class="text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <div class="space-y-2">
+            <%= for conversation <- @conversation_list do %>
+              <div class="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer"
+                   phx-click="switch_conversation"
+                   phx-value-conversation_id={conversation.conversation_id}>
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-900 truncate">
+                      <%= conversation.summary %>
+                    </p>
+                    <p class="text-sm text-gray-500">
+                      <%= conversation.message_count %> messages • 
+                      <%= Calendar.strftime(conversation.last_activity, "%b %d, %Y %H:%M") %>
+                    </p>
+                  </div>
+                  <span class="text-xs text-gray-400">
+                    <%= String.slice(conversation.conversation_id, 0, 8) %>
+                  </span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          
+          <%= if length(@conversation_list) > 1 do %>
+            <div class="mt-4 pt-4 border-t">
+              <button
+                phx-click="merge_conversations"
+                phx-value-conversation_ids={Enum.map(@conversation_list, & &1.conversation_id)}
+                class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Merge Similar Conversations
+              </button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Chat Container -->
+    <div class="bg-white rounded-lg shadow-sm flex flex-col h-96">
+      <!-- Messages -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4" id="messages">
+        <%= for message <- Enum.reverse(@messages) do %>
+          <div class={"flex #{if message.type == :user, do: "justify-end", else: "justify-start"}"}>
+            <div class={"max-w-xs lg:max-w-md px-4 py-2 rounded-lg #{if message.type == :user, do: "bg-blue-600 text-white", else: "bg-gray-100 text-gray-900"}"}>
+              <div class="whitespace-pre-wrap"><%= message.content %></div>
+              <div class={"text-xs mt-1 #{if message.type == :user, do: "text-blue-100", else: "text-gray-500"}"}>
+                <%= Calendar.strftime(message.timestamp, "%H:%M") %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        
+        <%= if @loading do %>
+          <div class="flex justify-start">
+            <div class="bg-gray-100 text-gray-900 rounded-lg px-4 py-2">
+              <div class="flex items-center space-x-2">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                <span>AI is thinking...</span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Clarification Response -->
+      <%= if @clarification_context do %>
+        <div class="border-t bg-yellow-50 p-4">
+          <div class="text-sm text-yellow-800 mb-2">
+            <strong>Clarification needed:</strong> Please provide the missing information.
+          </div>
+          <div class="flex space-x-2">
+            <%= for suggestion <- @suggestions do %>
+              <button
+                phx-click="clarification_response"
+                phx-value-response={suggestion}
+                class="px-3 py-1 bg-yellow-200 text-yellow-800 rounded hover:bg-yellow-300 transition-colors text-sm"
+              >
+                <%= suggestion %>
+              </button>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Input Area -->
+      <div class="border-t p-4">
+        <form phx-submit="submit_message" class="flex space-x-2">
+          <input
+            type="text"
+            name="user_input"
+            value={@user_input}
+            placeholder="Ask me about your finances..."
+            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            autocomplete="off"
+          />
+          <button
+            type="submit"
+            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            disabled={@loading}
+          >
+            Send
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="mt-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-3">Quick Actions</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <%= for suggestion <- @suggestions do %>
+          <button
+            phx-click="suggestion_click"
+            phx-value-suggestion={suggestion}
+            class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm text-left"
+          >
+            <%= suggestion %>
+          </button>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Context Information -->
+    <div class="mt-6 bg-white rounded-lg shadow-sm p-4">
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Current Context</h3>
+      <div class="text-sm text-gray-600">
+        <p><strong>Conversation ID:</strong> <%= String.slice(@conversation_id, 0, 16) %>...</p>
+        <p><strong>Messages:</strong> <%= length(@messages) %></p>
+        <%= if @clarification_context do %>
+          <p><strong>Status:</strong> <span class="text-yellow-600">Awaiting clarification</span></p>
+        <% else %>
+          <p><strong>Status:</strong> <span class="text-green-600">Ready</span></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Auto-scroll to bottom when new messages arrive
+  const messagesContainer = document.getElementById('messages');
+  if (messagesContainer) {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+</script> 

@@ -147,21 +147,21 @@ defmodule SoupAndNutz.FinancialHealthScoreTest do
     test "calculates diversification score correctly" do
       assets = [
         %{
-          asset_type: "Investment",
+          asset_type: "InvestmentSecurities",
           is_active: true,
           currency_code: "USD",
           asset_category: "Stocks",
           fair_value: D.new("10000")
         },
         %{
-          asset_type: "Investment",
+          asset_type: "InvestmentSecurities",
           is_active: true,
           currency_code: "USD",
           asset_category: "Bonds",
           fair_value: D.new("5000")
         },
         %{
-          asset_type: "Investment",
+          asset_type: "InvestmentSecurities",
           is_active: true,
           currency_code: "USD",
           asset_category: "RealEstate",

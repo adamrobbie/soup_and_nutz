@@ -8,6 +8,7 @@ defmodule SoupAndNutz.FinancialInstruments do
 
   alias SoupAndNutz.FinancialInstruments.{Asset, CashFlow, DebtObligation}
   alias SoupAndNutz.Repo
+  alias SoupAndNutz.AI.EmbeddingService
 
   # Asset functions
 
@@ -40,23 +41,39 @@ defmodule SoupAndNutz.FinancialInstruments do
   end
 
   @doc """
-  Creates an asset with XBRL validation.
+  Creates an asset and generates its embedding.
   """
   def create_asset(attrs \\ %{}) do
     %Asset{}
     |> Asset.changeset(attrs)
-    |> validate_asset_xbrl_rules()
     |> Repo.insert()
+    |> case do
+      {:ok, asset} ->
+        # Generate embedding asynchronously if enabled
+        if Application.get_env(:soup_and_nutz, :enable_embeddings, true) do
+          Task.start(fn -> EmbeddingService.update_asset_embedding(asset) end)
+        end
+        {:ok, asset}
+      error -> error
+    end
   end
 
   @doc """
-  Updates an asset with XBRL validation.
+  Updates an asset and regenerates its embedding.
   """
   def update_asset(%Asset{} = asset, attrs) do
     asset
     |> Asset.changeset(attrs)
-    |> validate_asset_xbrl_rules()
     |> Repo.update()
+    |> case do
+      {:ok, updated_asset} ->
+        # Regenerate embedding asynchronously if enabled
+        if Application.get_env(:soup_and_nutz, :enable_embeddings, true) do
+          Task.start(fn -> EmbeddingService.update_asset_embedding(updated_asset) end)
+        end
+        {:ok, updated_asset}
+      error -> error
+    end
   end
 
   @doc """
@@ -104,23 +121,39 @@ defmodule SoupAndNutz.FinancialInstruments do
   end
 
   @doc """
-  Creates a debt obligation with XBRL validation.
+  Creates a debt obligation and generates its embedding.
   """
   def create_debt_obligation(attrs \\ %{}) do
     %DebtObligation{}
     |> DebtObligation.changeset(attrs)
-    |> validate_debt_xbrl_rules()
     |> Repo.insert()
+    |> case do
+      {:ok, debt} ->
+        # Generate embedding asynchronously if enabled
+        if Application.get_env(:soup_and_nutz, :enable_embeddings, true) do
+          Task.start(fn -> EmbeddingService.update_debt_embedding(debt) end)
+        end
+        {:ok, debt}
+      error -> error
+    end
   end
 
   @doc """
-  Updates a debt obligation with XBRL validation.
+  Updates a debt obligation and regenerates its embedding.
   """
-  def update_debt_obligation(%DebtObligation{} = debt_obligation, attrs) do
-    debt_obligation
+  def update_debt_obligation(%DebtObligation{} = debt, attrs) do
+    debt
     |> DebtObligation.changeset(attrs)
-    |> validate_debt_xbrl_rules()
     |> Repo.update()
+    |> case do
+      {:ok, updated_debt} ->
+        # Regenerate embedding asynchronously if enabled
+        if Application.get_env(:soup_and_nutz, :enable_embeddings, true) do
+          Task.start(fn -> EmbeddingService.update_debt_embedding(updated_debt) end)
+        end
+        {:ok, updated_debt}
+      error -> error
+    end
   end
 
   @doc """
@@ -426,30 +459,6 @@ defmodule SoupAndNutz.FinancialInstruments do
   end
 
   # Private functions
-
-  defp validate_asset_xbrl_rules(changeset) do
-    asset = Ecto.Changeset.apply_changes(changeset)
-    {valid, errors} = Asset.validate_xbrl_rules(asset)
-    if valid do
-      changeset
-    else
-      Enum.reduce(errors, changeset, fn {field, message}, acc ->
-        Ecto.Changeset.add_error(acc, field, message)
-      end)
-    end
-  end
-
-  defp validate_debt_xbrl_rules(changeset) do
-    debt = Ecto.Changeset.apply_changes(changeset)
-    {valid, errors} = DebtObligation.validate_xbrl_rules(debt)
-    if valid do
-      changeset
-    else
-      Enum.reduce(errors, changeset, fn {field, message}, acc ->
-        Ecto.Changeset.add_error(acc, field, message)
-      end)
-    end
-  end
 
   defp validate_cash_flow_xbrl_rules(changeset) do
     cash_flow = Ecto.Changeset.apply_changes(changeset)

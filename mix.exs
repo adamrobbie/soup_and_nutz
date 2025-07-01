@@ -37,8 +37,9 @@ defmodule SoupAndNutz.MixProject do
     [
       {:phoenix, "~> 1.7.21"},
       {:phoenix_ecto, "~> 4.5"},
-      {:ecto_sql, "~> 3.10"},
-      {:postgrex, ">= 0.0.0"},
+      {:ecto, "~> 3.13"},
+      {:ecto_sql, "~> 3.13"},
+      {:postgrex, "~> 0.19.3", override: true},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.0"},
@@ -68,7 +69,11 @@ defmodule SoupAndNutz.MixProject do
       {:ex_machina, "~> 2.7", only: :test},
       {:faker, "~> 0.17", only: :test},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:dotenvy, "~> 0.8.0", only: [:dev, :test]}
+      {:dotenvy, "~> 0.8.0", only: [:dev, :test]},
+      # RAG and AI dependencies
+      {:openai, "~> 0.5"},
+      {:pgvector, "~> 0.3.0"},
+      {:html_entities, ">= 0.5.2", only: :test}
     ]
   end
 

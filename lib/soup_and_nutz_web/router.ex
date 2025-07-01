@@ -127,6 +127,14 @@ defmodule SoupAndNutzWeb.Router do
     # Remove these lines that reference undefined controllers
     # resources "/assets", AssetController
     # resources "/debt_obligations", DebtObligationController
+
+    live "/prompt", PromptLive.Index, :index
+    live "/ai-assistant", AIAssistantLive.Index, :index
+    # Comment out or redirect the old forms:
+    # live "/assets/new", AssetLive.FormComponent, :new
+    # live "/assets/:id/edit", AssetLive.FormComponent, :edit
+    # live "/debt_obligations/new", DebtObligationLive.FormComponent, :new
+    # live "/debt_obligations/:id/edit", DebtObligationLive.FormComponent, :edit
   end
 
   # API routes
