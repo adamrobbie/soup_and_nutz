@@ -1,4 +1,4 @@
-.PHONY: help build up down logs shell db-setup db-reset clean restart deploy release setup-e2e test-docker test-e2e-docker test-unit-docker test-file-docker test-prod-docker
+.PHONY: help build up down logs shell db-setup db-reset clean restart deploy release test-docker test-unit-docker test-file-docker test-prod-docker
 
 # Default target
 help:
@@ -14,12 +14,7 @@ help:
 	@echo "  make clean      - Remove containers, networks, and volumes"
 	@echo "  make deploy     - Deploy the application to a Kubernetes cluster"
 	@echo "  make release    - Create a new release of the application"
-	@echo "  make setup-e2e  - Set up the E2E testing environment"
-	@echo ""
-	@echo "Docker Testing Commands:"
-	@echo "  make test-docker      - Run all tests in Docker"
-	@echo "  make test-e2e-docker  - Run E2E tests in Docker"
-	@echo "  make test-unit-docker - Run unit tests in Docker"
+	@echo "  make test-docker  - Run all tests in Docker"
 	@echo ""
 	@echo "Services will be available at:"
 	@echo "  - Phoenix app: http://localhost:4000"
@@ -203,91 +198,6 @@ release:
 	echo '[INFO] You can view the release at: https://github.com/adamrobbie/soup_and_nutz/releases'
 
 # =====================
-# E2E Test Environment Setup
-# =====================
-setup-e2e:
-	@echo "🚀 Setting up E2E testing environment for Soup & Nutz with Wallaby..."
-	@if [[ "$$(uname)" == "Darwin" ]]; then OS=macos; elif [[ "$$(uname)" == "Linux" ]]; then OS=linux; else echo "❌ Unsupported operating system: $$(uname)"; exit 1; fi; \
-	echo "📋 Detected OS: $$OS"; \
-	if command -v google-chrome >/dev/null 2>&1; then \
-		echo "✅ Google Chrome is already installed:"; \
-		google-chrome --version; \
-	elif [ -x "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" ]; then \
-		echo "✅ Google Chrome is already installed (macOS):"; \
-		/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version; \
-	else \
-		echo "📥 Installing Google Chrome..."; \
-		if [ "$$OS" = "macos" ]; then \
-			if command -v brew >/dev/null 2>&1; then \
-				brew install --cask google-chrome; \
-			else \
-				echo "❌ Homebrew not found. Please install Homebrew first."; \
-				echo "   /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""; \
-				exit 1; \
-			fi; \
-		elif [ "$$OS" = "linux" ]; then \
-			if command -v apt-get >/dev/null 2>&1; then \
-				wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -; \
-				echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list; \
-				sudo apt-get update; \
-				sudo apt-get install -y google-chrome-stable; \
-			elif command -v yum >/dev/null 2>&1; then \
-				sudo yum install -y google-chrome-stable; \
-			else \
-				echo "❌ Unsupported package manager. Please install Google Chrome manually:"; \
-				echo "   https://www.google.com/chrome/"; \
-				exit 1; \
-			fi; \
-		fi; \
-	fi; \
-	if command -v chromedriver >/dev/null 2>&1; then \
-		echo "✅ ChromeDriver is already installed:"; \
-		chromedriver --version; \
-	else \
-		echo "📥 Installing ChromeDriver..."; \
-		if [ "$$OS" = "macos" ]; then \
-			if command -v brew >/dev/null 2>&1; then \
-				brew install chromedriver; \
-			else \
-				echo "❌ Homebrew not found. Please install Homebrew first."; \
-				echo "   /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""; \
-				exit 1; \
-			fi; \
-		elif [ "$$OS" = "linux" ]; then \
-			if command -v apt-get >/dev/null 2>&1; then \
-				sudo apt-get update; \
-				sudo apt-get install -y chromium-chromedriver; \
-			elif command -v yum >/dev/null 2>&1; then \
-				sudo yum install -y chromium-chromedriver; \
-			else \
-				echo "❌ Unsupported package manager. Please install ChromeDriver manually:"; \
-				echo "   https://chromedriver.chromium.org/downloads"; \
-				exit 1; \
-			fi; \
-		fi; \
-	fi; \
-	if command -v chromedriver >/dev/null 2>&1; then \
-		echo "✅ ChromeDriver installation verified:"; \
-		chromedriver --version; \
-	else \
-		echo "❌ ChromeDriver installation failed"; \
-		exit 1; \
-	fi; \
-	echo "📁 Creating screenshots directory..."; \
-	mkdir -p test/screenshots; \
-	echo "📦 Installing Elixir dependencies..."; \
-	mix deps.get; \
-	echo "🗄️  Setting up test database..."; \
-	MIX_ENV=test mix ecto.create; \
-	MIX_ENV=test mix ecto.migrate; \
-	echo "\n🎉 E2E testing environment setup complete!\n"; \
-	echo "📚 Next steps:"; \
-	echo "   1. Run E2E tests: mix test.e2e"; \
-	echo "   2. Run specific test: mix test test/soup_and_nutz_web/e2e/authentication_test.exs"; \
-	echo "   3. Run all tests: mix test.all"; \
-	echo "\n📖 For more information, see: test/soup_and_nutz_web/e2e/README.md\n"
-
-# =====================
 # Docker Testing Commands
 # =====================
 
@@ -295,12 +205,6 @@ setup-e2e:
 test-docker: build
 	@echo "🧪 Running all tests in Docker..."
 	@docker-compose -f docker-compose.dev.yml --profile test up --abort-on-container-exit --exit-code-from e2e-test e2e-test unit-test
-	@docker-compose -f docker-compose.dev.yml --profile test down
-
-# Run E2E tests in Docker
-test-e2e-docker: build
-	@echo "🧪 Running E2E tests in Docker..."
-	@docker-compose -f docker-compose.dev.yml --profile test up --abort-on-container-exit --exit-code-from e2e-test e2e-test
 	@docker-compose -f docker-compose.dev.yml --profile test down
 
 # Run unit tests in Docker

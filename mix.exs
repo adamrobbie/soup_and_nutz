@@ -22,7 +22,7 @@ defmodule SoupAndNutz.MixProject do
   def application do
     [
       mod: {SoupAndNutz.Application, []},
-      extra_applications: [:logger, :runtime_tools] ++ if(Mix.env() == :test, do: [:wallaby], else: [])
+      extra_applications: [:logger, :runtime_tools]
     ]
   end
 

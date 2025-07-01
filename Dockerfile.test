@@ -15,25 +15,6 @@ RUN apt-get update && apt-get install -y \
         libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Chromium and ChromeDriver for Wallaby E2E tests
-RUN apt-get update && apt-get install -y \
-    chromium \
-    chromium-driver \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set environment variables for Wallaby/Chromium
-ENV CHROME_BIN=/usr/bin/chromium
-ENV CHROMEDRIVER_BIN=/usr/bin/chromedriver
-ENV PATH="/usr/bin:/usr/local/bin:${PATH}"
-
-# Create symlinks to ensure ChromeDriver is accessible
-RUN ln -sf /usr/bin/chromedriver /usr/local/bin/chromedriver && \
-    ln -sf /usr/bin/chromium /usr/local/bin/chromium-browser
-
-# Verify installations
-RUN which chromium && which chromedriver && \
-    chromium --version && chromedriver --version
-
 # Set working directory
 WORKDIR /app
 

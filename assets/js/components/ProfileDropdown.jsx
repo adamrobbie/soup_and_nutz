@@ -4,9 +4,6 @@ export default function ProfileDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef();
   
-  // Check if we're in test mode (Wallaby sets this)
-  const isTestMode = typeof window !== 'undefined' && window.navigator.userAgent.includes('HeadlessChrome');
-
   useEffect(() => {
     function handleClickOutside(event) {
       if (ref.current && !ref.current.contains(event.target)) {
@@ -32,7 +29,7 @@ export default function ProfileDropdown() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      {(open || isTestMode) && (
+      {open && (
         <div className="absolute right-0 mt-2 w-56 bg-gray-800 rounded shadow-lg z-50">
           <a href="/auth/profile" className="block px-4 py-2 text-gray-200 hover:bg-gray-700" data-testid="profile-settings-link">Profile Settings</a>
           <a href="/auth/change_password" className="block px-4 py-2 text-gray-200 hover:bg-gray-700" data-testid="change-password-link">Change Password</a>

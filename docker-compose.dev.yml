@@ -61,27 +61,6 @@ services:
     networks:
       - soup_and_nutz_network
 
-  # E2E Test Service
-  e2e-test:
-    build:
-      context: .
-      dockerfile: Dockerfile.test
-    container_name: soup_and_nutz_e2e_test
-    environment:
-      MIX_ENV: test
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/soup_and_nutz_test
-      SECRET_KEY_BASE: your-secret-key-base-here-for-testing-only-do-not-use-in-production
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - ./test/screenshots:/app/test/screenshots
-    networks:
-      - soup_and_nutz_network
-    profiles:
-      - test
-    command: sh -c "mix ecto.create && mix ecto.migrate && mix test --only e2e"
-
   # Unit Test Service
   unit-test:
     build:

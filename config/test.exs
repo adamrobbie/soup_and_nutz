@@ -32,14 +32,3 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
-
-# Configure Wallaby for E2E testing
-config :wallaby,
-  otp_app: :soup_and_nutz,
-  base_url: "http://localhost:4002",
-  screenshot_dir: "test/screenshots",
-  screenshot_on_failure: true,
-  chromedriver: [
-    headless: true,
-    path: "/usr/bin/chromedriver"
-  ]
