@@ -1,4 +1,4 @@
-.PHONY: help build up down logs shell db-setup db-reset clean restart deploy release setup-e2e
+.PHONY: help build up down logs shell db-setup db-reset clean restart deploy release setup-e2e test-docker test-e2e-docker test-unit-docker test-file-docker test-prod-docker
 
 # Default target
 help:
@@ -15,6 +15,11 @@ help:
 	@echo "  make deploy     - Deploy the application to a Kubernetes cluster"
 	@echo "  make release    - Create a new release of the application"
 	@echo "  make setup-e2e  - Set up the E2E testing environment"
+	@echo ""
+	@echo "Docker Testing Commands:"
+	@echo "  make test-docker      - Run all tests in Docker"
+	@echo "  make test-e2e-docker  - Run E2E tests in Docker"
+	@echo "  make test-unit-docker - Run unit tests in Docker"
 	@echo ""
 	@echo "Services will be available at:"
 	@echo "  - Phoenix app: http://localhost:4000"
@@ -280,4 +285,42 @@ setup-e2e:
 	echo "   1. Run E2E tests: mix test.e2e"; \
 	echo "   2. Run specific test: mix test test/soup_and_nutz_web/e2e/authentication_test.exs"; \
 	echo "   3. Run all tests: mix test.all"; \
-	echo "\n📖 For more information, see: test/soup_and_nutz_web/e2e/README.md\n" 
+	echo "\n📖 For more information, see: test/soup_and_nutz_web/e2e/README.md\n"
+
+# =====================
+# Docker Testing Commands
+# =====================
+
+# Run all tests in Docker
+test-docker: build
+	@echo "🧪 Running all tests in Docker..."
+	@docker-compose -f docker-compose.dev.yml --profile test up --abort-on-container-exit --exit-code-from e2e-test e2e-test unit-test
+	@docker-compose -f docker-compose.dev.yml --profile test down
+
+# Run E2E tests in Docker
+test-e2e-docker: build
+	@echo "🧪 Running E2E tests in Docker..."
+	@docker-compose -f docker-compose.dev.yml --profile test up --abort-on-container-exit --exit-code-from e2e-test e2e-test
+	@docker-compose -f docker-compose.dev.yml --profile test down
+
+# Run unit tests in Docker
+test-unit-docker: build
+	@echo "🧪 Running unit tests in Docker..."
+	@docker-compose -f docker-compose.dev.yml --profile test up --abort-on-container-exit --exit-code-from unit-test unit-test
+	@docker-compose -f docker-compose.dev.yml --profile test down
+
+# Run tests with specific test file
+test-file-docker: build
+	@if [ -z "$(FILE)" ]; then \
+		echo "Usage: make test-file-docker FILE=test/soup_and_nutz_web/e2e/authentication_feature.exs"; \
+		exit 1; \
+	fi
+	@echo "🧪 Running test file $(FILE) in Docker..."
+	@docker-compose -f docker-compose.dev.yml --profile test run --rm e2e-test mix test $(FILE)
+	@docker-compose -f docker-compose.dev.yml --profile test down
+
+# Build and run tests in production Docker image
+test-prod-docker:
+	@echo "🧪 Building production image and running tests..."
+	@docker build -t soup-and-nutz-test .
+	@docker run --rm -e MIX_ENV=test soup-and-nutz-test mix test 

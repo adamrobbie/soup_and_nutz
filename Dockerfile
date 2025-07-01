@@ -22,9 +22,8 @@ COPY mix.lock* ./
 RUN mix deps.get --only $MIX_ENV
 RUN mkdir config
 
-# Copy config files
-COPY config/config.exs config/$MIX_ENV.exs config/
-COPY config/runtime.exs config/
+# Copy config directory
+COPY config config
 
 # Copy assets
 COPY priv priv

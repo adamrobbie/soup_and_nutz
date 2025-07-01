@@ -1,0 +1,81 @@
+# Use the official Elixir image as base
+FROM elixir:1.15
+
+# Install build dependencies including those needed for bcrypt_elixir
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    nodejs \
+    npm \
+    inotify-tools \
+    && apt-get install -y --no-install-recommends \
+        gcc \
+        make \
+        libc-dev \
+        libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Chromium and ChromeDriver for Wallaby E2E tests
+RUN apt-get update && apt-get install -y \
+    chromium \
+    chromium-driver \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables for Wallaby/Chromium
+ENV CHROME_BIN=/usr/bin/chromium
+ENV CHROMEDRIVER_BIN=/usr/bin/chromedriver
+ENV PATH="/usr/bin:/usr/local/bin:${PATH}"
+
+# Create symlinks to ensure ChromeDriver is accessible
+RUN ln -sf /usr/bin/chromedriver /usr/local/bin/chromedriver && \
+    ln -sf /usr/bin/chromium /usr/local/bin/chromium-browser
+
+# Verify installations
+RUN which chromium && which chromedriver && \
+    chromium --version && chromedriver --version
+
+# Set working directory
+WORKDIR /app
+
+# Install hex + rebar
+RUN mix local.hex --force && \
+    mix local.rebar --force
+
+# Set build ENV
+ENV MIX_ENV=test
+
+# Copy mix files (mix.lock is optional)
+COPY mix.exs ./
+COPY mix.lock* ./
+
+# Install dependencies for test environment
+RUN mix deps.get --only test
+
+# Create config directory
+RUN mkdir -p config
+
+# Copy config directory (including test.exs)
+COPY config config
+
+# Copy assets
+COPY priv priv
+COPY assets assets
+
+# Install Node.js dependencies for esbuild and tailwind (if package.json exists)
+RUN if [ -f assets/package.json ]; then \
+        cd assets && npm install; \
+    else \
+        echo "No package.json found in assets, skipping npm install"; \
+    fi
+
+# Copy the rest of the application
+COPY lib lib
+
+# Copy test directory for running tests in container
+COPY test test
+
+# Expose port
+EXPOSE 4000
+
+# Default command
+CMD ["mix", "test"] 

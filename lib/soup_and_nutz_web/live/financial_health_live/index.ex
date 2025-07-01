@@ -1,8 +1,6 @@
 defmodule SoupAndNutzWeb.FinancialHealthLive.Index do
   use SoupAndNutzWeb, :live_view
 
-  alias SoupAndNutz.FinancialHealthScore
-
   @impl true
   def mount(_params, session, socket) do
     user_id = session["user_id"]

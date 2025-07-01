@@ -9,11 +9,11 @@ Model retirement readiness, projected retirement age, safe withdrawal rate, Mont
 ## 3. Investment Portfolio Analysis
 Asset allocation visualization, risk assessment, backtesting, and rebalancing suggestions.
 
-## 4. Cash Flow Forecasting & Burn Rate
-Predict future cash flow based on trends, recurring expenses, and income. Show "runway" (how long until cash runs out at current burn rate).
+## 4. ~~Cash Flow Forecasting & Burn Rate~~
+~~Predict future cash flow based on trends, recurring expenses, and income. Show "runway" (how long until cash runs out at current burn rate).~~
 
-## 5. Net Worth Projection
-Graph net worth over time, with future projections based on savings, investments, and debt payoff.
+## 5. ~~Net Worth Projection~~
+~~Graph net worth over time, with future projections based on savings, investments, and debt payoff.~~
 
 ## 6. Tax Optimization Tools
 Estimate annual tax liability, suggest tax-advantaged accounts, and run "what if" scenarios for tax optimization.

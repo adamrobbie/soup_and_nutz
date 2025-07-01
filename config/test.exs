@@ -6,10 +6,7 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :soup_and_nutz, SoupAndNutz.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "soup_and_nutz_test#{System.get_env("MIX_TEST_PARTITION")}",
+  url: System.get_env("DATABASE_URL") || "postgres://postgres:postgres@localhost/soup_and_nutz_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
@@ -44,17 +41,5 @@ config :wallaby,
   screenshot_on_failure: true,
   chromedriver: [
     headless: true,
-    capabilities: %{
-      chromeOptions: %{
-        args: [
-          "--headless=new",
-          "--disable-gpu",
-          "--no-sandbox",
-          "--disable-dev-shm-usage",
-          "--window-size=1920,1080",
-          "--disable-software-rasterizer",
-          "--disable-extensions"
-        ]
-      }
-    }
+    path: "/usr/bin/chromedriver"
   ]

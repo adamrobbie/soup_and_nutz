@@ -72,5 +72,5 @@ ehthumbs.db
 Thumbs.db
 
 # Test
-test/
-priv/repo/migrations/ 
+# test/
+# priv/repo/migrations/ 

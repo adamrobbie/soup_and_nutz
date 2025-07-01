@@ -76,7 +76,10 @@ defmodule SoupAndNutzWeb.AuthController do
 
   def change_password(conn, _params) do
     user = conn.assigns.current_user
-    changeset = Accounts.change_user_password(user)
+    changeset = Accounts.change_user_password(user, %{
+      password: "",
+      password_confirmation: ""
+    })
     render(conn, :change_password, user: user, changeset: changeset)
   end
 

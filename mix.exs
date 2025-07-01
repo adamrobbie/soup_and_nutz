@@ -65,8 +65,6 @@ defmodule SoupAndNutz.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:money, "~> 1.12"},
       {:bcrypt_elixir, "~> 3.0"},
-      # E2E Testing dependencies
-      {:wallaby, "~> 0.30", runtime: false, only: :test},
       {:ex_machina, "~> 2.7", only: :test},
       {:faker, "~> 0.17", only: :test},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
@@ -90,10 +88,6 @@ defmodule SoupAndNutz.MixProject do
       "test.coverage": ["coveralls"],
       "test.coverage.html": ["coveralls.html"],
       "test.coverage.json": ["coveralls.json"],
-      # E2E Testing aliases
-      "test.e2e": ["ecto.create --quiet", "ecto.migrate --quiet", "test --only feature"],
-      "test.unit": ["ecto.create --quiet", "ecto.migrate --quiet", "test --exclude feature"],
-      "test.all": ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind soup_and_nutz", "esbuild soup_and_nutz"],
       "assets.deploy": [
