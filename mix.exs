@@ -68,7 +68,16 @@ defmodule SoupAndNutz.MixProject do
       # E2E Testing dependencies
       {:wallaby, "~> 0.30", runtime: false, only: :test},
       {:ex_machina, "~> 2.7", only: :test},
-      {:faker, "~> 0.17", only: :test}
+      {:faker, "~> 0.17", only: :test},
+      # AI and LangChain dependencies
+      {:req, "~> 0.4.0"},
+      {:httpoison, "~> 2.0"},
+      {:pgvector, "~> 0.2.0"},
+      {:instructor, "~> 0.0.5"},
+      {:openai, "~> 0.6.0"},
+      {:tiktoken, "~> 0.4.0"},
+      {:nx, "~> 0.6.0"},
+      {:bumblebee, "~> 0.4.0"}
     ]
   end
 

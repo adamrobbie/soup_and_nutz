@@ -12,8 +12,10 @@ defmodule SoupAndNutz.Application do
       SoupAndNutz.Repo,
       {DNSCluster, query: Application.get_env(:soup_and_nutz, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: SoupAndNutz.PubSub},
-      # Start the Finch HTTP client for sending emails
+      # Start the Finch HTTP client for making HTTP requests
       {Finch, name: SoupAndNutz.Finch},
+      # Start the AI LangChain service
+      {SoupAndNutz.AI.LangChainService, []},
       # Start a worker by calling: SoupAndNutz.Worker.start_link(arg)
       # {SoupAndNutz.Worker, arg},
       # Start to serve requests, typically the last entry
