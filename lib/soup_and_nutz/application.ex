@@ -17,7 +17,9 @@ defmodule SoupAndNutz.Application do
       # Start a worker by calling: SoupAndNutz.Worker.start_link(arg)
       # {SoupAndNutz.Worker, arg},
       # Start to serve requests, typically the last entry
-      SoupAndNutzWeb.Endpoint
+      SoupAndNutzWeb.Endpoint,
+      # AI System supervision tree
+      SoupAndNutz.AISystem.AISupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

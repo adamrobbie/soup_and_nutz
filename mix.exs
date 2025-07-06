@@ -68,7 +68,10 @@ defmodule SoupAndNutz.MixProject do
       {:ex_machina, "~> 2.7", only: :test},
       {:faker, "~> 0.17", only: :test},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:dotenvy, "~> 0.8.0", only: [:dev, :test]}
+      {:dotenvy, "~> 0.8.0", only: [:dev, :test]},
+      # AI System dependencies
+      {:langchain, "~> 0.3.3"},
+      {:req, "~> 0.5.2"}
     ]
   end
 
