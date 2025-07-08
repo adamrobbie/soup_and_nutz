@@ -33,6 +33,9 @@ RUN mkdir -p config
 # Copy config directory
 COPY config config
 
+# Copy .env file if it exists
+COPY .env* ./
+
 # Copy assets
 COPY priv priv
 COPY assets assets

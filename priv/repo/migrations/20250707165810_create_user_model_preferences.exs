@@ -13,7 +13,6 @@ defmodule SoupAndNutz.Repo.Migrations.CreateUserModelPreferences do
     end
 
     create index(:user_model_preferences, [:user_id])
-    create index(:user_model_preferences, [:user_id, :is_active])
-    create unique_index(:user_model_preferences, [:user_id], where: "is_active = true")
+    create unique_index(:user_model_preferences, [:user_id, :is_active], where: "is_active = true")
   end
 end

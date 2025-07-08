@@ -70,7 +70,7 @@ defmodule SoupAndNutz.MixProject do
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
       {:dotenvy, "~> 0.8.0", only: [:dev, :test]},
       # AI System dependencies
-      {:langchain, "~> 0.3.3"},
+      {:langchain, "~> 0.4.0-rc.0"},
       {:req, "~> 0.5.2"}
     ]
   end

@@ -12,6 +12,9 @@ services:
       - REDIS_URL=redis://redis:6379
       - PHX_HOST=localhost
       - SECRET_KEY_BASE=k6p+012lEAfmh1DOQuHtU8tlvULSSuszREFLrm0brzXwJsjfoPmZwKol9zW/bchA
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OLLAMA_BASE_URL=http://localhost:11434
     volumes:
       - .:/app
       - /app/_build

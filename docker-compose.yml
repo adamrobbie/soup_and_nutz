@@ -94,6 +94,8 @@ services:
     container_name: soup_and_nutz_mcp
     ports:
       - "3002:3002"
+    env_file:
+      - .env
     environment:
       - MCP_PORT=3002
     volumes:
