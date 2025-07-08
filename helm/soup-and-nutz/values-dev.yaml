@@ -11,6 +11,13 @@ service:
   port: 80
   targetPort: 4000
 
+# MCP Server Service
+mcpService:
+  enabled: true
+  type: ClusterIP
+  port: 3002
+  targetPort: 3002
+
 ingress:
   enabled: true
   className: "nginx"
@@ -33,6 +40,23 @@ resources:
 autoscaling:
   enabled: false
 
+# AI System configuration
+aiSystem:
+  enabled: true
+  # MCP Server configuration
+  mcp:
+    enabled: true
+    port: 3002
+  # AI Model configuration
+  models:
+    default: "gpt-3.5-turbo"
+    fallback: "gpt-4"
+  # Vector database configuration
+  vectorDb:
+    enabled: true
+    similarityThreshold: 0.7
+    maxResults: 10
+
 postgresql:
   enabled: true
   auth:
@@ -52,6 +76,6 @@ redis:
 
 config:
   secretKeyBase: "dev-secret-key-base-for-development-only"
-  databaseUrl: "postgresql://postgres:dev-password@soup-and-nutz-postgresql:5432/soup_and_nutz_dev"
+  databaseUrl: "postgresql://postgres:dev-password@soup-and-nutz-dev-postgresql:5432/soup_and_nutz_dev"
   host: "0.0.0.0"
   port: 4000 

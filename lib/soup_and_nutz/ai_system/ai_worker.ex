@@ -2,8 +2,9 @@ defmodule SoupAndNutz.AISystem.AIWorker do
   use GenServer, restart: :temporary
 
   alias LangChain.Chains.LLMChain
-  alias LangChain.ChatModels.ChatOpenAI
   alias LangChain.Message
+  alias SoupAndNutz.AISystem.ModelProvider
+  alias SoupAndNutz.AISystem.PromptManager
 
   require Logger
 
@@ -21,33 +22,33 @@ defmodule SoupAndNutz.AISystem.AIWorker do
     end
   end
 
-    @impl true
+      @impl true
   def init({worker_id, config}) do
-    # Initialize LangChain with circuit breaker protection
-    llm_config = Map.get(config, :llm, %{})
+    # Get user ID from config for model selection
+    user_id = Map.get(config, :user_id)
 
-    # Provide default configuration if none provided
-    default_config = %{
-      model: "gpt-3.5-turbo",
-      temperature: 0.7
-    }
+    # Get model from ModelProvider (with user preference support)
+    case ModelProvider.get_model(user_id) do
+      {:ok, llm} ->
+        llm_chain = LLMChain.new!(%{
+          llm: llm,
+          verbose: Map.get(config, :verbose, false)
+        })
 
-    final_llm_config = Map.merge(default_config, llm_config)
+        state = %__MODULE__{
+          worker_id: worker_id,
+          llm_chain: llm_chain,
+          config: config,
+          conversation_history: []
+        }
 
-    llm_chain = LLMChain.new!(%{
-      llm: ChatOpenAI.new!(final_llm_config),
-      verbose: Map.get(config, :verbose, false)
-    })
+        Logger.info("AI Worker #{worker_id} started with user #{user_id}")
+        {:ok, state}
 
-    state = %__MODULE__{
-      worker_id: worker_id,
-      llm_chain: llm_chain,
-      config: config,
-      conversation_history: []
-    }
-
-    Logger.info("AI Worker #{worker_id} started")
-    {:ok, state}
+      {:error, reason} ->
+        Logger.error("Failed to initialize AI Worker #{worker_id}: #{reason}")
+        {:stop, reason}
+    end
   end
 
   @impl true
@@ -78,22 +79,49 @@ defmodule SoupAndNutz.AISystem.AIWorker do
   end
 
   defp process_with_langchain(message, context, state) do
-    # Add custom functions if provided in context
-    chain_with_message = state.llm_chain
-    |> add_custom_functions(Map.get(context, :functions, []))
-    |> LLMChain.add_message(Message.new_user!(message))
+    # Create a structured prompt using our prompt templates
+    case PromptManager.create_prompt(message, context) do
+      {:ok, formatted_prompt, template_type} ->
+        Logger.info("Using #{template_type} prompt template for message: #{String.slice(message, 0, 50)}...")
 
-    case LLMChain.run(chain_with_message, mode: :while_needs_response) do
-      {:ok, updated_chain} ->
-        # Get the last message from the chain
-        messages = Map.get(updated_chain, :messages, [])
-        response = case List.last(messages) do
-          %{content: content} -> content
-          _ -> "No response content available"
+        # Add custom functions if provided in context
+        chain_with_message = state.llm_chain
+        |> add_custom_functions(Map.get(context, :functions, []))
+        |> LLMChain.add_message(Message.new_user!(formatted_prompt))
+
+        case LLMChain.run(chain_with_message, mode: :while_needs_response) do
+          {:ok, updated_chain} ->
+            # Get the last message from the chain
+            messages = Map.get(updated_chain, :messages, [])
+            response = case List.last(messages) do
+              %{content: content} -> content
+              _ -> "No response content available"
+            end
+            {response, updated_chain}
+          {:error, reason} ->
+            raise "LangChain processing failed: #{inspect(reason)}"
         end
-        {response, updated_chain}
+
       {:error, reason} ->
-        raise "LangChain processing failed: #{inspect(reason)}"
+        Logger.warning("Failed to create prompt template, falling back to direct message: #{reason}")
+
+        # Fallback to original behavior
+        chain_with_message = state.llm_chain
+        |> add_custom_functions(Map.get(context, :functions, []))
+        |> LLMChain.add_message(Message.new_user!(message))
+
+        case LLMChain.run(chain_with_message, mode: :while_needs_response) do
+          {:ok, updated_chain} ->
+            # Get the last message from the chain
+            messages = Map.get(updated_chain, :messages, [])
+            response = case List.last(messages) do
+              %{content: content} -> content
+              _ -> "No response content available"
+            end
+            {response, updated_chain}
+          {:error, reason} ->
+            raise "LangChain processing failed: #{inspect(reason)}"
+        end
     end
   end
 

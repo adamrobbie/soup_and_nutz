@@ -2,6 +2,8 @@ defmodule SoupAndNutz.AISystem.ConversationManager do
   use GenServer
   require Logger
 
+  alias SoupAndNutz.AISystem.{ConversationDB, EmbeddingService}
+
   def start_link(_args) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
@@ -10,35 +12,45 @@ defmodule SoupAndNutz.AISystem.ConversationManager do
     GenServer.call(__MODULE__, {:get_conversation, conversation_id})
   end
 
-  def save_message(conversation_id, message, response) do
-    GenServer.cast(__MODULE__, {:save_message, conversation_id, message, response})
+  def save_message(conversation_id, role, content, user_id \\ nil) do
+    GenServer.cast(__MODULE__, {:save_message, conversation_id, role, content, user_id})
   end
 
   @impl true
   def init(_args) do
-    # In production, you'd use a database like PostgreSQL or ETS
+    Logger.info("ConversationManager started with PostgreSQL backend")
     {:ok, %{}}
   end
 
   @impl true
   def handle_call({:get_conversation, conversation_id}, _from, state) do
-    conversation = Map.get(state, conversation_id, [])
+    conversation = ConversationDB.get_conversation_by_external_id(conversation_id)
     {:reply, conversation, state}
   end
 
-  @impl true
-  def handle_cast({:save_message, conversation_id, message, response}, state) do
-    existing_conversation = Map.get(state, conversation_id, [])
+    @impl true
+  def handle_cast({:save_message, conversation_id, role, content, user_id}, state) do
+    conversation = ConversationDB.get_or_create_conversation(conversation_id)
 
-    new_entry = %{
-      timestamp: DateTime.utc_now(),
-      message: message,
-      response: response
-    }
+    if conversation do
+      case ConversationDB.add_message(conversation, %{role: role, content: content}) do
+        {:ok, message} ->
+          Logger.debug("Saved message for conversation #{conversation_id}")
 
-    updated_conversation = [new_entry | existing_conversation]
-    new_state = Map.put(state, conversation_id, updated_conversation)
+          # Store embedding for the message if user_id is provided
+          if user_id do
+            Task.start(fn ->
+              EmbeddingService.process_message_embedding(content, user_id, conversation.id, message.id)
+            end)
+          end
 
-    {:noreply, new_state}
+        {:error, reason} ->
+          Logger.error("Failed to save message for conversation #{conversation_id}: #{inspect(reason)}")
+      end
+    else
+      Logger.error("Failed to get or create conversation #{conversation_id}")
+    end
+
+    {:noreply, state}
   end
 end

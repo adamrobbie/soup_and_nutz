@@ -65,6 +65,28 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  # AI System Configuration
+  ai_system_enabled = System.get_env("AI_SYSTEM_ENABLED") == "true"
+
+  if ai_system_enabled do
+    config :soup_and_nutz, :ai_system,
+      enabled: true,
+      default_model: System.get_env("AI_DEFAULT_MODEL") || "gpt-3.5-turbo",
+      fallback_model: System.get_env("AI_FALLBACK_MODEL") || "gpt-4",
+      vector_db_enabled: System.get_env("VECTOR_DB_ENABLED") == "true",
+      vector_similarity_threshold: String.to_float(System.get_env("VECTOR_SIMILARITY_THRESHOLD") || "0.7"),
+      vector_max_results: String.to_integer(System.get_env("VECTOR_MAX_RESULTS") || "10")
+
+    # MCP Server Configuration
+    mcp_enabled = System.get_env("MCP_SERVER_ENABLED") == "true"
+
+    if mcp_enabled do
+      config :soup_and_nutz, :mcp_server,
+        enabled: true,
+        port: String.to_integer(System.get_env("MCP_SERVER_PORT") || "3002")
+    end
+  end
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

@@ -1,5 +1,6 @@
 defmodule SoupAndNutz.AISystemTest do
   use ExUnit.Case, async: false
+  use SoupAndNutz.DataCase
   alias SoupAndNutz.AISystem
 
   setup do
@@ -45,25 +46,28 @@ defmodule SoupAndNutz.AISystemTest do
     end
   end
 
-  describe "conversation management" do
+    describe "conversation management" do
     test "can save and retrieve conversation history" do
       conversation_id = "test_conversation_#{:rand.uniform(1000)}"
 
       # Initially empty
-      history = AISystem.get_conversation_history(conversation_id)
-      assert history == []
+      conversation = AISystem.get_conversation_history(conversation_id)
+      assert conversation == nil
 
-      # Save a message
-      AISystem.ConversationManager.save_message(conversation_id, "Hello", "Hi there!")
+      # Save messages
+      AISystem.ConversationManager.save_message(conversation_id, "user", "Hello")
+      AISystem.ConversationManager.save_message(conversation_id, "assistant", "Hi there!")
 
-      # Retrieve history
-      history = AISystem.get_conversation_history(conversation_id)
-      assert length(history) == 1
+      # Retrieve conversation
+      conversation = AISystem.get_conversation_history(conversation_id)
+      assert conversation != nil
+      assert length(conversation.messages) == 2
 
-      [entry] = history
-      assert entry.message == "Hello"
-      assert entry.response == "Hi there!"
-      assert Map.has_key?(entry, :timestamp)
+      [msg1, msg2] = conversation.messages
+      assert msg1.role == "user"
+      assert msg1.content == "Hello"
+      assert msg2.role == "assistant"
+      assert msg2.content == "Hi there!"
     end
   end
 
@@ -101,7 +105,7 @@ defmodule SoupAndNutz.AISystemTest do
   end
 
   describe "integration" do
-        test "complete chat flow works" do
+            test "complete chat flow works" do
       # This test demonstrates the complete flow
       # In a real environment with API keys, this would work
       _conversation_id = "integration_test_#{:rand.uniform(1000)}"
@@ -110,6 +114,8 @@ defmodule SoupAndNutz.AISystemTest do
       # For now, we'll just test that the function exists and has the right arity
       assert function_exported?(AISystem, :chat, 1)
       assert function_exported?(AISystem, :chat, 2)
+      assert function_exported?(AISystem, :get_conversation_history, 1)
+      assert function_exported?(AISystem, :system_status, 0)
     end
   end
 

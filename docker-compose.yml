@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
-  # PostgreSQL Database
+  # PostgreSQL Database with pgvector
   postgres:
-    image: postgres:15-alpine
+    image: pgvector/pgvector:pg16
     container_name: soup_and_nutz_postgres
     environment:
       POSTGRES_USER: postgres
@@ -21,7 +19,7 @@ services:
     networks:
       - soup_and_nutz_network
 
-  # Redis (optional, for caching/sessions if needed later)
+  # Redis (optional, for caching/sessions)
   redis:
     image: redis:7-alpine
     container_name: soup_and_nutz_redis
@@ -37,28 +35,88 @@ services:
     networks:
       - soup_and_nutz_network
 
-  # Unit Test Service
-  unit-test:
-    build:
-      context: .
-      dockerfile: Dockerfile.test
-    container_name: soup_and_nutz_unit_test
+  # Ollama - Local LLM runner (optional)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: soup_and_nutz_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
     environment:
-      MIX_ENV: test
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/soup_and_nutz_test
-      SECRET_KEY_BASE: your-secret-key-base-here-for-testing-only-do-not-use-in-production
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       - soup_and_nutz_network
     profiles:
-      - test
-    command: sh -c "mix ecto.create && mix ecto.migrate && mix test --exclude e2e"
+      - ai
+
+  # OpenLLM Service
+  openllm:
+    image: bentoml/openllm:latest
+    container_name: soup_and_nutz_openllm
+    ports:
+      - "3000:3000"
+    environment:
+      - OPENLLM_MODEL=meta-llama/Llama-2-7b-chat-hf
+      - OPENLLM_QUANTIZE=int4
+      - OPENLLM_MAX_MODEL_LEN=4096
+    command: ["openllm", "start", "meta-llama/Llama-2-7b-chat-hf", "--quantize", "int4", "--port", "3000"]
+    volumes:
+      - openllm_data:/root/.cache
+      - ./models:/models  # Mount local models directory
+    profiles:
+      - ai
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  # MCP (Model Context Protocol) Server
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: soup_and_nutz_mcp
+    ports:
+      - "3002:3002"
+    environment:
+      - MCP_PORT=3002
+    volumes:
+      - .:/app
+      - /app/deps
+      - /app/_build
+    profiles:
+      - ai
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
 volumes:
   postgres_data:
   redis_data:
+  ollama_data:
+  openllm_data:  # Add OpenLLM data volume
 
 networks:
   soup_and_nutz_network:

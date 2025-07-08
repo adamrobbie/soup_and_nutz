@@ -11,6 +11,13 @@ service:
   port: 80
   targetPort: 4000
 
+# MCP Server Service
+mcpService:
+  enabled: true
+  type: ClusterIP
+  port: 3002
+  targetPort: 3002
+
 ingress:
   enabled: true
   className: "nginx"
@@ -40,6 +47,23 @@ autoscaling:
   minReplicas: 2
   maxReplicas: 10
   targetCPUUtilizationPercentage: 70
+
+# AI System configuration
+aiSystem:
+  enabled: true
+  # MCP Server configuration
+  mcp:
+    enabled: true
+    port: 3002
+  # AI Model configuration
+  models:
+    default: "gpt-4"
+    fallback: "gpt-3.5-turbo"
+  # Vector database configuration
+  vectorDb:
+    enabled: true
+    similarityThreshold: 0.8
+    maxResults: 20
 
 postgresql:
   enabled: true

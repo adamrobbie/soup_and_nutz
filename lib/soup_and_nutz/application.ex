@@ -20,7 +20,12 @@ defmodule SoupAndNutz.Application do
       SoupAndNutzWeb.Endpoint,
       # AI System supervision tree
       SoupAndNutz.AISystem.AISupervisor
-    ]
+    ] ++
+    if Application.get_env(:soup_and_nutz, :env, :prod) != :test do
+      [SoupAndNutz.MCP.Supervisor]
+    else
+      []
+    end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

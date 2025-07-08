@@ -1,297 +1,280 @@
 # Kubernetes Deployment Guide
 
-This guide covers deploying the Soup and Nutz application to Kubernetes using Helm charts.
+This guide covers deploying Soup and Nutz to Kubernetes using Helm charts.
 
 ## Prerequisites
 
-### Required Tools
-- [kubectl](https://kubernetes.io/docs/tasks/tools/) - Kubernetes command-line tool
-- [Helm](https://helm.sh/docs/intro/install/) - Kubernetes package manager
-- [Docker](https://docs.docker.com/get-docker/) - Container runtime
-
-### Cluster Requirements
-- Kubernetes 1.19 or later
-- Ingress controller (nginx-ingress recommended)
-- Storage class for persistent volumes
-- At least 2 CPU cores and 4GB RAM available
+- Kubernetes cluster (local or cloud)
+- `kubectl` configured to access your cluster
+- `helm` v3.x installed
+- `docker` for building images
+- Access to a container registry (Docker Hub, GCR, ECR, etc.)
 
 ## Quick Start
 
 ### 1. Build and Push Docker Image
 
 ```bash
-# Build the image
-docker build -t adamrobbie/soup-and-nutz:0.2.0 .
-
-# Push to registry (replace with your registry)
-docker push adamrobbie/soup-and-nutz:0.2.0
+# Build and push the production image
+make build-k8s IMAGE_REPO=your-registry/soup-and-nutz IMAGE_TAG=v0.2.0
 ```
 
-### 2. Deploy to Development
+### 2. Deploy to Development Environment
 
 ```bash
-# Install to development environment
-./scripts/deploy.sh dev install
+# Deploy to dev environment
+make deploy ENV=dev ACTION=install
+
+# Or with custom image
+make deploy ENV=dev ACTION=install IMAGE_REPO=your-registry/soup-and-nutz IMAGE_TAG=v0.2.0
 ```
 
-### 3. Access the Application
+### 3. Deploy to Production Environment
 
 ```bash
-# Get the ingress URL
-kubectl get ingress -n dev
+# Deploy to production environment
+make deploy ENV=prod ACTION=install
 
-# Port forward for local access
-kubectl port-forward -n dev svc/soup-and-nutz-dev 4000:80
+# Or with custom image
+make deploy ENV=prod ACTION=install IMAGE_REPO=your-registry/soup-and-nutz IMAGE_TAG=v0.2.0
 ```
 
-## Environment Configurations
+## Available Commands
 
-### Development Environment
-- **Purpose**: Local development and testing
-- **Resources**: Minimal (1 replica, 256Mi RAM)
-- **Storage**: Ephemeral (no persistence)
-- **Access**: Ingress enabled for local development
+### Deployment Commands
 
-### Production Environment
-- **Purpose**: Live production deployment
-- **Resources**: Scaled (3+ replicas, 1Gi RAM)
-- **Storage**: Persistent volumes
-- **Access**: TLS/SSL enabled ingress
-- **Monitoring**: Prometheus metrics enabled
+- `make build-k8s IMAGE_REPO=repo IMAGE_TAG=tag` - Build and push Docker image
+- `make deploy ENV=dev ACTION=install` - Deploy to environment
+- `make deploy ENV=prod ACTION=upgrade` - Upgrade existing deployment
 
-## Architecture
+### Management Commands
 
+- `make k8s-status ENV=dev` - Check deployment status
+- `make k8s-logs ENV=dev` - View application logs
+- `make k8s-port-forward ENV=dev` - Port forward to services
+- `make k8s-delete ENV=dev` - Delete deployment
+
+## Configuration
+
+### Environment-Specific Values
+
+The Helm chart includes environment-specific configuration files:
+
+- `helm/soup-and-nutz/values.yaml` - Default values
+- `helm/soup-and-nutz/values-dev.yaml` - Development environment
+- `helm/soup-and-nutz/values-prod.yaml` - Production environment
+
+### Key Configuration Options
+
+#### AI System Configuration
+
+```yaml
+aiSystem:
+  enabled: true
+  mcp:
+    enabled: true
+    port: 3002
+  models:
+    default: "gpt-3.5-turbo"
+    fallback: "gpt-4"
+  vectorDb:
+    enabled: true
+    similarityThreshold: 0.7
+    maxResults: 10
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Ingress       │    │   Application   │    │   PostgreSQL    │
-│   Controller    │───▶│   (Phoenix)     │───▶│   Database      │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                              │
-                              ▼
-                       ┌─────────────────┐
-                       │     Redis       │
-                       │   (Caching)     │
-                       └─────────────────┘
+
+#### Database Configuration
+
+```yaml
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "your-password"
+    database: "soup_and_nutz_prod"
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
 ```
 
-## Configuration Management
+#### Redis Configuration
 
-### Secrets
-The application requires these secrets:
-- `secret-key-base`: Phoenix secret key base
-- `database-url`: PostgreSQL connection string
+```yaml
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "your-redis-password"
+  master:
+    persistence:
+      enabled: true
+      size: 5Gi
+```
 
-### Environment Variables
-- `MIX_ENV`: Set to "prod"
-- `PHX_HOST`: Application host
-- `PHX_PORT`: Application port
-- `DATABASE_URL`: Database connection
-- `SECRET_KEY_BASE`: Phoenix secret
+## Services
 
-## Database Management
+The deployment creates the following services:
 
-### Automatic Migrations
-Database migrations run automatically before each deployment:
-- Uses Helm hooks (`pre-install`, `pre-upgrade`)
-- Runs `mix ecto.migrate`
-- Ensures database schema is up to date
+- **Main Application**: Port 80 → 4000 (Phoenix web server)
+- **MCP Server**: Port 3002 → 3002 (Model Context Protocol)
+- **PostgreSQL**: Port 5432 (Database)
+- **Redis**: Port 6379 (Caching/Sessions)
 
-### Backup Strategy
-For production environments:
-- Automated daily backups
-- 30-day retention policy
-- Point-in-time recovery capability
+## Port Forwarding
 
-## Monitoring and Observability
+To access services locally:
+
+```bash
+make k8s-port-forward ENV=dev
+```
+
+This will forward:
+- Phoenix app: http://localhost:4000
+- MCP Server: http://localhost:3002
+- PostgreSQL: localhost:5433
+- Redis: localhost:6380
+
+## Environment Variables
+
+The application uses the following environment variables:
+
+### Required
+- `SECRET_KEY_BASE` - Phoenix secret key base
+- `DATABASE_URL` - PostgreSQL connection string
+
+### AI System (Optional)
+- `AI_SYSTEM_ENABLED` - Enable AI system (default: false)
+- `AI_DEFAULT_MODEL` - Default AI model (default: gpt-3.5-turbo)
+- `AI_FALLBACK_MODEL` - Fallback AI model (default: gpt-4)
+- `VECTOR_DB_ENABLED` - Enable vector database (default: false)
+- `VECTOR_SIMILARITY_THRESHOLD` - Vector similarity threshold (default: 0.7)
+- `VECTOR_MAX_RESULTS` - Maximum vector search results (default: 10)
+- `MCP_SERVER_ENABLED` - Enable MCP server (default: false)
+- `MCP_SERVER_PORT` - MCP server port (default: 3002)
+
+## Secrets Management
+
+For production deployments, use Kubernetes secrets or external secret management:
+
+```bash
+# Create secrets manually
+kubectl create secret generic soup-and-nutz-secrets \
+  --from-literal=secret-key-base=$(mix phx.gen.secret) \
+  --from-literal=database-url="postgresql://user:pass@host/db" \
+  -n prod
+```
+
+## Monitoring and Logging
 
 ### Health Checks
-- **Liveness Probe**: `/health` endpoint
-- **Readiness Probe**: `/health` endpoint
-- **Startup Probe**: Application startup time
+
+The application includes health checks at `/health` endpoint.
 
 ### Metrics
-- Prometheus ServiceMonitor (production)
-- Custom application metrics
-- Resource utilization tracking
 
-### Logging
-- Structured JSON logging
-- Centralized log aggregation
-- Log retention policies
+Enable monitoring in production:
 
-## Scaling Strategies
-
-### Horizontal Pod Autoscaler
 ```yaml
-autoscaling:
+monitoring:
   enabled: true
-  minReplicas: 2
-  maxReplicas: 10
-  targetCPUUtilizationPercentage: 70
+  serviceMonitor:
+    enabled: true
+    interval: 30s
 ```
-
-### Manual Scaling
-```bash
-# Scale to 5 replicas
-kubectl scale deployment soup-and-nutz-prod --replicas=5 -n prod
-```
-
-## Security Considerations
-
-### Network Security
-- Pod-to-pod communication via services
-- Ingress with TLS termination
-- Network policies for traffic control
-
-### Secrets Management
-- Kubernetes secrets for sensitive data
-- External secrets operators for advanced use cases
-- Regular secret rotation
-
-### RBAC
-- Service accounts with minimal permissions
-- Role-based access control
-- Namespace isolation
 
 ## Troubleshooting
 
 ### Common Issues
 
-#### Pod Not Starting
-```bash
-# Check pod status
-kubectl get pods -n dev
+1. **Image Pull Errors**
+   - Ensure image repository is accessible
+   - Check image pull secrets if using private registry
 
-# View pod events
-kubectl describe pod <pod-name> -n dev
+2. **Database Connection Issues**
+   - Verify PostgreSQL service is running
+   - Check database URL format
+   - Ensure migrations have run
 
-# Check logs
-kubectl logs <pod-name> -n dev
-```
-
-#### Database Connection Issues
-```bash
-# Check database pod
-kubectl get pods -n dev -l app.kubernetes.io/name=postgresql
-
-# Test database connectivity
-kubectl exec -it <app-pod> -n dev -- mix ecto.dump
-```
-
-#### Migration Failures
-```bash
-# Check migration job
-kubectl get jobs -n dev
-
-# View migration logs
-kubectl logs job/soup-and-nutz-dev-migration -n dev
-```
+3. **MCP Server Not Starting**
+   - Check if AI system is enabled
+   - Verify MCP server port is not in use
+   - Check logs for configuration errors
 
 ### Debug Commands
 
 ```bash
-# Get all resources in namespace
-kubectl get all -n dev
+# Check pod status
+kubectl get pods -n dev
 
-# Check events
-kubectl get events -n dev --sort-by='.lastTimestamp'
+# View pod logs
+kubectl logs -n dev deployment/soup-and-nutz-dev
 
-# Port forward for debugging
-kubectl port-forward -n dev svc/soup-and-nutz-dev 4000:80
+# Describe pod for events
+kubectl describe pod -n dev <pod-name>
 
-# Execute commands in pod
-kubectl exec -it <pod-name> -n dev -- /bin/sh
+# Check service endpoints
+kubectl get endpoints -n dev
 ```
 
-## Performance Optimization
-
-### Resource Limits
-- CPU: 1000m (1 core) limit, 500m request
-- Memory: 1Gi limit, 512Mi request
-- Adjust based on actual usage
-
-### Caching Strategy
-- Redis for session storage
-- Application-level caching
-- CDN for static assets
-
-### Database Optimization
-- Connection pooling
-- Query optimization
-- Index management
-
-## Backup and Recovery
-
-### Backup Strategy
-- Automated daily backups
-- Point-in-time recovery
-- Cross-region replication
-
-### Disaster Recovery
-- Multi-zone deployment
-- Backup verification
-- Recovery testing procedures
-
-## CI/CD Integration
-
-### GitHub Actions
-The repository includes GitHub Actions workflows for:
-- Automated testing
-- Docker image building
-- Helm chart validation
-- Deployment automation
-
-### Deployment Pipeline
-1. Code commit triggers CI
-2. Tests run automatically
-3. Docker image built and pushed
-4. Helm chart updated
-5. Deployment to staging/production
-
-## Cost Optimization
-
-### Resource Management
-- Right-size resource requests/limits
-- Use spot instances where appropriate
-- Implement auto-scaling policies
-
-### Storage Optimization
-- Use appropriate storage classes
-- Implement data lifecycle policies
-- Regular cleanup of unused resources
-
-## Best Practices
-
-### Development
-- Use local Kubernetes (minikube, kind) for development
-- Implement proper health checks
-- Use resource limits in all environments
-
-### Production
-- Implement proper monitoring and alerting
-- Use blue-green deployments for zero downtime
-- Regular security updates and patches
-- Comprehensive backup and recovery testing
+## Production Considerations
 
 ### Security
-- Regular security audits
-- Implement network policies
-- Use secrets management
-- Regular dependency updates
 
-## Support and Maintenance
+- Use strong passwords for databases
+- Enable Redis authentication
+- Use TLS for ingress
+- Implement proper RBAC
+- Use secrets for sensitive data
 
-### Regular Maintenance
-- Monthly security updates
-- Quarterly performance reviews
-- Annual disaster recovery testing
+### Performance
 
-### Monitoring
-- 24/7 application monitoring
-- Automated alerting
-- Performance dashboards
+- Configure resource limits appropriately
+- Enable horizontal pod autoscaling
+- Use persistent volumes for databases
+- Configure proper connection pooling
 
-### Documentation
-- Keep deployment guides updated
-- Document troubleshooting procedures
-- Maintain runbooks for common issues 
+### Backup
+
+Enable automated backups:
+
+```yaml
+backup:
+  enabled: true
+  schedule: "0 2 * * *"
+  retention: 30
+```
+
+## Customization
+
+### Adding Custom Values
+
+Create a custom values file:
+
+```yaml
+# custom-values.yaml
+image:
+  repository: your-registry/soup-and-nutz
+  tag: "latest"
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+```
+
+Deploy with custom values:
+
+```bash
+helm install soup-and-nutz ./helm/soup-and-nutz \
+  -f helm/soup-and-nutz/values-prod.yaml \
+  -f custom-values.yaml
+```
+
+### Extending the Chart
+
+The Helm chart is modular and can be extended:
+
+- Add new services in `templates/`
+- Create new values files for different environments
+- Add custom resource definitions
+- Implement custom health checks 

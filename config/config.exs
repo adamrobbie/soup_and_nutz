@@ -69,7 +69,18 @@ config :langchain,
 config :soup_and_nutz, :ai_system,
   worker_pool_size: 3,
   circuit_breaker_threshold: 5,
-  circuit_breaker_timeout: 30_000
+  circuit_breaker_timeout: 30_000,
+  # Default model configuration
+  default_model: %{
+    provider: :openai,
+    model: "gpt-3.5-turbo",
+    temperature: 0.7
+  },
+  # Ollama configuration
+  ollama: %{
+    base_url: System.get_env("OLLAMA_BASE_URL") || "http://localhost:11434",
+    timeout: 60_000
+  }
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

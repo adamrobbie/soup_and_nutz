@@ -10,13 +10,19 @@ defmodule SoupAndNutz.AISystem do
   - Health monitoring
   """
 
+  def chat(message) do
+    chat(message, [])
+  end
+
   def chat(message, opts \\ []) do
     conversation_id = Keyword.get(opts, :conversation_id, "default")
     context = Keyword.get(opts, :context, %{})
 
     case SoupAndNutz.AISystem.MessageRouter.route_message(message, context) do
       {:ok, response} ->
-        SoupAndNutz.AISystem.ConversationManager.save_message(conversation_id, message, response)
+        # Save both user message and AI response
+        SoupAndNutz.AISystem.ConversationManager.save_message(conversation_id, "user", message)
+        SoupAndNutz.AISystem.ConversationManager.save_message(conversation_id, "assistant", response)
         {:ok, response}
 
       {:error, reason} ->

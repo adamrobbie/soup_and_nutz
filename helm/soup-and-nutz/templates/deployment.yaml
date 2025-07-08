@@ -37,6 +37,11 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
+            {{- if .Values.aiSystem.mcp.enabled }}
+            - name: mcp
+              containerPort: {{ .Values.aiSystem.mcp.port }}
+              protocol: TCP
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /health
@@ -71,6 +76,26 @@ spec:
             {{- if .Values.redis.enabled }}
             - name: REDIS_URL
               value: "redis://{{ include "soup-and-nutz.fullname" . }}-redis-master:6379"
+            {{- end }}
+            {{- if .Values.aiSystem.enabled }}
+            - name: AI_SYSTEM_ENABLED
+              value: "true"
+            - name: AI_DEFAULT_MODEL
+              value: {{ .Values.aiSystem.models.default | quote }}
+            - name: AI_FALLBACK_MODEL
+              value: {{ .Values.aiSystem.models.fallback | quote }}
+            - name: VECTOR_DB_ENABLED
+              value: {{ .Values.aiSystem.vectorDb.enabled | quote }}
+            - name: VECTOR_SIMILARITY_THRESHOLD
+              value: {{ .Values.aiSystem.vectorDb.similarityThreshold | quote }}
+            - name: VECTOR_MAX_RESULTS
+              value: {{ .Values.aiSystem.vectorDb.maxResults | quote }}
+            {{- if .Values.aiSystem.mcp.enabled }}
+            - name: MCP_SERVER_ENABLED
+              value: "true"
+            - name: MCP_SERVER_PORT
+              value: {{ .Values.aiSystem.mcp.port | quote }}
+            {{- end }}
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

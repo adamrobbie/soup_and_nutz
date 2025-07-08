@@ -124,6 +124,12 @@ defmodule SoupAndNutzWeb.Router do
     live "/net-worth-projection", NetWorthProjectionLive.Index, :index
     live "/financial-health", FinancialHealthLive.Index, :index
 
+    # Model Preferences
+    get "/model-preferences", ModelPreferencesController, :index
+    post "/model-preferences/set", ModelPreferencesController, :set_model
+    post "/model-preferences/test", ModelPreferencesController, :test_model
+    get "/model-preferences/stats", ModelPreferencesController, :get_stats
+
     # Remove these lines that reference undefined controllers
     # resources "/assets", AssetController
     # resources "/debt_obligations", DebtObligationController

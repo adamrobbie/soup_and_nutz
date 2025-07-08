@@ -8,6 +8,9 @@ defmodule SoupAndNutz.AISystem.AISupervisor do
   @impl true
   def init(_args) do
     children = [
+      # Model provider for managing different LLM backends
+      SoupAndNutz.AISystem.ModelProvider,
+
       # Circuit breaker for AI service failures
       SoupAndNutz.AISystem.CircuitBreaker,
 

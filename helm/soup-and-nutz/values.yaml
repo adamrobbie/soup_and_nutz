@@ -27,6 +27,13 @@ service:
   port: 80
   targetPort: 4000
 
+# MCP Server Service
+mcpService:
+  enabled: true
+  type: ClusterIP
+  port: 3002
+  targetPort: 3002
+
 ingress:
   enabled: false
   className: ""
@@ -65,6 +72,23 @@ config:
   host: "0.0.0.0"
   port: 4000
   ssl: false
+  
+# AI System configuration
+aiSystem:
+  enabled: true
+  # MCP Server configuration
+  mcp:
+    enabled: true
+    port: 3002
+  # AI Model configuration
+  models:
+    default: "gpt-3.5-turbo"
+    fallback: "gpt-4"
+  # Vector database configuration
+  vectorDb:
+    enabled: true
+    similarityThreshold: 0.7
+    maxResults: 10
   
 # Database configuration
 postgresql:

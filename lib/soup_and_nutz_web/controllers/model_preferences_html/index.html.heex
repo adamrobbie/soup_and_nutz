@@ -1,0 +1,303 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">AI Model Preferences</h1>
+    <p class="mt-2 text-gray-600">Choose your preferred AI model for financial analysis and recommendations.</p>
+  </div>
+
+  <!-- Current Model Display -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Current Model</h2>
+    <%= if @current_preference do %>
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-lg font-medium text-gray-900">
+            <%= String.upcase("#{@current_preference.model_config.provider}") %> - <%= @current_preference.model_config.model %>
+          </p>
+          <p class="text-sm text-gray-500">
+            Last used: <%= Calendar.strftime(@current_preference.last_used_at, "%B %d, %Y at %I:%M %p") %>
+          </p>
+          <p class="text-sm text-gray-500">
+            Usage count: <%= @current_preference.usage_count %> times
+          </p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+          Active
+        </span>
+      </div>
+    <% else %>
+      <div class="text-center py-8">
+        <p class="text-gray-500">No model preference set. Using default model.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Model Selection -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Select Model</h2>
+    
+    <form phx-submit="set_model" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Provider Selection -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Provider</label>
+          <select name="model_config[provider]" id="provider-select" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Select a provider</option>
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic</option>
+            <option value="ollama">Ollama (Local)</option>
+            <option value="local">Custom Local</option>
+          </select>
+        </div>
+
+        <!-- Model Selection -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Model</label>
+          <select name="model_config[model]" id="model-select" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Select a model</option>
+          </select>
+        </div>
+
+        <!-- Temperature -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Temperature</label>
+          <input type="range" name="model_config[temperature]" min="0" max="2" step="0.1" value="0.7" class="w-full" id="temperature-slider">
+          <div class="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Focused (0.0)</span>
+            <span id="temperature-value">0.7</span>
+            <span>Creative (2.0)</span>
+          </div>
+        </div>
+
+        <!-- Max Tokens -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Max Tokens</label>
+          <input type="number" name="model_config[max_tokens]" placeholder="4096" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- Timeout -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Timeout (ms)</label>
+          <input type="number" name="model_config[timeout]" placeholder="60000" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- Base URL (for local models) -->
+        <div id="base-url-field" class="hidden">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Base URL</label>
+          <input type="url" name="model_config[base_url]" placeholder="http://localhost:11434" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- API Key (for OpenAI/Anthropic) -->
+        <div id="api-key-field" class="hidden">
+          <label class="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+          <input type="password" name="model_config[api_key]" placeholder="sk-..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <div class="flex space-x-4">
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          Set Model Preference
+        </button>
+        <button type="button" id="test-model-btn" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
+          Test Model
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Available Models -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Available Models</h2>
+    
+    <div class="space-y-4">
+      <%= for category <- ["premium", "standard", "local"] do %>
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-3 capitalize"><%= category %> Models</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <%= for model <- Enum.filter(@available_models, & &1.category == category) do %>
+              <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 cursor-pointer model-card" 
+                   data-provider={model.provider} 
+                   data-model={model.model}>
+                <h4 class="font-medium text-gray-900"><%= model.name %></h4>
+                <p class="text-sm text-gray-600 mt-1"><%= model.description %></p>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    <%= String.upcase("#{model.provider}") %>
+                  </span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Usage Statistics -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Usage Statistics</h2>
+    
+    <%= if @usage_stats != [] do %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Model</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Provider</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usage Count</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Used</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <%= for stat <- @usage_stats do %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= stat.model %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= String.upcase("#{stat.provider}") %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= stat.usage_count %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= if stat.last_used_at do %>
+                    <%= Calendar.strftime(stat.last_used_at, "%B %d, %Y") %>
+                  <% else %>
+                    Never
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= if stat.is_active do %>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Active
+                    </span>
+                  <% else %>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      Inactive
+                    </span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-gray-500 text-center py-8">No usage statistics available.</p>
+    <% end %>
+  </div>
+</div>
+
+<!-- Test Result Modal -->
+<div id="test-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Model Test Result</h3>
+      <div id="test-result" class="text-sm text-gray-600 mb-4"></div>
+      <button id="close-modal" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const availableModels = <%= Jason.encode!(@available_models) %>;
+  const providerSelect = document.getElementById('provider-select');
+  const modelSelect = document.getElementById('model-select');
+  const temperatureSlider = document.getElementById('temperature-slider');
+  const temperatureValue = document.getElementById('temperature-value');
+  const baseUrlField = document.getElementById('base-url-field');
+  const apiKeyField = document.getElementById('api-key-field');
+  const testModelBtn = document.getElementById('test-model-btn');
+  const testModal = document.getElementById('test-modal');
+  const testResult = document.getElementById('test-result');
+  const closeModal = document.getElementById('close-modal');
+
+  // Temperature slider
+  temperatureSlider.addEventListener('input', function() {
+    temperatureValue.textContent = this.value;
+  });
+
+  // Provider selection
+  providerSelect.addEventListener('change', function() {
+    const provider = this.value;
+    modelSelect.innerHTML = '<option value="">Select a model</option>';
+    
+    if (provider) {
+      const models = availableModels.filter(m => m.provider === provider);
+      models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model.model;
+        option.textContent = model.name;
+        modelSelect.appendChild(option);
+      });
+    }
+
+    // Show/hide fields based on provider
+    baseUrlField.classList.toggle('hidden', provider !== 'local');
+    apiKeyField.classList.toggle('hidden', !['openai', 'anthropic'].includes(provider));
+  });
+
+  // Model card selection
+  document.querySelectorAll('.model-card').forEach(card => {
+    card.addEventListener('click', function() {
+      const provider = this.dataset.provider;
+      const model = this.dataset.model;
+      
+      providerSelect.value = provider;
+      providerSelect.dispatchEvent(new Event('change'));
+      
+      setTimeout(() => {
+        modelSelect.value = model;
+      }, 100);
+    });
+  });
+
+  // Test model
+  testModelBtn.addEventListener('click', function() {
+    const formData = new FormData(document.querySelector('form'));
+    const modelConfig = Object.fromEntries(formData.entries());
+    
+    fetch('/model-preferences/test', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ model_config: modelConfig })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        testResult.innerHTML = `
+          <div class="text-green-600 font-medium">✓ Test successful!</div>
+          <div class="mt-2">Response: ${data.result.response}</div>
+          <div class="mt-1 text-xs">Model: ${data.result.model}</div>
+        `;
+      } else {
+        testResult.innerHTML = `
+          <div class="text-red-600 font-medium">✗ Test failed</div>
+          <div class="mt-2">Error: ${data.error}</div>
+        `;
+      }
+      testModal.classList.remove('hidden');
+    })
+    .catch(error => {
+      testResult.innerHTML = `
+        <div class="text-red-600 font-medium">✗ Test failed</div>
+        <div class="mt-2">Error: ${error.message}</div>
+      `;
+      testModal.classList.remove('hidden');
+    });
+  });
+
+  // Close modal
+  closeModal.addEventListener('click', function() {
+    testModal.classList.add('hidden');
+  });
+
+  // Close modal on outside click
+  testModal.addEventListener('click', function(e) {
+    if (e.target === testModal) {
+      testModal.classList.add('hidden');
+    }
+  });
+});
+</script> 
